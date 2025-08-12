@@ -1,5 +1,5 @@
-export type UserInfo = {
-  accessToken: "string";
-  userName: "string";
-  isNewUser?: boolean;
-};
+export interface LoginFormData {
+  id: string;
+  password: string;
+  rememberMe: boolean;
+}

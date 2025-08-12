@@ -1,66 +1,44 @@
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { logout } from "../../domain/user/apis/auth";
 import { AiOutlineDown } from "react-icons/ai";
+import { AxiosError } from "axios";
+import { useContext, useState } from "react";
+import { UserContext } from "../../contexts/UserContext";
 import { ProblemNav } from "./ProblemNav";
 import { MoreNav } from "./MoreNav";
-import { useAuthStore } from "../stores/user";
-import { logout } from "../../domain/user/apis/auth";
-import { useUser } from "../../domain/user/hooks/useUser";
 
 export function Header() {
   const navigate = useNavigate();
   const [isHoveringProblemNav, setIsHoveringProblemNav] = useState(false);
   const [isHoveringMoreNav, setIsHoveringMoreNav] = useState(false);
-  const userInfo = useAuthStore((state) => state.userInfo);
-  const isLogin = useAuthStore((state) => state.isLogin);
-  const { handleLogout } = useUser();
-
+  const user = useContext(UserContext);
+  if (!user) {
+    throw new Error("useUsername must be used within AuthProvider");
+  }
+  const { username, removeUsername } = user;
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      localStorage.removeItem("mathrancloud_username");
+      navigate({ to: "/login" }); // 로그아웃 후 이동할 경로
+      removeUsername();
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) console.log(error.message);
+    },
+  });
   return (
-    <header className="relative px-6 bg-white text-[#8E8E8E] border-t-[0px] border-b-[1px] border-[#8E8E8E] min-w-[1680px]">
-      {isLogin ? (
-        <div className="absolute right-8 top-2">
-          <span> {userInfo?.userName}</span>
-          <span className="mx-2">|</span>
-          <button
-            className="cursor-pointer"
-            onClick={async () => {
-              try {
-                await handleLogout(); // logout 함수가 Promise를 반환해야 함
-                navigate({ to: "/login" });
-              } catch (e: unknown) {
-                if (e instanceof Error) alert("로그아웃 실패: " + e.message);
-              }
-            }}
-          >
-            <span>로그아웃</span>
-          </button>
-        </div>
-      ) : (
-        <div className="absolute right-8 top-2">
-          <button className="cursor-pointer">
-            <span>회원가입 </span>
-          </button>
-          <span className="mx-2">|</span>
-          <button
-            className="cursor-pointer"
-            onClick={() => {
-              navigate({ to: "/login" });
-            }}
-          >
-            <span>로그인</span>
-          </button>
-        </div>
-      )}
-
-      <button
-        className="cursor-pointer"
-        onClick={() => {
-          navigate({ to: "/" });
-        }}
-      >
-        <img src="/mathran_logo.png" className="absolute w-20 left-4 top-1" />
-      </button>
+    <header className="relative min-w-[1680px] bg-white border-b-2 border-t-[1.4px] border-[#D6D6D6] border-solid flex justify-center items-center py-2 px-6">
       <nav className="flex items-center justify-center gap-16 pt-4">
+        <button
+          className="cursor-pointer"
+          onClick={() => {
+            navigate({ to: "/" });
+          }}
+        >
+          <img src="/mathran_logo.png" className="absolute w-20 left-4 top-1" />
+        </button>
         <div
           className="py-4"
           onMouseEnter={() => setIsHoveringProblemNav(true)}
@@ -121,8 +99,32 @@ export function Header() {
           {/* 드롭다운 메뉴 */}
           <MoreNav isVisible={isHoveringMoreNav} />
         </div>
+        <div className="absolute right-4">
+          {/* 오른쪽 로그인/로그아웃 */}
+          {username || localStorage.getItem("mathrancloud_username") ? (
+            <div className="flex items-center gap-4 mr-8">
+              <span className="text-sm text-gray-700 font-medium">
+                {username}
+              </span>
+              <button
+                onClick={() => logoutMutation.mutate()}
+                className="cursor-pointer text-white bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-md text-sm transition-colors duration-200"
+              >
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4 mr-8">
+              <button
+                onClick={() => navigate({ to: "/login" })}
+                className="cursor-pointer text-white bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-md text-sm transition-colors duration-200"
+              >
+                로그인
+              </button>
+            </div>
+          )}
+        </div>
       </nav>
     </header>
   );
 }
-// 5%

@@ -1,61 +1,83 @@
 import axios from "axios";
-import { useAuthStore } from "../shared/stores/user";
+import { refreshToken } from "../domain/user/apis/auth";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-export const instance = axios.create({
-  baseURL: baseURL,
-  timeout: 5000,
-  withCredentials: true, // logout을 위해
+if (!baseURL) {
+  throw new Error("VITE_API_BASE_URL is not set. Please check your .env file.");
+}
+
+const API_TIMEOUT = 5000;
+
+const instance = axios.create({
+  baseURL,
+  timeout: API_TIMEOUT,
+  withCredentials: true,
 });
 
-export const loginInstance = axios.create({
-  baseURL: baseURL,
-  timeout: 1000,
-  withCredentials: true, // http-only 쿠키를 받기 위해
-});
+type FailedRequest = {
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+};
 
-// 응답 인터셉터 (에러 핸들링 포함)
+let isRefreshing = false;
+let failedQueue: FailedRequest[] = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error || token === null) prom.reject(error);
+    else prom.resolve(token);
+  });
+  failedQueue = [];
+};
+
 instance.interceptors.response.use(
-  (response) => response, // 응답 성공 시 그대로 반환
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // 네트워크 에러 처리
-    if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
-      // window.location.href = '/network-error'; // 네트워크 에러 페이지로 이동
-      return Promise.reject(error);
-    }
+    if (error.response?.status === 401) {
+      if (originalRequest._retry) {
+        // 이미 재시도 했는데도 401 -> 로그인 페이지로 이동
+        localStorage.removeItem("mathrancloud_username");
+        window.location.href = "/login"; // 로그인 페이지 경로에 맞게 수정하세요
+        return Promise.reject(error);
+      }
 
-    // 요청 취소 처리
-    if (error.code === "ERR_CANCELED" || error.message === "canceled") {
-      window.location.href = "/server-error"; // 요청 취소 페이지로 이동
-      return Promise.reject(error);
-    }
+      // _retry가 없으면 refresh 시도
+      originalRequest._retry = true;
 
-    // AccessToken 만료로 인한 에러 처리
-    if (
-      error.response &&
-      error.response.status === 401 &&
-      !originalRequest._retry
-    ) {
-      originalRequest._retry = true; // 무한 재요청 방지
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          originalRequest.headers["Authorization"] = token;
+          return instance(originalRequest);
+        });
+      }
 
+      isRefreshing = true;
       try {
-        const response = await loginInstance.post("/api/v1/auth/login/refresh");
+        const data = await refreshToken();
+        const newToken = data.accessToken;
 
-        const newToken = response.data.accessToken;
-        instance.defaults.headers.common.Authorization = newToken;
-        useAuthStore.getState().setAuth(response.data);
-        originalRequest.headers.Authorization = newToken;
-        return instance(originalRequest); // 요청 재시도
-      } catch (refreshError) {
-        window.location.href = "/login"; // 요청 취소 페이지로 이동
-        return Promise.reject(refreshError); // 갱신 실패 시 에러 반환
+        instance.defaults.headers.common["Authorization"] = newToken;
+        localStorage.setItem("mathrancloud_username", data.userName);
+        processQueue(null, newToken);
+
+        originalRequest.headers["Authorization"] = newToken;
+        return instance(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        localStorage.removeItem("mathrancloud_username");
+        window.location.href = "/login";
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
       }
     }
 
-    return Promise.reject(error); // 다른 에러는 그대로 반환
+    return Promise.reject(error);
   }
 );
 

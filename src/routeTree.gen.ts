@@ -9,18 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RedirectKakaoRouteRouteImport } from './routes/redirect-kakao/route'
 import { Route as MainLayoutRouteRouteImport } from './routes/_mainLayout/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MainLayoutRegisterRouteRouteImport } from './routes/_mainLayout/register/route'
 import { Route as MainLayoutLoginRouteRouteImport } from './routes/_mainLayout/login/route'
 import { Route as MainLayoutAboutRouteRouteImport } from './routes/_mainLayout/about/route'
 
-const RedirectKakaoRouteRoute = RedirectKakaoRouteRouteImport.update({
-  id: '/redirect-kakao',
-  path: '/redirect-kakao',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MainLayoutRouteRoute = MainLayoutRouteRouteImport.update({
   id: '/_mainLayout',
   getParentRoute: () => rootRouteImport,
@@ -29,11 +22,6 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const MainLayoutRegisterRouteRoute = MainLayoutRegisterRouteRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => MainLayoutRouteRoute,
 } as any)
 const MainLayoutLoginRouteRoute = MainLayoutLoginRouteRouteImport.update({
   id: '/login',
@@ -48,57 +36,41 @@ const MainLayoutAboutRouteRoute = MainLayoutAboutRouteRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/redirect-kakao': typeof RedirectKakaoRouteRoute
   '/about': typeof MainLayoutAboutRouteRoute
   '/login': typeof MainLayoutLoginRouteRoute
-  '/register': typeof MainLayoutRegisterRouteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/redirect-kakao': typeof RedirectKakaoRouteRoute
   '/about': typeof MainLayoutAboutRouteRoute
   '/login': typeof MainLayoutLoginRouteRoute
-  '/register': typeof MainLayoutRegisterRouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_mainLayout': typeof MainLayoutRouteRouteWithChildren
-  '/redirect-kakao': typeof RedirectKakaoRouteRoute
   '/_mainLayout/about': typeof MainLayoutAboutRouteRoute
   '/_mainLayout/login': typeof MainLayoutLoginRouteRoute
-  '/_mainLayout/register': typeof MainLayoutRegisterRouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/redirect-kakao' | '/about' | '/login' | '/register'
+  fullPaths: '/' | '/about' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/redirect-kakao' | '/about' | '/login' | '/register'
+  to: '/' | '/about' | '/login'
   id:
     | '__root__'
     | '/'
     | '/_mainLayout'
-    | '/redirect-kakao'
     | '/_mainLayout/about'
     | '/_mainLayout/login'
-    | '/_mainLayout/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MainLayoutRouteRoute: typeof MainLayoutRouteRouteWithChildren
-  RedirectKakaoRouteRoute: typeof RedirectKakaoRouteRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/redirect-kakao': {
-      id: '/redirect-kakao'
-      path: '/redirect-kakao'
-      fullPath: '/redirect-kakao'
-      preLoaderRoute: typeof RedirectKakaoRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_mainLayout': {
       id: '/_mainLayout'
       path: ''
@@ -112,13 +84,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_mainLayout/register': {
-      id: '/_mainLayout/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof MainLayoutRegisterRouteRouteImport
-      parentRoute: typeof MainLayoutRouteRoute
     }
     '/_mainLayout/login': {
       id: '/_mainLayout/login'
@@ -140,13 +105,11 @@ declare module '@tanstack/react-router' {
 interface MainLayoutRouteRouteChildren {
   MainLayoutAboutRouteRoute: typeof MainLayoutAboutRouteRoute
   MainLayoutLoginRouteRoute: typeof MainLayoutLoginRouteRoute
-  MainLayoutRegisterRouteRoute: typeof MainLayoutRegisterRouteRoute
 }
 
 const MainLayoutRouteRouteChildren: MainLayoutRouteRouteChildren = {
   MainLayoutAboutRouteRoute: MainLayoutAboutRouteRoute,
   MainLayoutLoginRouteRoute: MainLayoutLoginRouteRoute,
-  MainLayoutRegisterRouteRoute: MainLayoutRegisterRouteRoute,
 }
 
 const MainLayoutRouteRouteWithChildren = MainLayoutRouteRoute._addFileChildren(
@@ -156,7 +119,6 @@ const MainLayoutRouteRouteWithChildren = MainLayoutRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MainLayoutRouteRoute: MainLayoutRouteRouteWithChildren,
-  RedirectKakaoRouteRoute: RedirectKakaoRouteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
