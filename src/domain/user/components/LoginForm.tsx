@@ -4,11 +4,11 @@ import Button from "../../../shared/components/Button";
 import InputBox from "../../../shared/components/InputBox";
 import { login } from "../apis/auth";
 import type { LoginFormData } from "../types/user.ts";
-import instance from "../../../apis/instance";
+import instance from "../../../shared/apis/instance.ts";
 import { useNavigate } from "@tanstack/react-router";
 import { AxiosError } from "axios";
 import { useContext } from "react";
-import { UserContext } from "../../../contexts/UserContext.ts";
+import { UserContext } from "../../../shared/contexts/UserContext.ts";
 
 interface LoginFormProps {
   formData: LoginFormData;
@@ -30,11 +30,15 @@ const LoginForm = ({ formData, setFormData, handleSubmit }: LoginFormProps) => {
     onSuccess: (data) => {
       instance.defaults.headers.common["Authorization"] = `${data.accessToken}`;
       localStorage.setItem("mathrancloud_username", data.userName);
+      alert("로그인에 성공하였습니다.");
       navigate({ to: "/" });
       setUsername(data.userName);
     },
     onError: (error) => {
-      if (error instanceof AxiosError) navigate({ to: "/login" });
+      if (error instanceof AxiosError) {
+        alert("로그인에 실패하였습니다.");
+        navigate({ to: "/login" });
+      }
     },
   });
 

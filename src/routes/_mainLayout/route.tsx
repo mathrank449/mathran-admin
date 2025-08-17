@@ -10,7 +10,7 @@ function RouteComponent() {
     <>
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="bg-rbBg flex-1 flex items-center justify-center">
+        <main className="bg-rbBg flex-1 flex items-center justify-center min-w-[1680px]">
           <Outlet />
         </main>
       </div>

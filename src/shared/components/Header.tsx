@@ -4,12 +4,14 @@ import { logout } from "../../domain/user/apis/auth";
 import { AiOutlineDown } from "react-icons/ai";
 import { AxiosError } from "axios";
 import { useContext, useState } from "react";
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from "../contexts/UserContext";
 import { ProblemNav } from "./ProblemNav";
 import { MoreNav } from "./MoreNav";
+import { EnrollNav } from "./EnrollNav";
 
 export function Header() {
   const navigate = useNavigate();
+  const [isHoveringEnrollNav, setIsHoveringEnrollNav] = useState(false);
   const [isHoveringProblemNav, setIsHoveringProblemNav] = useState(false);
   const [isHoveringMoreNav, setIsHoveringMoreNav] = useState(false);
   const user = useContext(UserContext);
@@ -29,7 +31,7 @@ export function Header() {
     },
   });
   return (
-    <header className="relative min-w-[1680px] bg-white border-b-2 border-t-[1.4px] border-[#D6D6D6] border-solid flex justify-center items-center py-2 px-6">
+    <header className="relative min-w-[1680px] bg-white border-b-2 border-t-[1.4px] border-[#D6D6D6] border-solid flex justify-center items-center pt-2 px-6 z-10">
       <nav className="flex items-center justify-center gap-16 pt-4">
         <button
           className="cursor-pointer"
@@ -39,6 +41,16 @@ export function Header() {
         >
           <img src="/mathran_logo.png" className="absolute w-20 left-4 top-1" />
         </button>
+        <div
+          className="relative py-4"
+          onMouseEnter={() => setIsHoveringEnrollNav(true)}
+          onMouseLeave={() => setIsHoveringEnrollNav(false)}
+        >
+          <span className="text-lg">출제</span>
+          <AiOutlineDown className="inline-block ml-2 mb-1" />
+          {/* 드롭다운 메뉴 */}
+          <EnrollNav isVisible={isHoveringEnrollNav} />
+        </div>
         <div
           className="py-4"
           onMouseEnter={() => setIsHoveringProblemNav(true)}
@@ -74,7 +86,7 @@ export function Header() {
           랭킹
         </button>
         <button
-          className="text-lg cursor-pointer  py-4"
+          className="text-lg cursor-pointer py-4"
           onClick={() => {
             navigate({ to: "/forum" });
           }}
@@ -82,7 +94,7 @@ export function Header() {
           게시판
         </button>
         <button
-          className="text-lg cursor-pointer  py-4"
+          className="text-lg cursor-pointer py-4"
           onClick={() => {
             navigate({ to: "/resources" });
           }}
@@ -90,7 +102,7 @@ export function Header() {
           자료실
         </button>
         <div
-          className="py-4 relative"
+          className="relative py-4"
           onMouseEnter={() => setIsHoveringMoreNav(true)}
           onMouseLeave={() => setIsHoveringMoreNav(false)}
         >

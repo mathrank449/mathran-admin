@@ -1,4 +1,4 @@
-import instance from "../../../apis/instance";
+import instance from "../../../shared/apis/instance";
 
 interface LoginResponse {
   accessToken: string;

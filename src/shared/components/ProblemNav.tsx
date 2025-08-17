@@ -7,6 +7,7 @@ type ProblemNavProps = {
 
 export function ProblemNav({ isVisible }: ProblemNavProps) {
   if (!isVisible) return null;
+  console.log(isVisible);
 
   return (
     <div className="absolute top-full left-0 w-full px-6">

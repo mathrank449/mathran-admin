@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { UserProvider } from "../contexts/UserProvider";
+import { UserProvider } from "../shared/contexts/UserProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
