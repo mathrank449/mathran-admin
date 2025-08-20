@@ -19,6 +19,8 @@ import { Route as MainLayoutEnrollProblemTwoRouteRouteImport } from './routes/_m
 import { Route as MainLayoutEnrollProblemThreeRouteRouteImport } from './routes/_mainLayout/enroll-problem-three/route'
 import { Route as MainLayoutEnrollProblemRouteRouteImport } from './routes/_mainLayout/enroll-problem/route'
 import { Route as MainLayoutAboutRouteRouteImport } from './routes/_mainLayout/about/route'
+import { Route as MainLayoutProblemsIndexRouteImport } from './routes/_mainLayout/problems/index'
+import { Route as MainLayoutProblemsProblemIdRouteImport } from './routes/_mainLayout/problems/$problemId'
 
 const MainLayoutRouteRoute = MainLayoutRouteRouteImport.update({
   id: '/_mainLayout',
@@ -75,6 +77,17 @@ const MainLayoutAboutRouteRoute = MainLayoutAboutRouteRouteImport.update({
   path: '/about',
   getParentRoute: () => MainLayoutRouteRoute,
 } as any)
+const MainLayoutProblemsIndexRoute = MainLayoutProblemsIndexRouteImport.update({
+  id: '/problems/',
+  path: '/problems/',
+  getParentRoute: () => MainLayoutRouteRoute,
+} as any)
+const MainLayoutProblemsProblemIdRoute =
+  MainLayoutProblemsProblemIdRouteImport.update({
+    id: '/problems/$problemId',
+    path: '/problems/$problemId',
+    getParentRoute: () => MainLayoutRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -86,6 +99,8 @@ export interface FileRoutesByFullPath {
   '/enroll-test-papers-three': typeof MainLayoutEnrollTestPapersThreeRouteRoute
   '/enroll-test-papers-two': typeof MainLayoutEnrollTestPapersTwoRouteRoute
   '/login': typeof MainLayoutLoginRouteRoute
+  '/problems/$problemId': typeof MainLayoutProblemsProblemIdRoute
+  '/problems': typeof MainLayoutProblemsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -97,6 +112,8 @@ export interface FileRoutesByTo {
   '/enroll-test-papers-three': typeof MainLayoutEnrollTestPapersThreeRouteRoute
   '/enroll-test-papers-two': typeof MainLayoutEnrollTestPapersTwoRouteRoute
   '/login': typeof MainLayoutLoginRouteRoute
+  '/problems/$problemId': typeof MainLayoutProblemsProblemIdRoute
+  '/problems': typeof MainLayoutProblemsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -110,6 +127,8 @@ export interface FileRoutesById {
   '/_mainLayout/enroll-test-papers-three': typeof MainLayoutEnrollTestPapersThreeRouteRoute
   '/_mainLayout/enroll-test-papers-two': typeof MainLayoutEnrollTestPapersTwoRouteRoute
   '/_mainLayout/login': typeof MainLayoutLoginRouteRoute
+  '/_mainLayout/problems/$problemId': typeof MainLayoutProblemsProblemIdRoute
+  '/_mainLayout/problems/': typeof MainLayoutProblemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -123,6 +142,8 @@ export interface FileRouteTypes {
     | '/enroll-test-papers-three'
     | '/enroll-test-papers-two'
     | '/login'
+    | '/problems/$problemId'
+    | '/problems'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -134,6 +155,8 @@ export interface FileRouteTypes {
     | '/enroll-test-papers-three'
     | '/enroll-test-papers-two'
     | '/login'
+    | '/problems/$problemId'
+    | '/problems'
   id:
     | '__root__'
     | '/'
@@ -146,6 +169,8 @@ export interface FileRouteTypes {
     | '/_mainLayout/enroll-test-papers-three'
     | '/_mainLayout/enroll-test-papers-two'
     | '/_mainLayout/login'
+    | '/_mainLayout/problems/$problemId'
+    | '/_mainLayout/problems/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -225,6 +250,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutAboutRouteRouteImport
       parentRoute: typeof MainLayoutRouteRoute
     }
+    '/_mainLayout/problems/': {
+      id: '/_mainLayout/problems/'
+      path: '/problems'
+      fullPath: '/problems'
+      preLoaderRoute: typeof MainLayoutProblemsIndexRouteImport
+      parentRoute: typeof MainLayoutRouteRoute
+    }
+    '/_mainLayout/problems/$problemId': {
+      id: '/_mainLayout/problems/$problemId'
+      path: '/problems/$problemId'
+      fullPath: '/problems/$problemId'
+      preLoaderRoute: typeof MainLayoutProblemsProblemIdRouteImport
+      parentRoute: typeof MainLayoutRouteRoute
+    }
   }
 }
 
@@ -237,6 +276,8 @@ interface MainLayoutRouteRouteChildren {
   MainLayoutEnrollTestPapersThreeRouteRoute: typeof MainLayoutEnrollTestPapersThreeRouteRoute
   MainLayoutEnrollTestPapersTwoRouteRoute: typeof MainLayoutEnrollTestPapersTwoRouteRoute
   MainLayoutLoginRouteRoute: typeof MainLayoutLoginRouteRoute
+  MainLayoutProblemsProblemIdRoute: typeof MainLayoutProblemsProblemIdRoute
+  MainLayoutProblemsIndexRoute: typeof MainLayoutProblemsIndexRoute
 }
 
 const MainLayoutRouteRouteChildren: MainLayoutRouteRouteChildren = {
@@ -251,6 +292,8 @@ const MainLayoutRouteRouteChildren: MainLayoutRouteRouteChildren = {
   MainLayoutEnrollTestPapersTwoRouteRoute:
     MainLayoutEnrollTestPapersTwoRouteRoute,
   MainLayoutLoginRouteRoute: MainLayoutLoginRouteRoute,
+  MainLayoutProblemsProblemIdRoute: MainLayoutProblemsProblemIdRoute,
+  MainLayoutProblemsIndexRoute: MainLayoutProblemsIndexRoute,
 }
 
 const MainLayoutRouteRouteWithChildren = MainLayoutRouteRoute._addFileChildren(
