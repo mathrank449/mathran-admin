@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import instance from "../../../../shared/apis/instance";
 import type {
   ProblemItemResponse,
@@ -7,9 +8,50 @@ import type {
 export const getSingleProblemsByQuery = async (
   query: SingleProblemQueryListType
 ): Promise<ProblemItemResponse[]> => {
-  const { data } = await instance.get(
-    `/v1/problem/single?mine=false&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&answerType=${query.answerType}&coursePath=${query.coursePath}&year=${query.year}&location=${query.location}&pageSize=10&pageNumber=1`
-  );
+  try {
+    let problemResponse;
+    if (query.queryType === "all") {
+      problemResponse = await instance.get(
+        `/v1/problem/single?singleProblemId=&coursePath=${query.courseInfo?.coursePath}&singleProblemName=${query.singleProblemName}&answerType=&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&pageSize=10&pageNumber=1`
+      );
+    }
 
-  return data.queryResults;
+    if (query.queryType === "new") {
+      problemResponse = await instance.get(
+        `/v1/problem/single?singleProblemId=&coursePath=${query.courseInfo?.coursePath}&singleProblemName=${query.singleProblemName}&answerType=&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&orderColumn=DATE&direction=DESC&pageSize=10&pageNumber=1`
+      );
+    }
+    if (query.queryType === "popular") {
+      problemResponse = await instance.get(
+        `/v1/problem/single?singleProblemId=&coursePath=${query.courseInfo?.coursePath}&singleProblemName=${query.singleProblemName}&answerType=&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&orderColumn=TOTAL_TRY_COUNT&direction=DESC&pageSize=10&pageNumber=1`
+      );
+    } else {
+      problemResponse = await instance.get(
+        `/v1/problem/single?singleProblemId=&coursePath=${query.courseInfo?.coursePath}&singleProblemName=${query.singleProblemName}&answerType=&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&pageSize=10&pageNumber=1`
+      );
+    }
+
+    return problemResponse.data.queryResults;
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      throw e.message;
+    }
+    throw e;
+  }
+};
+
+export const getSingleProblemById = async (
+  id: string
+): Promise<ProblemItemResponse> => {
+  try {
+    const { data } = await instance.get(
+      `/v1/problem/single?singleProblemId=${id}`
+    );
+    return data.queryResults[0];
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      throw e.message;
+    }
+    throw e;
+  }
 };

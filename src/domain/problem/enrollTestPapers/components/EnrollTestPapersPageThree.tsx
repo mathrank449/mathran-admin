@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTestPapersStore } from "../hooks/useTestPapers";
 import { AiOutlineCopy } from "react-icons/ai";
 import type { DifficultyType, ProblemType } from "../../types/problem";
@@ -45,7 +45,7 @@ function EnrollTestPapersPageThree() {
   if (problem === undefined) return <div>문제 없음</div>;
 
   return (
-    <div>
+    <div className="flex justify-center mt-24">
       <TestPapersNav />
       <div className="p-4 flex flex-col gap-4 relative mb-36">
         {/* 제목 입력창 */}

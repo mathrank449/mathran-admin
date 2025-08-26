@@ -25,50 +25,52 @@ function EnrollProblemPageTwo() {
   const { setSelectedProblem } = useProblemStore();
   console.log(problems);
   return (
-    <div className="relative border-solid border-gray-300 border-[1px] rounded-2xl w-[680px] h-[720px]">
-      <div className="py-12 h-[640px] overflow-y-auto">
-        {problems.map((problem) => (
-          <section className="relative w-[540px] mb-4 ml-[20px] border-solid border-gray-300 border-[1px] rounded-2xl">
-            <div className="bg-[#F6F6F6] p-4 rounded-t-2xl">
-              <span className="font-bold text-xl">{problem.id}번 문제</span>
-            </div>
-
-            <button
-              className="absolute right-2 top-3 bg-blue-600 px-4 py-1 cursor-pointer"
-              onClick={() => {
-                setSelectedProblem(problem);
-                navigate({ to: "/enroll-problem-three" });
-              }}
-            >
-              <span className="text-white text-md">선택</span>
-            </button>
-            <div className="flex py-4">
-              <div className="mr-12 flex flex-col gap-2 ml-4 items-center">
-                <AiOutlineCopy size="24px" className="mb-2" />
-                <span className="text-md text-blue-400 px-2 font-bold rounded-lg bg-gray-100 text-center">
-                  {difficultyMap[problem.difficulty]}
-                </span>
-                <span className="text-md text-gray-500 px-2 font-bold rounded-lg bg-gray-100 text-center">
-                  {problemMap[problem.type]}
-                </span>
+    <div className="flex justify-center mt-24">
+      <div className="relative border-solid border-gray-300 border-[1px] rounded-2xl w-[680px] h-[720px]">
+        <div className="py-12 h-[640px] overflow-y-auto">
+          {problems.map((problem) => (
+            <section className="relative w-[540px] mb-4 ml-[20px] border-solid border-gray-300 border-[1px] rounded-2xl">
+              <div className="bg-[#F6F6F6] p-4 rounded-t-2xl">
+                <span className="font-bold text-xl">{problem.id}번 문제</span>
               </div>
-              <img
-                className="w-48"
-                src={`${baseURL}/v1/image?imageSource=${problem.problemImage}`}
-                alt="문제 이미지"
-              />
-            </div>
-          </section>
-        ))}
+
+              <button
+                className="absolute right-2 top-3 bg-blue-600 px-4 py-1 cursor-pointer"
+                onClick={() => {
+                  setSelectedProblem(problem);
+                  navigate({ to: "/enroll-problem-three" });
+                }}
+              >
+                <span className="text-white text-md">선택</span>
+              </button>
+              <div className="flex py-4">
+                <div className="mr-12 flex flex-col gap-2 ml-4 items-center">
+                  <AiOutlineCopy size="24px" className="mb-2" />
+                  <span className="text-md text-blue-400 px-2 font-bold rounded-lg bg-gray-100 text-center">
+                    {difficultyMap[problem.difficulty]}
+                  </span>
+                  <span className="text-md text-gray-500 px-2 font-bold rounded-lg bg-gray-100 text-center">
+                    {problemMap[problem.type]}
+                  </span>
+                </div>
+                <img
+                  className="w-48"
+                  src={`${baseURL}/v1/image?imageSource=${problem.problemImage}`}
+                  alt="문제 이미지"
+                />
+              </div>
+            </section>
+          ))}
+        </div>
+        <button
+          onClick={() => {
+            navigate({ to: "/enroll-problem" });
+          }}
+          className="absolute right-4 bottom-4 bg-blue-600 px-6 py-1 cursor-pointer"
+        >
+          <span className="text-white text-md">이전</span>
+        </button>
       </div>
-      <button
-        onClick={() => {
-          navigate({ to: "/enroll-problem" });
-        }}
-        className="absolute right-4 bottom-4 bg-blue-600 px-6 py-1 cursor-pointer"
-      >
-        <span className="text-white text-md">이전</span>
-      </button>
     </div>
   );
 }

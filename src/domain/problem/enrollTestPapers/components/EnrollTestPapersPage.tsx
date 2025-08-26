@@ -74,7 +74,7 @@ function EnrollTestPapersPage() {
   }, [district]);
 
   return (
-    <div>
+    <div className="flex justify-center mt-24">
       <div className="border-solid border-gray-300 border-[1px] rounded-2xl w-[1480px] relative">
         <div className="w-full flex justify-start items-center pl-12 gap-12 py-4">
           {types.map((item, index) => (

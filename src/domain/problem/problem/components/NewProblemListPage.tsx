@@ -8,8 +8,8 @@ import ProblemItem from "./ProblemItem";
 import { getSingleProblemsByQuery } from "../apis/problem";
 import type { DifficultyType } from "../../types/problem";
 import { difficultys } from "../../utils/difficultys";
-import { pathMap } from "../utils/pathMap";
 import { useNavigate } from "@tanstack/react-router";
+import { pathMap } from "../utils/pathMap";
 
 const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
   전체: "all",
@@ -25,7 +25,7 @@ function ProblemListPage() {
     queryKey: [`v1/problem/course/`, ""],
     queryFn: ({ queryKey }) => getCourse(queryKey[1]),
   });
-  const [selectedType, setSelectedType] = useState("전체");
+  const [selectedType, setSelectedType] = useState("최신");
   const [queryList, setQueryList] = useState<SingleProblemQueryListType>({
     queryType: "all",
     singleProblemId: "",
@@ -54,7 +54,7 @@ function ProblemListPage() {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-left pl-12 bg-gray-50 text-3xl py-6 w-full">
-        전체 문제
+        최신 문제
       </div>
       <nav className="flex items-center gap-8 mt-12">
         <div className="flex gap-2 flex-wrap mr-24">
@@ -67,11 +67,11 @@ function ProblemListPage() {
                   setSelectedType(item);
                 }}
                 className={`px-4 py-2 rounded-full border transition-colors duration-200 cursor-pointer
-                ${
-                  selectedType === item
-                    ? "border-indigo-500 bg-indigo-500 text-white shadow-sm"
-                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-                }`}
+          ${
+            selectedType === item
+              ? "border-indigo-500 bg-indigo-500 text-white shadow-sm"
+              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+          }`}
               >
                 <span className="text-sm font-medium">{item}</span>
               </button>

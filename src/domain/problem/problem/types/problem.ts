@@ -1,11 +1,18 @@
-import type { DifficultyType, ProblemType } from "../../types/problem";
+import type {
+  CourseType,
+  DifficultyType,
+  ProblemType,
+} from "../../types/problem";
 
 export type ProblemItemResponse = {
   id: string;
   problemId: string;
-  title: string;
+  singleProblemName: string;
   problemImage: string;
-  coursePath: string;
+  courseInfo: {
+    parents: CourseType[];
+    target: CourseType;
+  };
   answerType: ProblemType;
   difficulty: DifficultyType;
   firstTrySuccessCount: number;
@@ -15,8 +22,10 @@ export type ProblemItemResponse = {
 };
 
 export type SingleProblemQueryListType = {
-  singleProblemId: string;
-  coursePath: string;
-  answerType: ProblemType;
-  difficulty: DifficultyType;
+  queryType: "all" | "new" | "popular" | "course" | "school";
+  singleProblemId: string | "";
+  courseInfo: CourseType | undefined;
+  singleProblemName: string | "";
+  answerType: ProblemType | undefined;
+  difficulty: DifficultyType | "";
 };

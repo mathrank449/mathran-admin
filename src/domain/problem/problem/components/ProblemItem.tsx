@@ -1,3 +1,4 @@
+import { difficultyToKorean } from "../../utils/difficultyTransform";
 import type { ProblemItemResponse } from "../types/problem";
 
 function ProblemItem({
@@ -5,16 +6,16 @@ function ProblemItem({
   index,
 }: {
   problem: ProblemItemResponse;
-
   index: number;
 }) {
+  console.log(problem);
   return (
     <div
       className={`w-[1650px] whitespace-nowrap py-3 border-solid border-[#DEDEDE] border-2 border-t-0 ${
         index % 2 === 0 ? "bg-white " : " bg-gray-100"
       }`}
     >
-      <div className="inline-block align-middle w-[200px] text-center overflow-hidden truncate">
+      <div className="inline-block align-middle w-[150px] text-center overflow-hidden truncate">
         <span
           className="text-sm text-black whitespace-nowrap"
           title={String(problem.id)}
@@ -22,21 +23,29 @@ function ProblemItem({
           {problem.id}
         </span>
       </div>
-      <div className="inline-block align-middle w-[600px] text-center overflow-hidden truncate">
+      <div className="inline-block align-middle w-[500px] text-center overflow-hidden truncate">
         <a
           className="text-sm text-blue-500 whitespace-nowrap"
-          title={String(problem.title)}
+          title={String(problem.singleProblemName)}
           href={`/problems/${problem.id}`}
         >
-          {problem.title}
+          {problem.singleProblemName}
         </a>
       </div>
-      <div className="inline-block align-middle w-[200px] text-center overflow-hidden truncate">
+      <div className="inline-block align-middle w-[400px] text-center overflow-hidden truncate">
+        {problem.courseInfo.parents.map((course) => (
+          <span
+            className="text-sm text-black whitespace-nowrap"
+            title={String(course.courseName)}
+          >
+            {course.courseName.replace(/^\d+\s*/, "")}/
+          </span>
+        ))}
         <span
           className="text-sm text-black whitespace-nowrap"
-          title={String(problem.coursePath)}
+          title={String(problem.courseInfo.target.courseName)}
         >
-          {problem.coursePath}
+          {problem.courseInfo.target.courseName.replace(/^\d+\s*/, "")}
         </span>
       </div>
       <div className="inline-block align-middle w-[150px] text-center overflow-hidden truncate">
@@ -44,7 +53,7 @@ function ProblemItem({
           className="text-sm text-black whitespace-nowrap"
           title={String(problem.difficulty)}
         >
-          {problem.difficulty}
+          {difficultyToKorean(problem.difficulty)}
         </span>
       </div>
       <div className="inline-block align-middle w-[150px] text-center overflow-hidden truncate">
@@ -55,7 +64,7 @@ function ProblemItem({
           {problem.firstTrySuccessCount}
         </span>
       </div>
-      <div className="inline-block align-middle w-[200px] text-center overflow-hidden truncate">
+      <div className="inline-block align-middle w-[150px] text-center overflow-hidden truncate">
         <span
           className="text-sm text-black whitespace-nowrap"
           title={String(problem.attemptedUserDistinctCount)}

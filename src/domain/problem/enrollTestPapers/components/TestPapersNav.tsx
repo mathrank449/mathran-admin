@@ -11,7 +11,7 @@ export default function TestPapersNav() {
   const testPapersLength = testPapers.length;
 
   return (
-    <div className="absolute left-4 top-48 z-5">
+    <div className="absolute left-4 top-24 z-5">
       <nav className="text-center  h-128 overflow-y-auto bg-gray-50 shadow-md rounded-xl mb-6">
         {Array.from({ length: testPapersLength }, (_, i) => {
           const isSelected = i === selectedIndex; // 현재 선택된 버튼

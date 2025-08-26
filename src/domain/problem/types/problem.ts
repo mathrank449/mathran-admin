@@ -1,6 +1,7 @@
 // types/problem.ts
 
 export type ProblemType = "MULTIPLE_CHOICE" | "SHORT_ANSWER";
+export type ProblemKoreaType = "객관식" | "단답형";
 export type DifficultyType =
   | "KILLER"
   | "HIGH"
@@ -8,6 +9,7 @@ export type DifficultyType =
   | "MID"
   | "MID_LOW"
   | "LOW";
+export type DifficultyKoreaType = "킬러" | "상" | "중상" | "중" | "중하" | "하";
 export type CourseType = {
   coursePath: string;
   courseName: string;

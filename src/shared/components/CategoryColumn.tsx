@@ -19,7 +19,7 @@ export function CategoryColumn({ title, items }: CategoryColumnProps) {
           key={item.linkTo}
           className="inline-block cursor-pointer w-full text-left p-1 px-4 hover:bg-gray-600 hover:text-white"
           onClick={() => {
-            navigate({ to: "/problems" });
+            navigate({ to: item.linkTo });
           }}
         >
           <AiOutlineRight className="inline-block" />

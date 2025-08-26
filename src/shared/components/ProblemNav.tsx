@@ -17,9 +17,9 @@ export function ProblemNav({ isVisible }: ProblemNavProps) {
           title="문제"
           items={[
             { title: "전체 문제", linkTo: "/problems" },
-            { title: "최신 문제", linkTo: "/problems" },
-            { title: "인기 문제", linkTo: "/problems" },
-            { title: "우리 학교 예상 문제", linkTo: "/problems" },
+            { title: "최신 문제", linkTo: "/problems/new" },
+            { title: "인기 문제", linkTo: "/problems/popular" },
+            { title: "우리 학교 예상 문제", linkTo: "/problems/school" },
           ]}
         />
 
@@ -27,8 +27,15 @@ export function ProblemNav({ isVisible }: ProblemNavProps) {
         <CategoryColumn
           title="문제"
           items={[
-            { title: "난이도별로 풀어보기", linkTo: "/problems" },
-            { title: "단원별로 풀어보기", linkTo: "/problems" },
+            { title: "단원별로 풀어보기", linkTo: "/problems/course" },
+            {
+              title: "틀린 문제 다시 풀어보기",
+              linkTo: "/problems/incorrect",
+            },
+            {
+              title: "맞춘 문제 다시 풀어보기",
+              linkTo: "/problems/correct",
+            },
           ]}
         />
 
