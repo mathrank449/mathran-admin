@@ -29,3 +29,9 @@ export type SingleProblemQueryListType = {
   answerType: ProblemType | undefined;
   difficulty: DifficultyType | "";
 };
+
+export type SubmitAnswerResponse = {
+  success: boolean; // 제출 성공 여부
+  realAnswer: string[]; // 정답 목록
+  submittedAnswer: string[]; // 사용자가 제출한 답안 목록
+};

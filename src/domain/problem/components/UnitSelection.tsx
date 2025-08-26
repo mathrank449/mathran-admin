@@ -11,10 +11,14 @@ function UnitSelection({
   grade,
   selectedUnits,
   setSelectedUnits,
+  selectedUnit,
+  setSelectedUnit,
 }: {
   grade: CourseType;
   selectedUnits: SelectedUnits;
   setSelectedUnits: React.Dispatch<React.SetStateAction<SelectedUnits>>;
+  selectedUnit: CourseType | undefined;
+  setSelectedUnit: React.Dispatch<React.SetStateAction<CourseType | undefined>>;
 }) {
   const { list: unitLargeList } = useCourseList(grade.coursePath);
   const { list: unitMiddleList } = useCourseList(
@@ -22,6 +26,21 @@ function UnitSelection({
   );
   const { list: unitSmallList } = useCourseList(
     selectedUnits.middle?.coursePath
+  );
+
+  const renderCheckbox = (unit: CourseType) => (
+    <input
+      type="checkbox"
+      className="mr-2"
+      checked={selectedUnit?.coursePath === unit.coursePath}
+      onChange={(e) => {
+        if (e.target.checked) {
+          setSelectedUnit(unit);
+        } else {
+          setSelectedUnit(undefined);
+        }
+      }}
+    />
   );
 
   return (

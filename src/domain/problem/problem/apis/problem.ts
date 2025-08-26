@@ -3,6 +3,7 @@ import instance from "../../../../shared/apis/instance";
 import type {
   ProblemItemResponse,
   SingleProblemQueryListType,
+  SubmitAnswerResponse,
 } from "../types/problem";
 
 export const getSingleProblemsByQuery = async (
@@ -48,6 +49,24 @@ export const getSingleProblemById = async (
       `/v1/problem/single?singleProblemId=${id}`
     );
     return data.queryResults[0];
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      throw e.message;
+    }
+    throw e;
+  }
+};
+
+export const solveSingleProblem = async (
+  id: string,
+  answers: string[]
+): Promise<SubmitAnswerResponse> => {
+  try {
+    const { data } = await instance.post(
+      `/v1/problem/single?singleProblemId=${id}&answers=${answers}`
+    );
+
+    return data;
   } catch (e) {
     if (e instanceof AxiosError) {
       throw e.message;

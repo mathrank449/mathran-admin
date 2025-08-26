@@ -11,6 +11,7 @@ import { useTestPapersStore } from "../hooks/useTestPapers";
 import { useNavigate } from "@tanstack/react-router";
 import { getSchoolsByLocation } from "../../apis/school";
 import type { School } from "../../types/school";
+import UnitSelectionByGrade from "../../components/UnitSelectionByGrade";
 
 type SelectedUnits = {
   large?: CourseType;
@@ -56,6 +57,9 @@ function EnrollTestPapersPage() {
   const [district, setDistrict] = useState("");
   const [selectedSchool, setSelectedSchool] = useState("");
   const [schools, setSchool] = useState<School[]>([]);
+  const [selectedUnit, setSelectedUnit] = useState<CourseType | undefined>(
+    undefined
+  );
 
   const { data: gradeList } = useQuery({
     queryKey: [`v1/problem/course/`, ""],
@@ -94,25 +98,14 @@ function EnrollTestPapersPage() {
         </div>
         <div className="flex border-t-[1px] border-gray-300 border-solid">
           <div className="w-[840px] border-r-[1px] border-gray-300 border-solid">
-            <div className="py-4 border-b border-gray-300 flex flex-wrap gap-2 justify-center">
-              {gradeList?.map((course, index) => (
-                <GradeItem
-                  key={course.coursePath}
-                  text={course.courseName}
-                  handleClick={() => {
-                    setSelectedGrade(index);
-                  }}
-                  selected={selectedGrade === index}
-                />
-              ))}
-            </div>
             <div className="py-4 px-12 h-[500px] overflow-y-auto">
               {gradeList ? (
                 <div>
-                  <UnitSelection
-                    grade={gradeList[selectedGrade]}
+                  <UnitSelectionByGrade
                     selectedUnits={selectedUnits}
                     setSelectedUnits={setSelectedUnits}
+                    selectedUnit={selectedUnit}
+                    setSelectedUnit={setSelectedUnit}
                   />
                 </div>
               ) : (
@@ -259,7 +252,7 @@ function EnrollTestPapersPage() {
           className="absolute right-12 bottom-4 bg-blue-600 px-6 py-1 cursor-pointer"
           onClick={async () => {
             let problems;
-            if (selectedUnits.small?.coursePath === undefined) {
+            if (selectedUnit === undefined) {
               alert("단원을 선택해주세요");
               return;
             }
@@ -267,7 +260,7 @@ function EnrollTestPapersPage() {
               problems = await getProblemsByQuery({
                 difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
                 answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-                coursePath: selectedUnits.small?.coursePath,
+                coursePath: selectedUnit.coursePath,
                 year: String(year),
                 location: "",
               });
@@ -275,7 +268,7 @@ function EnrollTestPapersPage() {
               problems = await getProblemsByQuery({
                 difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
                 answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-                coursePath: selectedUnits.small?.coursePath,
+                coursePath: selectedUnit.coursePath,
                 year: String(year),
                 location: "",
               });
@@ -283,7 +276,7 @@ function EnrollTestPapersPage() {
               problems = await getProblemsByQuery({
                 difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
                 answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-                coursePath: selectedUnits.small?.coursePath,
+                coursePath: selectedUnit.coursePath,
                 year: "",
                 location: "",
               });
@@ -291,7 +284,7 @@ function EnrollTestPapersPage() {
               problems = await getProblemsByQuery({
                 difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
                 answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-                coursePath: selectedUnits.small?.coursePath,
+                coursePath: selectedUnit.coursePath,
                 year: "",
                 location: "",
               });

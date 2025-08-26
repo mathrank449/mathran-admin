@@ -4,7 +4,7 @@ import type { SelectedUnitsGrade } from "../../types/course";
 import { useQuery } from "@tanstack/react-query";
 import type { SingleProblemQueryListType } from "../types/problem";
 import { getSingleProblemsByQuery } from "../apis/problem";
-import type { DifficultyType } from "../../types/problem";
+import type { CourseType, DifficultyType } from "../../types/problem";
 import { difficultys } from "../../utils/difficultys";
 import ProblemListHeader from "./ProblemListHeader";
 import ProblemItem from "./ProblemItem";
@@ -18,7 +18,7 @@ const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
 };
 
 function CourseProblemList() {
-  const [selectedType, setSelectedType] = useState("최신");
+  const [selectedType, setSelectedType] = useState("전체");
   const [queryList, setQueryList] = useState<SingleProblemQueryListType>({
     queryType: "all",
     singleProblemId: "",
@@ -35,7 +35,6 @@ function CourseProblemList() {
     queryKey: ["v1/problem/single/", queryList] as const,
     queryFn: ({ queryKey }) => getSingleProblemsByQuery(queryKey[1]),
   });
-  console.log(queryList);
 
   useEffect(() => {
     setQueryList((prev) => ({
@@ -50,42 +49,46 @@ function CourseProblemList() {
     middle: undefined,
     small: undefined,
   });
-  console.log(selectedUnits);
+
+  const [selectedUnit, setSelectedUnit] = useState<CourseType | undefined>(
+    undefined
+  );
+  const [isUnitSelected, setIsUnitSelected] = useState(false);
 
   useEffect(() => {
-    setQueryList({
-      queryType: "all",
-      singleProblemId: "",
-      courseInfo: selectedUnits.small,
-      singleProblemName: "",
-      answerType: undefined,
-      difficulty: "",
-    });
-  }, [selectedUnits.small]);
+    if (isUnitSelected === true)
+      setQueryList({
+        queryType: "all",
+        singleProblemId: "",
+        courseInfo: selectedUnit,
+        singleProblemName: "",
+        answerType: undefined,
+        difficulty: "",
+      });
+  }, [isUnitSelected]);
 
-  if (
-    selectedUnits.small?.coursePath &&
-    selectedUnits.middle?.coursePath &&
-    selectedUnits.large?.coursePath &&
-    selectedUnits.grade?.coursePath
-  )
+  if (isUnitSelected)
     return (
       <div className="flex flex-col items-center gap-8">
         <div className="text-left pl-12 bg-gray-50 text-3xl py-6 w-full flex justify-between">
           <span>
-            {selectedUnits.grade.courseName.replace(/^\d+\s*/, "")}/
-            {selectedUnits.large.courseName.replace(/^\d+\s*/, "")}/
-            {selectedUnits.middle.courseName.replace(/^\d+\s*/, "")}/
-            {selectedUnits.small.courseName.replace(/^\d+\s*/, "")}
+            {selectedUnits.grade?.courseName.replace(/^\d+\s*/, "")}
+            {selectedUnits.large && (
+              <>/{selectedUnits.large.courseName.replace(/^\d+\s*/, "")}</>
+            )}
+            {selectedUnits.middle && (
+              <>/{selectedUnits.middle.courseName.replace(/^\d+\s*/, "")}</>
+            )}
+            {selectedUnits.small && (
+              <>/{selectedUnits.small.courseName.replace(/^\d+\s*/, "")}</>
+            )}
+            {selectedUnit && (
+              <>/{selectedUnit.courseName.replace(/^\d+\s*/, "")}</>
+            )}
           </span>
           <button
             onClick={() => {
-              setSelectedUnits({
-                grade: undefined,
-                large: undefined,
-                middle: undefined,
-                small: undefined,
-              });
+              setIsUnitSelected(false);
             }}
             className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 hover:shadow-md transition-all duration-200 cursor-pointer"
           >
@@ -170,13 +173,29 @@ function CourseProblemList() {
         단원 선택
       </div>
       <div className="flex justify-center border-t-[1px] border-gray-300 border-solid">
-        <div className="w-[840px]">
+        <div className="w-[840px] flex flex-col items-right">
           <div className="py-4 px-12 h-[500px] overflow-y-auto mt-24 border-r-[1px] border-gray-300 border-solid">
             <UnitSelectionByGrade
               selectedUnits={selectedUnits}
               setSelectedUnits={setSelectedUnits}
+              selectedUnit={selectedUnit}
+              setSelectedUnit={setSelectedUnit}
             />
           </div>
+          <button
+            className={`mt-4 mx-auto px-4 py-2 rounded text-white font-semibold transition ${
+              selectedUnit
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+            disabled={!selectedUnit}
+            onClick={() => {
+              setIsUnitSelected(true);
+              console.log("선택된 단원:", selectedUnit);
+            }}
+          >
+            선택 완료
+          </button>
         </div>
       </div>
     </div>
