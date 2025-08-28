@@ -67,7 +67,7 @@ export function Header() {
             navigate({ to: "/test-papers" });
           }}
         >
-          시험지
+          문제집
         </button>
         <button
           className="text-lg cursor-pointer  py-4"

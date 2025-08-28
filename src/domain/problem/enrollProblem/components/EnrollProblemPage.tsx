@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import GradeItem from "../../components/GradeItem";
 import { useQuery } from "@tanstack/react-query";
 import { getCourse } from "../../apis/course";
-import UnitSelection from "../../components/UnitSelection";
 import { districtsMap, regions } from "../../datas/regions";
 import { getProblemsByQuery } from "../../apis/problem";
 import type {
@@ -19,6 +18,7 @@ import UnitSelectionByGrade from "../../components/UnitSelectionByGrade";
 
 const types = ["단원별 문제", "id로 찾기"];
 const difficultyMap: Record<string, DifficultyType> = {
+  전체: "",
   하: "LOW",
   중하: "MID_LOW",
   중: "MID",
@@ -26,19 +26,19 @@ const difficultyMap: Record<string, DifficultyType> = {
   상: "HIGH",
   칼러: "KILLER",
 };
-const difficultys = ["하", "중하", "중", "중상", "상", "킬러"];
+const difficultys = ["전체", "하", "중하", "중", "중상", "상", "킬러"];
 
 const problemMap: Record<string, ProblemType> = {
+  전체: "",
   객관식: "MULTIPLE_CHOICE",
   단답형: "SHORT_ANSWER",
 };
-const problemTypes = ["객관식", "단답형"];
+const problemTypes = ["전체", "객관식", "단답형"];
 
 function EnrollProblemPage() {
   const navigate = useNavigate();
   const { setProblems } = useProblemStore();
   const [selectedType, setSelectedType] = useState(0);
-  const [selectedGrade, setSelectedGrade] = useState(0);
   const [selectedUnits, setSelectedUnits] = useState<SelectedUnits>({
     large: undefined,
     middle: undefined,
@@ -111,7 +111,7 @@ function EnrollProblemPage() {
               )}
             </div>
           </div>
-          <div className="w-[440px] pl-4 mt-4">
+          <div className="w-[540px] pl-4 mt-4">
             {/* 난이도 */}
             <div className="py-4">
               <span className="text-md">난이도</span>
@@ -130,7 +130,7 @@ function EnrollProblemPage() {
             </div>
             {/* 문제 타입 */}
             <div className="py-4">
-              <span className="text-md">난이도</span>
+              <span className="text-md">문제 유형</span>
               <div className="flex flex-wrap gap-2 justify-start mt-2">
                 {problemTypes.map((problemType, index) => (
                   <GradeItem

@@ -8,8 +8,8 @@ import ProblemItem from "./ProblemItem";
 import { getSingleProblemsByQuery } from "../apis/problem";
 import type { DifficultyType } from "../../types/problem";
 import { difficultys } from "../../utils/difficultys";
-import { pathMap } from "../utils/pathMap";
-import { useNavigate } from "@tanstack/react-router";
+import TestPaperHeader from "./TestPaperHeader";
+import TestPaperItem from "./TestPaperItem";
 
 const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
   전체: "all",
@@ -19,8 +19,7 @@ const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
   "우리학교 예상": "school",
 };
 
-function ProblemListPage() {
-  const navigate = useNavigate();
+function TestPapersListPage() {
   const { data: gradeList } = useQuery({
     queryKey: [`v1/problem/course/`, ""],
     queryFn: ({ queryKey }) => getCourse(queryKey[1]),
@@ -57,28 +56,6 @@ function ProblemListPage() {
         전체 문제
       </div>
       <nav className="flex items-center gap-8 mt-12">
-        <div className="flex gap-2 flex-wrap mr-24">
-          {["전체", "최신", "인기", "단원 별", "우리학교 예상"].map((item) => {
-            return (
-              <button
-                key={item}
-                onClick={() => {
-                  navigate({ to: pathMap[item] });
-                  setSelectedType(item);
-                }}
-                className={`px-4 py-2 rounded-full border transition-colors duration-200 cursor-pointer
-                ${
-                  selectedType === item
-                    ? "border-indigo-500 bg-indigo-500 text-white shadow-sm"
-                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <span className="text-sm font-medium">{item}</span>
-              </button>
-            );
-          })}
-        </div>
-
         <div>
           <select
             value={queryList.difficulty}
@@ -139,7 +116,7 @@ function ProblemListPage() {
           <AiOutlineSearch className="text-gray-400 mr-2 w-5 h-5" />
           <input
             type="text"
-            placeholder="문제 제목으로 검색"
+            placeholder="문제집 제목으로 검색"
             className="w-full outline-none text-gray-700 placeholder-gray-400"
             value={queryList.singleProblemName}
             onChange={(e) => {
@@ -152,12 +129,12 @@ function ProblemListPage() {
         </div>
       </nav>
       <div>
-        <ProblemListHeader />
+        <TestPaperHeader />
         {!isLoading && problemList ? (
           problemList
             .sort((a, b) => Number(a.id) - Number(b.id))
             .map((problem, index) => (
-              <ProblemItem key={problem.id} problem={problem} index={index} />
+              <TestPaperItem key={problem.id} problem={problem} index={index} />
             ))
         ) : (
           <div>데이터 없음</div>
@@ -167,4 +144,4 @@ function ProblemListPage() {
   );
 }
 
-export default ProblemListPage;
+export default TestPapersListPage;

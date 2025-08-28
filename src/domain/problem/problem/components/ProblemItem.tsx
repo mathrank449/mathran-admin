@@ -25,12 +25,24 @@ function ProblemItem({
       </div>
       <div className="inline-block align-middle w-[500px] text-center overflow-hidden truncate">
         <a
-          className="text-sm text-blue-500 whitespace-nowrap"
+          className="text-sm text-blue-500 whitespace-nowrap mr-4"
           title={String(problem.singleProblemName)}
           href={`/problems/${problem.id}`}
         >
           {problem.singleProblemName}
         </a>
+        <span>
+          {problem.successAtFirstTry === true && (
+            <span className="text-md px-3 py-1 rounded-xl border-solid border border-blue-500 bg-blue-500 text-white">
+              성공
+            </span>
+          )}
+          {problem.successAtFirstTry === false && (
+            <span className="text-md px-3 py-1 rounded-xl border-solid border border-red-500 bg-red-500 text-white">
+              실패
+            </span>
+          )}
+        </span>
       </div>
       <div className="inline-block align-middle w-[400px] text-center overflow-hidden truncate">
         {problem.courseInfo.parents.map((course) => (

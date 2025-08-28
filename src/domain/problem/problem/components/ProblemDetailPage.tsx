@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { getSingleProblemById, solveSingleProblem } from "../apis/problem";
-import type { ProblemItemResponse } from "../types/problem";
+import type {
+  ProblemItemResponse,
+  SubmitAnswerResponse,
+} from "../types/problem";
 import { AiOutlineCopy } from "react-icons/ai";
 import { difficultyToKorean } from "../../utils/difficultyTransform";
 import { problemTypeToKorea } from "../../utils/problemTypeToKorea";
@@ -14,6 +17,12 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
   const [problem, setProblem] = useState<ProblemItemResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [answers, setAnswers] = useState<string[]>([""]); // 여러 정답 관리
+  const [submissionResult, setSubmissionResult] =
+    useState<SubmitAnswerResponse>({
+      success: undefined, // 제출 성공 여부
+      realAnswer: [], // 정답 목록
+      submittedAnswer: [], // 사용자가 제출한 답안 목록
+    });
 
   useEffect(() => {
     setIsLoading(true);
@@ -41,10 +50,24 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
     <div className="flex justify-center mt-24">
       <div className="p-4 flex flex-col gap-4 relative mb-36">
         <div className="mb-4">
-          <div className="flex items-center justify-between">
-            <span className="font-bold">
-              {problem.id}. {problem.singleProblemName}
-            </span>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <span className="font-bold mr-4">
+                {problem.id}. {problem.singleProblemName}
+              </span>
+              <span>
+                {problem.successAtFirstTry === true && (
+                  <span className="text-md px-3 py-1 rounded-xl border-solid border border-blue-500 bg-blue-500 text-white">
+                    성공
+                  </span>
+                )}
+                {problem.successAtFirstTry === false && (
+                  <span className="text-md px-3 py-1 rounded-xl border-solid border border-red-500 bg-red-500 text-white">
+                    실패
+                  </span>
+                )}
+              </span>
+            </div>
             <button
               className="text-blue-600 text-md hover:text-blue-800 cursor-pointer"
               onClick={() => {
@@ -116,14 +139,46 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
 
         <div className="flex gap-4 absolute bottom-[-120px] right-0">
           <button
-            onClick={() => {
-              solveSingleProblem(problem.problemId, answers);
+            onClick={async () => {
+              const solvingResult = await solveSingleProblem(
+                problem.id,
+                answers
+              );
+              setSubmissionResult(solvingResult);
+
+              setIsLoading(true);
+              getSingleProblemById(String(problemId))
+                .then((res) => setProblem(res))
+                .finally(() => setIsLoading(false));
             }}
             className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
           >
             제출
           </button>
         </div>
+      </div>
+      {/* 결과 표시 */}
+      <div className="ml-8 mt-12">
+        {submissionResult.success !== undefined && (
+          <div className="p-4 border rounded-lg shadow-md bg-gray-50">
+            <h3 className="font-bold mb-2">결과</h3>
+            <p>
+              <span className="font-bold">내 정답:</span>{" "}
+              {submissionResult.submittedAnswer.join(", ")}
+            </p>
+            <p>
+              <span className="font-bold">실제 정답:</span>{" "}
+              {submissionResult.realAnswer.join(", ")}
+            </p>
+            <p
+              className={`font-bold mt-2 ${
+                submissionResult.success ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {submissionResult.success ? "정답입니다 ✅" : "오답입니다 ❌"}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

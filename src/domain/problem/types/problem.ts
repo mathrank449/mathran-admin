@@ -1,8 +1,9 @@
 // types/problem.ts
 
-export type ProblemType = "MULTIPLE_CHOICE" | "SHORT_ANSWER";
+export type ProblemType = "" | "MULTIPLE_CHOICE" | "SHORT_ANSWER";
 export type ProblemKoreaType = "객관식" | "단답형";
 export type DifficultyType =
+  | ""
   | "KILLER"
   | "HIGH"
   | "MID_HIGH"

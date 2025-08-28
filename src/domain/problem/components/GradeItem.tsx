@@ -1,6 +1,6 @@
 type GradeItemProps = {
   text: string;
-  handleClick: () => void;
+  handleClick?: () => void;
   selected?: boolean; // 선택 여부
 };
 

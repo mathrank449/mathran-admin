@@ -63,7 +63,7 @@ export const solveSingleProblem = async (
 ): Promise<SubmitAnswerResponse> => {
   try {
     const { data } = await instance.post(
-      `/v1/problem/single?singleProblemId=${id}&answers=${answers}`
+      `/v1/problem/single/solve?singleProblemId=${id}&answers=${answers}`
     );
 
     return data;

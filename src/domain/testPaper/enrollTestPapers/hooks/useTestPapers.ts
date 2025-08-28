@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type {
   ProblemResponse,
   TestPaerProblemResponse,
-} from "../../types/problem";
+} from "../../../problem/types/problem";
 
 type TestPapersStore = {
   problems: ProblemResponse[][]; // 문제집별 문제 배열
@@ -19,9 +19,11 @@ type TestPapersStore = {
   // testPaper 조작
   addTestPaper: () => void;
   removeSelectedTestPaper: () => void;
+  clearSelectedTestPaper: () => void;
 
   // 현재 선택된 문제집 문제 조작
   insertProblems: (problem: ProblemResponse[]) => void; // selectedIndex의 문제집에 문제 리스트 삽입
+  clearProblems: () => void; // selectedIndex의 문제집에 문제 리스트 삽입
   insertTestPapers: (problem: TestPaerProblemResponse) => void; // selectedIndex의 문제집에 문제 삽입
   setTestPapersScore: (socore: number) => void; // selectedIndex의 문제집에 문제 삽입
 };
@@ -60,10 +62,24 @@ export const useTestPapersStore = create<TestPapersStore>((set) => ({
       };
     }),
 
+  clearSelectedTestPaper: () =>
+    set((state) => {
+      const newTestPapers = [...state.testPapers];
+      newTestPapers[state.selectedIndex] = undefined;
+      return { testPapers: newTestPapers };
+    }),
+
   insertProblems: (problems) =>
     set((state) => {
       const newProblems = [...state.problems];
       newProblems[state.selectedIndex] = problems;
+      return { problems: newProblems };
+    }),
+
+  clearProblems: () =>
+    set((state) => {
+      const newProblems = [...state.problems];
+      newProblems[state.selectedIndex] = [];
       return { problems: newProblems };
     }),
 
