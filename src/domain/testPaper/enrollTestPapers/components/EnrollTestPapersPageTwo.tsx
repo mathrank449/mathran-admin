@@ -14,7 +14,7 @@ function EnrollTestPapersPageTwo() {
   } = useTestPapersStore();
 
   return (
-    <div className="flex justify-center mt-24">
+    <div className="flex justify-center">
       <div className="relative border-solid border-gray-300 border-[1px] rounded-2xl w-[680px] h-[720px]">
         <div className="py-12 h-[640px] overflow-y-auto">
           {problems[selectedIndex].map((problem) => (

@@ -24,7 +24,7 @@ function EnrollTestPapersPageThree() {
   if (problem === undefined) return <div>문제 없음</div>;
 
   return (
-    <div className="flex justify-center mt-24">
+    <div className="flex justify-center">
       <div className="flex items-center gap-8">
         <button
           className="cursor-pointer w-10 h-10 flex items-center justify-center 

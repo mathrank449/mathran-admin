@@ -8,6 +8,7 @@ import { enrollProblemSingle } from "../apis/problem";
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const difficultyMap: Record<DifficultyType, string> = {
+  "": "전체",
   LOW: "하",
   MID_LOW: "중하",
   MID: "중",
@@ -17,6 +18,7 @@ const difficultyMap: Record<DifficultyType, string> = {
 };
 
 const problemMap: Record<ProblemType, string> = {
+  "": "전체",
   MULTIPLE_CHOICE: "객관식",
   SHORT_ANSWER: "단답형",
 };

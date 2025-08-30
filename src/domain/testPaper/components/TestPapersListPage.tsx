@@ -1,22 +1,18 @@
 import { AiOutlineSearch } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
-import { getCourse } from "../../apis/course";
+import { getCourse } from "../../problem/apis/course";
 import { useEffect, useState } from "react";
-import ProblemListHeader from "./ProblemListHeader";
-import type { SingleProblemQueryListType } from "../types/problem";
-import ProblemItem from "./ProblemItem";
-import { getSingleProblemsByQuery } from "../apis/problem";
-import type { DifficultyType } from "../../types/problem";
-import { difficultys } from "../../utils/difficultys";
+import type { DifficultyType } from "../../problem/types/problem";
+import { difficultys } from "../../problem/utils/difficultys";
 import TestPaperHeader from "./TestPaperHeader";
 import TestPaperItem from "./TestPaperItem";
+import type { TestPaperQueryListType } from "../types/testPaper";
+import { getTestPapersByQuery } from "../apis/testPaper";
 
-const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
+const typeMap: Record<string, TestPaperQueryListType["queryType"]> = {
   전체: "all",
   최신: "new",
   인기: "popular",
-  "단원 별": "course",
-  "우리학교 예상": "school",
 };
 
 function TestPapersListPage() {
@@ -25,37 +21,53 @@ function TestPapersListPage() {
     queryFn: ({ queryKey }) => getCourse(queryKey[1]),
   });
   const [selectedType, setSelectedType] = useState("전체");
-  const [queryList, setQueryList] = useState<SingleProblemQueryListType>({
+  const [queryList, setQueryList] = useState<TestPaperQueryListType>({
     queryType: "all",
-    singleProblemId: "",
+    testPaperId: "",
     courseInfo: {
       courseName: "전체(과정)",
       coursePath: "",
     },
-    singleProblemName: "",
-    answerType: undefined,
+    testPaperName: "",
     difficulty: "",
   });
 
-  const { data: problemList, isLoading } = useQuery({
-    queryKey: ["v1/problem/single/", queryList] as const,
-    queryFn: ({ queryKey }) => getSingleProblemsByQuery(queryKey[1]),
+  const { data: testPaperList, isLoading } = useQuery({
+    queryKey: ["v1/problem/assessment/", queryList] as const,
+    queryFn: ({ queryKey }) => getTestPapersByQuery(queryKey[1]),
   });
   console.log(queryList);
-
-  useEffect(() => {
-    setQueryList((prev) => ({
-      ...prev,
-      queryType: typeMap[selectedType] || "all",
-    }));
-  }, [selectedType]);
 
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-left pl-12 bg-gray-50 text-3xl py-6 w-full">
-        전체 문제
+        문제집
       </div>
       <nav className="flex items-center gap-8 mt-12">
+        <div className="flex gap-2 flex-wrap mr-24">
+          {["전체", "최신", "인기"].map((item) => {
+            return (
+              <button
+                key={item}
+                onClick={() => {
+                  setQueryList((prev) => ({
+                    ...prev,
+                    queryType: typeMap[selectedType] || "all",
+                  }));
+                  setSelectedType(item);
+                }}
+                className={`px-4 py-2 rounded-full border transition-colors duration-200 cursor-pointer
+                        ${
+                          selectedType === item
+                            ? "border-indigo-500 bg-indigo-500 text-white shadow-sm"
+                            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+                        }`}
+              >
+                <span className="text-sm font-medium">{item}</span>
+              </button>
+            );
+          })}
+        </div>
         <div>
           <select
             value={queryList.difficulty}
@@ -118,11 +130,11 @@ function TestPapersListPage() {
             type="text"
             placeholder="문제집 제목으로 검색"
             className="w-full outline-none text-gray-700 placeholder-gray-400"
-            value={queryList.singleProblemName}
+            value={queryList.testPaperName}
             onChange={(e) => {
               setQueryList((prev) => ({
                 ...prev,
-                singleProblemName: e.target.value,
+                testPaperName: e.target.value,
               }));
             }}
           />
@@ -130,11 +142,15 @@ function TestPapersListPage() {
       </nav>
       <div>
         <TestPaperHeader />
-        {!isLoading && problemList ? (
-          problemList
-            .sort((a, b) => Number(a.id) - Number(b.id))
-            .map((problem, index) => (
-              <TestPaperItem key={problem.id} problem={problem} index={index} />
+        {!isLoading && testPaperList ? (
+          testPaperList?.queryResults
+            .sort((a, b) => Number(a.assessmentId) - Number(b.assessmentId))
+            .map((testPaper, index) => (
+              <TestPaperItem
+                key={testPaper.assessmentId}
+                testPaper={testPaper}
+                index={index}
+              />
             ))
         ) : (
           <div>데이터 없음</div>

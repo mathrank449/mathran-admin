@@ -140,16 +140,25 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
         <div className="flex gap-4 absolute bottom-[-120px] right-0">
           <button
             onClick={async () => {
-              const solvingResult = await solveSingleProblem(
-                problem.id,
-                answers
-              );
-              setSubmissionResult(solvingResult);
+              setIsLoading(true); // 호출 전 로딩 시작
+              try {
+                // 정답 제출
+                const solvingResult = await solveSingleProblem(
+                  problem.id,
+                  answers
+                );
+                setSubmissionResult(solvingResult);
 
-              setIsLoading(true);
-              getSingleProblemById(String(problemId))
-                .then((res) => setProblem(res))
-                .finally(() => setIsLoading(false));
+                // 문제 정보 새로 가져오기
+                const updatedProblem = await getSingleProblemById(
+                  String(problemId)
+                );
+                setProblem(updatedProblem);
+              } catch (error) {
+                console.error(error);
+              } finally {
+                setIsLoading(false); // 호출 끝나면 로딩 종료
+              }
             }}
             className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
           >
