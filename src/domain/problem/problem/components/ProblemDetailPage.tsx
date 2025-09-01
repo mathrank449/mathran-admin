@@ -7,6 +7,7 @@ import type {
 import { AiOutlineCopy } from "react-icons/ai";
 import { difficultyToKorean } from "../../utils/difficultyTransform";
 import { problemTypeToKorea } from "../../utils/problemTypeToKorea";
+import ChallengeLogs from "./ChallengeLogs";
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 interface ProblemDetailPageProps {
@@ -17,6 +18,7 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
   const [problem, setProblem] = useState<ProblemItemResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [answers, setAnswers] = useState<string[]>([""]); // 여러 정답 관리
+  const [startTime, setStartTime] = useState(0);
   const [submissionResult, setSubmissionResult] =
     useState<SubmitAnswerResponse>({
       success: undefined, // 제출 성공 여부
@@ -27,7 +29,10 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
   useEffect(() => {
     setIsLoading(true);
     getSingleProblemById(String(problemId))
-      .then((res) => setProblem(res))
+      .then((res) => {
+        setStartTime(Date.now());
+        setProblem(res);
+      })
       .finally(() => setIsLoading(false));
   }, [problemId]);
 
@@ -142,10 +147,14 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
             onClick={async () => {
               setIsLoading(true); // 호출 전 로딩 시작
               try {
+                const elapsedTimeSeconds = Math.floor(
+                  (Date.now() - startTime) / 1000
+                );
                 // 정답 제출
                 const solvingResult = await solveSingleProblem(
                   problem.id,
-                  answers
+                  answers,
+                  elapsedTimeSeconds
                 );
                 setSubmissionResult(solvingResult);
 
@@ -188,6 +197,7 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
             </p>
           </div>
         )}
+        <ChallengeLogs />
       </div>
     </div>
   );

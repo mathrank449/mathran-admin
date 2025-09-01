@@ -59,11 +59,12 @@ export const getSingleProblemById = async (
 
 export const solveSingleProblem = async (
   id: string,
-  answers: string[]
+  answers: string[],
+  elapsedTimeSeconds: number
 ): Promise<SubmitAnswerResponse> => {
   try {
     const { data } = await instance.post(
-      `/v1/problem/single/solve?singleProblemId=${id}&answers=${answers}`
+      `/v1/problem/single/solve?singleProblemId=${id}&answers=${answers}&elapsedTimeSeconds=${elapsedTimeSeconds}`
     );
 
     return data;
