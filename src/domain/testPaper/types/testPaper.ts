@@ -36,6 +36,7 @@ export interface ItemDetail {
   problemId: string;
   problemImage: string;
   memberId: number;
+  score: number;
   courseDetailResult: CourseType;
   difficulty: DifficultyType;
   type: ProblemType;

@@ -7,7 +7,13 @@ import type {
 import { AiOutlineCopy } from "react-icons/ai";
 import { difficultyToKorean } from "../../utils/difficultyTransform";
 import { problemTypeToKorea } from "../../utils/problemTypeToKorea";
-import ChallengeLogs from "./ChallengeLogs";
+import ChallengeLogItem from "../../../challengeLog/components/ChallengeLogItem";
+import ChallengeLogHeader from "../../../challengeLog/components/ChallengeLogHeader";
+import type {
+  ChallengeLog,
+  ChallengeLogDetail,
+} from "../../../challengeLog/types/challengeLog";
+import { getChallengeLogsBySingleProblemId } from "../../../challengeLog/apis/challengeLog";
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 interface ProblemDetailPageProps {
@@ -16,9 +22,15 @@ interface ProblemDetailPageProps {
 
 function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
   const [problem, setProblem] = useState<ProblemItemResponse | null>(null);
+  const [challengeLogs, setChallengeLogs] = useState<ChallengeLog[]>([]);
+  const [selectedLog, setSelectedLog] = useState<number | undefined>(undefined);
+  const [detailedLog, setDetailedLog] = useState<
+    ChallengeLogDetail | undefined
+  >(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [answers, setAnswers] = useState<string[]>([""]); // 여러 정답 관리
   const [startTime, setStartTime] = useState(0);
+
   const [submissionResult, setSubmissionResult] =
     useState<SubmitAnswerResponse>({
       success: undefined, // 제출 성공 여부
@@ -27,13 +39,19 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
     });
 
   useEffect(() => {
-    setIsLoading(true);
-    getSingleProblemById(String(problemId))
-      .then((res) => {
-        setStartTime(Date.now());
-        setProblem(res);
-      })
-      .finally(() => setIsLoading(false));
+    const fetchData = async () => {
+      setIsLoading(true);
+      const preoblemDetailedRes = await getSingleProblemById(String(problemId));
+      setStartTime(Date.now());
+      setProblem(preoblemDetailedRes);
+
+      const challengeLogsResponse = await getChallengeLogsBySingleProblemId(
+        String(problemId)
+      );
+      setChallengeLogs(challengeLogsResponse);
+      setIsLoading(false);
+    };
+    fetchData();
   }, [problemId]);
 
   const handleAnswerChange = (index: number, value: string) => {
@@ -52,8 +70,8 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
   if (!problem) return <div>문제를 불러올 수 없습니다.</div>;
 
   return (
-    <div className="flex justify-center mt-24">
-      <div className="p-4 flex flex-col gap-4 relative mb-36">
+    <div className="flex justify-center mt-24 mr-8">
+      <div className="p-4 flex flex-col gap-4 relative mb-36 ml-8 border-solid border-gray-200 rounded-xl border-1 shadow-sm">
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <div>
@@ -103,7 +121,7 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
               </span>
             </div>
             <img
-              className="w-48"
+              className="h-46"
               src={`${baseURL}/v1/image?imageSource=${problem.problemImage}`}
               alt="문제 이미지"
             />
@@ -142,7 +160,7 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
           </button>
         </div>
 
-        <div className="flex gap-4 absolute bottom-[-120px] right-0">
+        <div className="flex gap-4 absolute bottom-[-60px] right-0">
           <button
             onClick={async () => {
               setIsLoading(true); // 호출 전 로딩 시작
@@ -163,6 +181,13 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
                   String(problemId)
                 );
                 setProblem(updatedProblem);
+
+                // 풀이 이력 재 조회
+                const challengeLogsResponse =
+                  await getChallengeLogsBySingleProblemId(String(problemId));
+                setChallengeLogs(challengeLogsResponse);
+
+                setStartTime(Date.now());
               } catch (error) {
                 console.error(error);
               } finally {
@@ -175,29 +200,104 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
           </button>
         </div>
       </div>
-      {/* 결과 표시 */}
-      <div className="ml-8 mt-12">
-        {submissionResult.success !== undefined && (
-          <div className="p-4 border rounded-lg shadow-md bg-gray-50">
-            <h3 className="font-bold mb-2">결과</h3>
-            <p>
-              <span className="font-bold">내 정답:</span>{" "}
-              {submissionResult.submittedAnswer.join(", ")}
-            </p>
-            <p>
-              <span className="font-bold">실제 정답:</span>{" "}
-              {submissionResult.realAnswer.join(", ")}
-            </p>
-            <p
-              className={`font-bold mt-2 ${
-                submissionResult.success ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {submissionResult.success ? "정답입니다 ✅" : "오답입니다 ❌"}
-            </p>
+      <div className="ml-8">
+        <div className="border-solid border-gray-200 rounded-xl border-1 shadow-sm h-[400px] overflow-y-auto">
+          {selectedLog === undefined ? (
+            <div>
+              <ChallengeLogHeader />
+              {challengeLogs.map((challengeLog, index) => (
+                <ChallengeLogItem
+                  key={challengeLog.challengeLogId}
+                  challengeLog={challengeLog}
+                  index={index}
+                  setSelectedLog={setSelectedLog}
+                  setDetailedLog={setDetailedLog}
+                />
+              ))}
+            </div>
+          ) : (
+            detailedLog && (
+              <div className="relative w-[500px] rounded-2xl bg-white p-6">
+                {/* 닫기 버튼 */}
+                <button
+                  className="absolute top-3 right-3 text-gray-500 hover:text-red-500 transition cursor-pointer"
+                  onClick={() => {
+                    setSelectedLog(undefined);
+                  }}
+                >
+                  ✕
+                </button>
+
+                {/* 로그 내용 */}
+                <div className="flex flex-col gap-4 mt-8">
+                  {/* 랭킹 */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-semibold text-gray-700">
+                      내 순위
+                    </span>
+                    {detailedLog.myRank === null ? (
+                      <span className="text-xl font-bold text-red-600">
+                        등수 없음
+                      </span>
+                    ) : (
+                      <span className="text-xl font-bold text-blue-600">
+                        {detailedLog.myRank}/{detailedLog.totalUserCount}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 걸린 시간 */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-semibold text-gray-700">
+                      소요 시간
+                    </span>
+                    <span className="text-xl text-green-600">
+                      {detailedLog.myElapsedTimeSecond}초
+                    </span>
+                  </div>
+
+                  {/* 평균 시간 */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-semibold text-gray-700">
+                      평균 소요 시간
+                    </span>
+                    <span className="text-xl text-gray-800">
+                      {detailedLog.averageElapsedTimeSecond}초
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )
+          )}
+        </div>
+        {/* 결과 표시 */}
+        <div className="mt-4">
+          <div className="border-solid border-gray-200 rounded-xl border-1 shadow-sm h-[188px]">
+            <div className="text-center my-2">
+              <span className="font-bold">제출 결과</span>
+            </div>
+            {submissionResult.success !== undefined && (
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <h3 className="font-bold mb-2">결과</h3>
+                <p>
+                  <span className="font-bold">내 정답:</span>{" "}
+                  {submissionResult.submittedAnswer.join(", ")}
+                </p>
+                <p>
+                  <span className="font-bold">실제 정답:</span>{" "}
+                  {submissionResult.realAnswer.join(", ")}
+                </p>
+                <p
+                  className={`font-bold mt-2 ${
+                    submissionResult.success ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {submissionResult.success ? "정답입니다 ✅" : "오답입니다 ❌"}
+                </p>
+              </div>
+            )}
           </div>
-        )}
-        <ChallengeLogs />
+        </div>
       </div>
     </div>
   );

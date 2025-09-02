@@ -1,11 +1,26 @@
 import { useEffect, useState } from "react";
 import type { TestPaperDetailedResponse } from "../types/testPaper";
-import { getTestPapersById } from "../apis/testPaper";
+import {
+  getTestPapersById,
+  submitTestPapersByTestPaperId,
+} from "../apis/testPaper";
 import { AiOutlineCopy } from "react-icons/ai";
 import {
   difficultyMap,
   problemMap,
 } from "../enrollTestPapers/utils/problemMap";
+import {
+  getSubmissionLogsByAssessmentId,
+  getSubmissionResultBySubmissionId,
+} from "../../submissionLog/apis/submissionLog";
+import type {
+  SubmissionDetail,
+  SubmissionLogItem,
+} from "../../submissionLog/types/submissionLog";
+import SubmissionLogListItem from "../../submissionLog/components/SubmissionLogListItem";
+import SubmissionLogHeader from "../../submissionLog/components/SubmissionLogHeader";
+import SubmissionResultListHeader from "./SubmissionResultListHeader";
+import SubmissionResultByProblem from "./SubmissionResultByProblem";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -14,20 +29,77 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
     null
   );
   // 여러 문제의 여러 정답을 관리 (2차원 배열)
-  const [answers, setAnswers] = useState<string[][]>([[""]]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [submissionResult, setSubmissionResult] = useState<string | undefined>(
-    undefined
-  );
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsedTime((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!testPaper) return; // 아직 로딩 중이면 return
+    const timeLimitSeconds = testPaper.minutes * 60;
+
+    // 제한시간을 넘었고 아직 제출 결과가 없다면 자동 제출
+    if (elapsedTime >= timeLimitSeconds && !submissionResult) {
+      alert("제한 시간이 지나 현재 푼 부분까지 채점을 합니다.");
+      const autoSubmit = async () => {
+        try {
+          const submittedLogId = await submitTestPapersByTestPaperId(
+            testPaperId,
+            answers,
+            elapsedTime
+          );
+
+          const submissionLogDetailResponse =
+            await getSubmissionResultBySubmissionId(submittedLogId);
+
+          setElapsedTime(0);
+          setSubmissionResult(submissionLogDetailResponse);
+
+          const submissionLogsResponse = await getSubmissionLogsByAssessmentId(
+            String(testPaperId)
+          );
+
+          setSubmissionLogs(submissionLogsResponse);
+        } catch (e) {
+          console.error("자동 제출 실패:", e);
+        }
+      };
+
+      autoSubmit();
+    }
+  }, [elapsedTime]);
+
+  const [answers, setAnswers] = useState<string[][]>([[""]]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [submissionLogs, setSubmissionLogs] = useState<SubmissionLogItem[]>([]);
+  const [detailedSubmission, setDetailedSubmission] = useState<
+    SubmissionDetail | undefined
+  >(undefined);
+
+  const [selectedLog, setSelectedLog] = useState<number | undefined>(undefined);
+  const [submissionResult, setSubmissionResult] = useState<
+    SubmissionLogItem | undefined
+  >(undefined);
+  useEffect(() => {
     const fetchTestPaper = async () => {
-      const testPaper = await getTestPapersById(String(testPaperId));
-      setTestPaper(testPaper);
+      const testPaperResponse = await getTestPapersById(String(testPaperId));
+      setTestPaper(testPaperResponse);
 
       // itemDetails 개수만큼 정답 배열 초기화 (예: [[""], [""], ...])
-      const initialAnswers = testPaper.itemDetails.map(() => [""]);
+      const initialAnswers = testPaperResponse.itemDetails.map(() => [""]);
       setAnswers(initialAnswers);
+
+      const submissionLogsResponse = await getSubmissionLogsByAssessmentId(
+        String(testPaperId)
+      );
+
+      setSubmissionLogs(submissionLogsResponse);
+      setElapsedTime(0);
     };
 
     fetchTestPaper();
@@ -70,9 +142,18 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
   };
 
   return (
-    <div className="flex justify-center mt-24">
-      <div>
-        {/*  */}
+    <div className="flex justify-center mt-24 mr-8">
+      {/* 상단 타이머 */}
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
+        <div className="bg-white shadow-lg rounded-full px-6 py-2 flex items-center gap-3 border border-gray-200">
+          <span className="text-sm font-medium text-gray-500">⏱ 경과 시간</span>
+          <span className="text-lg font-extrabold text-blue-600">
+            {String(Math.floor(elapsedTime / 60)).padStart(2, "0")}:
+            {String(elapsedTime % 60).padStart(2, "0")}
+          </span>
+        </div>
+      </div>
+      <div className="shadow-sm p-4 border-solid border-gray-200 rounded-xl border-1">
         <div className="absolute left-4 top-24 z-5">
           <nav className="text-center  h-128 overflow-y-auto bg-gray-50 shadow-md rounded-xl mb-6 px-8">
             {Array.from({ length: testPaper.itemDetails.length }, (_, i) => {
@@ -98,7 +179,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
         </div>
 
         {/*  */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-8 ">
           <button
             className="cursor-pointer w-10 h-10 flex items-center justify-center 
                rounded-full border border-gray-300 shadow-md 
@@ -136,18 +217,34 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
             <hr />
 
             <div className="flex justify-between gap-4 items-center border-b-2 border-black my-4">
-              <div className="pb-3 focus:outline-none focus:ring-2 focus:ring-blue-400 px-2 rounded-md pb-2">
-                <span className="font-bold mb-8 border-b-3 border-blue-400 pb-3">
-                  {selectedIndex + 1}번 문제
-                </span>
+              <div className="pb-3 focus:outline-none focus:ring-2 focus:ring-blue-400 px-2 rounded-md ">
+                {submissionResult === undefined ? (
+                  <span className="font-bold mb-8 border-b-3 border-blue-400 pb-3">
+                    {selectedIndex + 1}번 문제
+                  </span>
+                ) : submissionResult.itemSubmissionResults[selectedIndex]
+                    .correct === true ? (
+                  <span className="font-bold mb-8 border-b-3 border-blue-400 pb-3 text-blue-500">
+                    {selectedIndex + 1}번 문제
+                    <span className="ml-2 text-md px-3 py-1 rounded-xl border-solid border border-blue-500 bg-blue-500 text-white">
+                      정답
+                    </span>
+                  </span>
+                ) : (
+                  <span className="font-bold mb-8 border-b-3 border-red-400 pb-3 text-red-500">
+                    {selectedIndex + 1}번 문제
+                    <span className="ml-2 text-md px-3 py-1 rounded-xl border-solid border border-red-500 bg-red-500 text-white">
+                      오답
+                    </span>
+                  </span>
+                )}
               </div>
 
               {/* 시간 제한 */}
               <div className="flex items-center gap-1">
-                <span className="text-sm">점수/</span>
-                <span className="focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center">
-                  {/* {testPaper?.itemDetails[selectedIndex].score} */}
-                  30
+                <span className="text-md">점수/</span>
+                <span className="text-md focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center">
+                  {testPaper?.itemDetails[selectedIndex].score}
                 </span>
                 <span className="text-sm">점</span>
               </div>
@@ -193,7 +290,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
         <div className="flex flex-col gap-4 mt-4">
           <span className="font-bold">정답 입력</span>
           {answers[selectedIndex].map((answer, answerIndex) => (
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center" key={answerIndex}>
               <input
                 type="text"
                 value={answer}
@@ -227,7 +324,24 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
         <div className="text-right mt-12">
           <button
             onClick={async () => {
-              console.log(answers);
+              try {
+                const sunmittedLogId = await submitTestPapersByTestPaperId(
+                  testPaperId,
+                  answers,
+                  elapsedTime
+                );
+
+                const submissionLogDetailResponse =
+                  await getSubmissionResultBySubmissionId(sunmittedLogId);
+                setSubmissionResult(submissionLogDetailResponse);
+                setElapsedTime(0);
+                const submissionLogsResponse =
+                  await getSubmissionLogsByAssessmentId(String(testPaperId));
+
+                setSubmissionLogs(submissionLogsResponse);
+              } catch (e) {
+                console.log(e);
+              }
             }}
             className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
           >
@@ -235,16 +349,122 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
           </button>
         </div>
       </div>
-      {/* 결과 표시 */}
-      <div className="ml-8 mt-12">
-        {submissionResult !== undefined && (
-          <div className="p-4 border rounded-lg shadow-md bg-gray-50">
-            <h3 className="font-bold mb-2">결과</h3>
-            <p>
-              <span className="font-bold">내 점수:</span> {submissionResult}
-            </p>
+      <div>
+        <div className="ml-8">
+          <div className="border-solid border-gray-200 rounded-xl border-1 shadow-sm h-[400px] overflow-y-auto">
+            {selectedLog === undefined ? (
+              <div>
+                <SubmissionLogHeader />
+                {submissionLogs.map((submissionLog, index) => (
+                  <SubmissionLogListItem
+                    key={submissionLog.submissionId}
+                    submissionLog={submissionLog}
+                    index={index}
+                    setSelectedLog={setSelectedLog}
+                    setDetailedSubmission={setDetailedSubmission}
+                    setSubmissionResult={setSubmissionResult}
+                  />
+                ))}
+              </div>
+            ) : (
+              detailedSubmission && (
+                <div className="relative w-[500px] rounded-2xl bg-white p-6">
+                  {/* 닫기 버튼 */}
+                  <button
+                    className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors duration-200 text-xl cursor-pointer"
+                    onClick={() => setSelectedLog(undefined)}
+                    aria-label="Close"
+                  >
+                    ✕
+                  </button>
+
+                  {/* 로그 내용 */}
+                  <div className="flex flex-col gap-6 mt-6">
+                    {/* 점수 랭킹 */}
+                    <div className="flex justify-between items-center p-4 bg-blue-50 rounded-xl shadow-inner">
+                      <span className="text-lg font-medium text-gray-700">
+                        점수 랭킹
+                      </span>
+                      {detailedSubmission.scoreRank === null ? (
+                        <span className="text-xl font-bold text-red-600">
+                          등수 없음
+                        </span>
+                      ) : (
+                        <span className="text-xl font-bold text-blue-600">
+                          {detailedSubmission.scoreRank}/
+                          {detailedSubmission.descendingScores.length}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* 걸린 시간 */}
+                    <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl shadow-inner">
+                      <span className="text-lg font-medium text-gray-700">
+                        평균 소요 시간
+                      </span>
+                      <span className="text-xl font-semibold text-green-600">
+                        {Math.floor(
+                          detailedSubmission.averageElapsedTimeSeconds / 60
+                        )}
+                        분 {detailedSubmission.averageElapsedTimeSeconds % 60}초
+                      </span>
+                    </div>
+
+                    {/* 평균 시간 랭킹 */}
+                    <div className="flex justify-between items-center p-4 bg-purple-50 rounded-xl shadow-inner">
+                      <span className="text-lg font-medium text-gray-700">
+                        시간 랭킹
+                      </span>
+                      {detailedSubmission.elapsedTimeRank === null ? (
+                        <span className="text-xl font-bold text-red-600">
+                          등수 없음
+                        </span>
+                      ) : (
+                        <span className="text-xl font-bold text-purple-600">
+                          {detailedSubmission.elapsedTimeRank}/
+                          {
+                            detailedSubmission.ascendingElapsedTimeSeconds
+                              .length
+                          }
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
           </div>
-        )}
+          {/* 결과 표시 */}
+          <div className="mt-4">
+            <div className="border-solid border-gray-200 rounded-xl border-1 shadow-sm h-[308px] overflow-y-auto">
+              <div className="text-center my-2">
+                <div className="flex items-center gap-3 ml-4 py-2">
+                  <span className="font-extrabold text-lg text-gray-800">
+                    제출 결과
+                  </span>
+                  <span className="text-gray-600">내 점수:</span>
+                  {submissionResult && (
+                    <span className="font-bold text-blue-600 text-xl">
+                      {submissionResult?.totalScore}점
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <SubmissionResultListHeader />
+                  {submissionResult &&
+                    submissionResult.itemSubmissionResults.map(
+                      (submissionProblme, index) => (
+                        <SubmissionResultByProblem
+                          index={index}
+                          submissionProblem={submissionProblme}
+                        />
+                      )
+                    )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

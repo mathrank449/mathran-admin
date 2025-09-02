@@ -89,7 +89,7 @@ function ProblemItem({
           className="text-sm text-black whitespace-nowrap"
           title={String(problem.accuracy)}
         >
-          {problem.accuracy}
+          {problem.accuracy}%
         </span>
       </div>
     </div>

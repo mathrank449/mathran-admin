@@ -1,7 +1,7 @@
 import { AiOutlineSearch } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
 import { getCourse } from "../../problem/apis/course";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { DifficultyType } from "../../problem/types/problem";
 import { difficultys } from "../../problem/utils/difficultys";
 import TestPaperHeader from "./TestPaperHeader";
@@ -31,12 +31,11 @@ function TestPapersListPage() {
     testPaperName: "",
     difficulty: "",
   });
-
+  console.log(queryList);
   const { data: testPaperList, isLoading } = useQuery({
     queryKey: ["v1/problem/assessment/", queryList] as const,
     queryFn: ({ queryKey }) => getTestPapersByQuery(queryKey[1]),
   });
-  console.log(queryList);
 
   return (
     <div className="flex flex-col items-center gap-8">
@@ -52,7 +51,7 @@ function TestPapersListPage() {
                 onClick={() => {
                   setQueryList((prev) => ({
                     ...prev,
-                    queryType: typeMap[selectedType] || "all",
+                    queryType: typeMap[item] || "all",
                   }));
                   setSelectedType(item);
                 }}
