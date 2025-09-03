@@ -1,6 +1,6 @@
 function SubmissionLogHeader() {
   return (
-    <div className="w-[500px] custom-scrollbar whitespace-nowrap bg-gray-200 py-[10px] font-bold rounded-t-xl">
+    <div className=" mx-auto custom-scrollbar whitespace-nowrap bg-gray-200 py-[10px] font-bold rounded-t-xl">
       <div className="w-[70px] inline-block text-left" />
       <div className="w-[130px] inline-block text-left">
         <span className="text-black text-md ">내 점수</span>

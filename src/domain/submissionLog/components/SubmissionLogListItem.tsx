@@ -24,13 +24,15 @@ function SubmissionLogListItem({
 }) {
   return (
     <div
-      className={`w-[500px] whitespace-nowrap py-2 font-bold cursor-pointer ${
+      className={` mx-auto whitespace-nowrap py-2 font-bold cursor-pointer ${
         index % 2 === 0 ? "bg-white" : "bg-gray-100"
       }`}
       onClick={async () => {
         try {
           const submissionLogDetailResponse =
-            await getSubmissionLogDetailBySubmissionId(String(1));
+            await getSubmissionLogDetailBySubmissionId(
+              String(submissionLog.submissionId)
+            );
           setDetailedSubmission(submissionLogDetailResponse);
           setSelectedLog(index);
           setSubmissionResult(submissionLog);

@@ -140,7 +140,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
       prev.map((arr, pIdx) => (pIdx === problemIndex ? [...arr, ""] : arr))
     );
   };
-
+  console.log(selectedLog);
   return (
     <div className="flex justify-center mt-24 mr-8">
       {/* 상단 타이머 */}
@@ -325,16 +325,27 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
           <button
             onClick={async () => {
               try {
-                const sunmittedLogId = await submitTestPapersByTestPaperId(
+                const submittedLogId = await submitTestPapersByTestPaperId(
                   testPaperId,
                   answers,
                   elapsedTime
                 );
 
-                const submissionLogDetailResponse =
-                  await getSubmissionResultBySubmissionId(sunmittedLogId);
+                let submissionLogDetailResponse =
+                  await getSubmissionResultBySubmissionId(submittedLogId);
+
+                // 상태가 PENDING이면 1초 대기 후 재요청
+                if (
+                  submissionLogDetailResponse.evaluationStatus === "PENDING"
+                ) {
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                  submissionLogDetailResponse =
+                    await getSubmissionResultBySubmissionId(submittedLogId);
+                }
+
                 setSubmissionResult(submissionLogDetailResponse);
                 setElapsedTime(0);
+
                 const submissionLogsResponse =
                   await getSubmissionLogsByAssessmentId(String(testPaperId));
 
@@ -392,7 +403,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
                       ) : (
                         <span className="text-xl font-bold text-blue-600">
                           {detailedSubmission.scoreRank}/
-                          {detailedSubmission.descendingScores.length}
+                          {detailedSubmission.totalUserCount}
                         </span>
                       )}
                     </div>
@@ -422,10 +433,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
                       ) : (
                         <span className="text-xl font-bold text-purple-600">
                           {detailedSubmission.elapsedTimeRank}/
-                          {
-                            detailedSubmission.ascendingElapsedTimeSeconds
-                              .length
-                          }
+                          {detailedSubmission.totalUserCount}
                         </span>
                       )}
                     </div>

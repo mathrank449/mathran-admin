@@ -27,4 +27,5 @@ export type SubmissionDetail = {
   elapsedTimeSeconds: number; // 내 풀이 시간
   averageElapsedTimeSeconds: number;
   elapsedTimeRank: number; // 풀이 시간 순위
+  totalUserCount: number; // 랭킹 전체 유저
 };

@@ -10,7 +10,7 @@ function SubmissionResultByProblem({
   console.log(submissionProblem);
   return (
     <div
-      className={`whitespace-nowrap py-2 font-bold mx-2 ${
+      className={`whitespace-nowrap py-2 font-bold ${
         index % 2 === 0 ? "bg-white" : "bg-gray-100"
       }`}
     >
