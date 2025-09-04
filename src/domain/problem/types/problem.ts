@@ -66,7 +66,7 @@ export interface ProblemResponse {
   solutionVideoLink: string;
 }
 
-export interface TestPaerProblemResponse extends ProblemResponse {
+export interface ScoreProblemResponse extends ProblemResponse {
   score: number;
 }
 
