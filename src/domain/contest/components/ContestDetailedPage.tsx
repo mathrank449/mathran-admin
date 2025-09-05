@@ -17,6 +17,7 @@ import SubmissionLogHeader from "../../submissionLog/components/SubmissionLogHea
 import SubmissionResultListHeader from "../../testPaper/components/SubmissionResultListHeader";
 import SubmissionResultByProblem from "../../testPaper/components/SubmissionResultByProblem";
 import type { ApiError } from "../../../shared/type/error";
+import { useNavigate } from "@tanstack/react-router";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -73,6 +74,7 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
     }
   }, [elapsedTime]);
 
+  const navigate = useNavigate();
   const [answers, setAnswers] = useState<string[][]>([[""]]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [submissionLogs, setSubmissionLogs] = useState<SubmissionLogItem[]>([]);
@@ -89,6 +91,15 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
     const fetchContest = async () => {
       const contestResponse = await getContestById(String(contestId));
       setContest(contestResponse);
+      const now = new Date();
+      const start = new Date(contestResponse.startAt);
+      const end = new Date(contestResponse.endAt);
+
+      if (now < start || now > end) {
+        // 오늘이 시작 전이거나 종료 후
+        alert("참여할 수 없는 대회입니다.");
+        navigate({ to: "/" });
+      }
 
       // itemDetails 개수만큼 정답 배열 초기화 (예: [[""], [""], ...])
       const initialAnswers = contestResponse.itemDetails.map(() => [""]);
@@ -362,7 +373,7 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
               } catch (e) {
                 const err = e as ApiError;
                 if (err.code === 7010) {
-                  alert("이미 응시한 대회입니다.");
+                  alert("응시 할 수 없는 대회입니다.");
                 }
               }
             }}

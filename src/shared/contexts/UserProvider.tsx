@@ -4,18 +4,18 @@ import { UserContext } from "./UserContext";
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [username, setUsername] = useState<string | null>(
-    localStorage.getItem("mathrancloud_username")
+    localStorage.getItem("mathran_admin_username")
   );
 
   // 로그인 함수
   const updateUsername = (username: string) => {
-    localStorage.setItem("mathrancloud_username", username);
+    localStorage.setItem("mathran_admin_username", username);
     setUsername(username);
   };
 
   // 로그아웃 함수
   const removeUsername = () => {
-    localStorage.removeItem("mathrancloud_username");
+    localStorage.removeItem("mathran_admin_username");
     setUsername(null);
   };
 

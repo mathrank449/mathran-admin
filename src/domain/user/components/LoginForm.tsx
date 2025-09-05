@@ -29,7 +29,7 @@ const LoginForm = ({ formData, setFormData, handleSubmit }: LoginFormProps) => {
       login(loginData.loginId, loginData.password),
     onSuccess: (data) => {
       instance.defaults.headers.common["Authorization"] = `${data.accessToken}`;
-      localStorage.setItem("mathrancloud_username", data.userName);
+      localStorage.setItem("mathran_admin_username", data.userName);
       alert("로그인에 성공하였습니다.");
       navigate({ to: "/" });
       setUsername(data.userName);

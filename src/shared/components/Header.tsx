@@ -22,7 +22,7 @@ export function Header() {
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      localStorage.removeItem("mathrancloud_username");
+      localStorage.removeItem("mathran_admin_username");
       navigate({ to: "/login" }); // 로그아웃 후 이동할 경로
       removeUsername();
     },
@@ -113,7 +113,7 @@ export function Header() {
         </div>
         <div className="absolute right-4">
           {/* 오른쪽 로그인/로그아웃 */}
-          {username || localStorage.getItem("mathrancloud_username") ? (
+          {username || localStorage.getItem("mathran_admin_username") ? (
             <div className="flex items-center gap-4 mr-8">
               <span className="text-sm text-gray-700 font-medium">
                 {username}

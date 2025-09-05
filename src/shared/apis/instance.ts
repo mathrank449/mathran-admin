@@ -39,7 +39,7 @@ instance.interceptors.response.use(
     if (error.response?.status === 401) {
       if (originalRequest._retry) {
         // 이미 재시도 했는데도 401 -> 로그인 페이지로 이동
-        localStorage.removeItem("mathrancloud_username");
+        localStorage.removeItem("mathran_admin_username");
         window.location.href = "/login"; // 로그인 페이지 경로에 맞게 수정하세요
         return Promise.reject(error);
       }
@@ -62,14 +62,14 @@ instance.interceptors.response.use(
         const newToken = data.accessToken;
 
         instance.defaults.headers.common["Authorization"] = newToken;
-        localStorage.setItem("mathrancloud_username", data.userName);
+        localStorage.setItem("mathran_admin_username", data.userName);
         processQueue(null, newToken);
 
         originalRequest.headers["Authorization"] = newToken;
         return instance(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        localStorage.removeItem("mathrancloud_username");
+        localStorage.removeItem("mathran_admin_username");
         window.location.href = "/login";
         return Promise.reject(err);
       } finally {
