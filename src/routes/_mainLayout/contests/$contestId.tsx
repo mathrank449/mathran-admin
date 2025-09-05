@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import ContestDetailedPage from "../../../domain/contest/components/ContestDetailedPage";
 
 export const Route = createFileRoute("/_mainLayout/contests/$contestId")({
   component: RouteComponent,
@@ -6,5 +7,5 @@ export const Route = createFileRoute("/_mainLayout/contests/$contestId")({
 
 function RouteComponent() {
   const { contestId } = Route.useParams();
-  return <div>Hello "/_mainLayout/contests/$contestId"!</div>;
+  return <ContestDetailedPage contestId={contestId} />;
 }

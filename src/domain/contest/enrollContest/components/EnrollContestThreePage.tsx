@@ -1,25 +1,29 @@
-import { useTestPapersStore } from "../hooks/useTestPapers";
+import { useContestStore } from "../hooks/useContestStore";
 import { AiOutlineCopy } from "react-icons/ai";
 import { useNavigate } from "@tanstack/react-router";
-import { enrollTestPapers } from "../apis/testPapers";
+import { enrollTestPapers } from "../apis/contest";
 import { difficultyMap, problemMap } from "../../../problem/utils/problemMap";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-function EnrollTestPapersPageThree() {
+function EnrollContestThreePage() {
   const {
-    testPapers,
+    contestProblems,
     selectedIndex,
     setSelectedIndex,
-    setTestPapersScore,
+    setContestProblemScore,
     time,
     setTime,
     title,
     setTitle,
-    clearSelectedTestPaper,
-  } = useTestPapersStore();
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    clearSelectedContestProblem,
+  } = useContestStore();
   const navigate = useNavigate();
-  const problem = testPapers[selectedIndex];
+  const problem = contestProblems[selectedIndex];
 
   if (problem === undefined) return <div>문제 없음</div>;
 
@@ -48,7 +52,7 @@ function EnrollTestPapersPageThree() {
             {/* 문서 제목 */}
             <input
               type="text"
-              placeholder="문제집 제목을 입력하세요"
+              placeholder="대회 제목을 입력하세요"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="flex-[3] focus:outline-none focus:ring-2 focus:ring-blue-400 px-2 rounded-md"
@@ -83,11 +87,51 @@ function EnrollTestPapersPageThree() {
                 type="number"
                 value={problem.score}
                 onChange={(e) => {
-                  setTestPapersScore(Number(e.target.value));
+                  setContestProblemScore(Number(e.target.value));
                 }}
                 className="w-12 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center"
               />
               <span className="text-sm">점</span>
+            </div>
+          </div>
+
+          <div className="flex gap-6 items-center">
+            {/* 시작 날짜 선택 */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="startDate" className="text-sm font-medium">
+                시작일자
+              </label>
+              <input
+                type="date"
+                id="startDate"
+                value={startDate ? startDate.split("T")[0] : ""}
+                onChange={(e) => {
+                  const date = e.target.value
+                    ? `${e.target.value}T00:00:00`
+                    : "";
+                  setStartDate(date);
+                }}
+                className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            {/* 종료 날짜 선택 */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="endDate" className="text-sm font-medium">
+                종료일자
+              </label>
+              <input
+                type="date"
+                id="endDate"
+                value={endDate ? endDate.split("T")[0] : ""}
+                onChange={(e) => {
+                  const date = e.target.value
+                    ? `${e.target.value}T23:59:59`
+                    : "";
+                  setEndDate(date);
+                }}
+                className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
             </div>
           </div>
 
@@ -114,12 +158,12 @@ function EnrollTestPapersPageThree() {
             <button
               onClick={async () => {
                 if (title == "") {
-                  alert("문제집 제목이 없습니다.");
+                  alert("대회 제목이 없습니다.");
                   return;
                 }
                 try {
                   // testPapers 안에 undefined 있는지 먼저 체크
-                  const undefinedIndex = testPapers.findIndex(
+                  const undefinedIndex = contestProblems.findIndex(
                     (p) => p === undefined
                   );
 
@@ -131,7 +175,7 @@ function EnrollTestPapersPageThree() {
                     return;
                   }
 
-                  const problems = testPapers.map((problem) => ({
+                  const problems = contestProblems.map((problem) => ({
                     problemId: problem!.id,
                     score: problem!.score,
                   }));
@@ -147,12 +191,19 @@ function EnrollTestPapersPageThree() {
                     return;
                   }
 
+                  if (startDate === undefined || endDate === undefined) {
+                    alert("시작 일자와 종료 일자를 선택해주세요.");
+                    return;
+                  }
+
                   await enrollTestPapers({
                     title,
                     problems,
                     time,
+                    startAt: startDate,
+                    endAt: endDate,
                   });
-                  alert("문제집 등록 완료");
+                  alert("대회 등록 완료");
                   navigate({ to: "/" });
                 } catch (e) {
                   console.log(e);
@@ -164,7 +215,7 @@ function EnrollTestPapersPageThree() {
             </button>
             <button
               onClick={() => {
-                clearSelectedTestPaper();
+                clearSelectedContestProblem();
               }}
               className="cursor-pointer   bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
             >
@@ -178,7 +229,7 @@ function EnrollTestPapersPageThree() {
              hover:bg-blue-500 hover:text-white 
              transition-colors duration-200"
           onClick={() => {
-            if (selectedIndex + 1 > testPapers.length - 1) {
+            if (selectedIndex + 1 > contestProblems.length - 1) {
               alert("다음 문제가 없습니다.");
               return;
             }
@@ -192,4 +243,4 @@ function EnrollTestPapersPageThree() {
   );
 }
 
-export default EnrollTestPapersPageThree;
+export default EnrollContestThreePage;

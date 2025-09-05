@@ -22,7 +22,7 @@ function TestPaperItem({
           {testPaper.assessmentId}
         </span>
       </div>
-      <div className="inline-block align-middle w-[550px] text-center overflow-hidden truncate">
+      <div className="inline-block align-middle w-[850px] text-center overflow-hidden truncate">
         <a
           className="text-sm text-blue-500 whitespace-nowrap mr-4"
           title={String(testPaper.assessmentName)}
@@ -30,26 +30,8 @@ function TestPaperItem({
         >
           {testPaper.assessmentName}
         </a>
-        {/* <span>
-          {problem.successAtFirstTry === true && (
-            <span className="text-md px-3 py-1 rounded-xl border-solid border border-blue-500 bg-blue-500 text-white">
-              성공
-            </span>
-          )}
-          {problem.successAtFirstTry === false && (
-            <span className="text-md px-3 py-1 rounded-xl border-solid border border-red-500 bg-red-500 text-white">
-              실패
-            </span>
-          )}
-        </span> */}
       </div>
-      <div className="inline-block align-middle w-[400px] text-center overflow-hidden truncate">
-        {/* {testPaper.courseInfo.courseName} */}
-        <span className="text-sm text-black whitespace-nowrap" title={"중1-1"}>
-          중1-1
-        </span>
-      </div>
-      <div className="inline-block align-middle w-[150px] text-center overflow-hidden truncate">
+      <div className="inline-block align-middle w-[250px] text-center overflow-hidden truncate">
         <span
           className="text-sm text-black whitespace-nowrap"
           title={String(testPaper.difficulty)}

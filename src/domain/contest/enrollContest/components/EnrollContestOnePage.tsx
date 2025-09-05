@@ -5,7 +5,7 @@ import { getCourse } from "../../../problem/apis/course";
 import type { CourseType } from "../../../problem/types/problem";
 import { districtsMap, regions } from "../../../problem/datas/regions";
 import { getProblemsByQuery } from "../../../problem/apis/problem";
-import { useTestPapersStore } from "../hooks/useTestPapers";
+import { useContestStore } from "../hooks/useContestStore";
 
 import { getSchoolsByLocation } from "../../../problem/apis/school";
 import type { School } from "../../../problem/types/school";
@@ -26,8 +26,8 @@ const difficultys = ["전체", "하", "중하", "중", "중상", "상", "킬러"
 
 const problemTypes = ["전체", "객관식", "단답형"];
 
-function EnrollTestPapersOnePage() {
-  const { insertProblems } = useTestPapersStore();
+function EnrollContestOnePage() {
+  const { insertProblems } = useContestStore();
   const [selectedType, setSelectedType] = useState(0);
   const [selectedUnits, setSelectedUnits] = useState<SelectedUnits>({
     large: undefined,
@@ -298,4 +298,4 @@ function EnrollTestPapersOnePage() {
   );
 }
 
-export default EnrollTestPapersOnePage;
+export default EnrollContestOnePage;

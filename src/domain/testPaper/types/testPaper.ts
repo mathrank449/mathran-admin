@@ -7,7 +7,6 @@ import type {
 export type TestPaperQueryListType = {
   queryType: string;
   testPaperId: string;
-  courseInfo: CourseType;
   testPaperName: string;
   difficulty: DifficultyType;
 };

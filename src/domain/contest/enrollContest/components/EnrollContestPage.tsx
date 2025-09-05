@@ -1,8 +1,8 @@
 import { useContestStore } from "../hooks/useContestStore";
-import EnrollTestPapersOnePage from "./EnrollTestPapersOnePage";
-import EnrollTestPapersPageThree from "./EnrollTestPapersPageThree";
-import EnrollTestPapersPageTwo from "./EnrollTestPapersPageTwo";
-import TestPapersNav from "./TestPapersNav";
+import EnrollTestPapersOnePage from "./EnrollContestOnePage";
+import EnrollContestTwoPage from "./EnrollContestTwoPage";
+import EnrollContestThreePage from "./EnrollContestThreePage";
+import ContestNav from "./ContestNav";
 
 function EnrollContestPage() {
   const selectedIndex = useContestStore((state) => state.selectedIndex);
@@ -15,7 +15,7 @@ function EnrollContestPage() {
   )
     return (
       <div className="flex justify-center mt-24">
-        <TestPapersNav />
+        <ContestNav />
         <EnrollTestPapersOnePage key="one" />
       </div>
     );
@@ -23,14 +23,14 @@ function EnrollContestPage() {
   if (testPapers[selectedIndex] === undefined)
     return (
       <div className="flex justify-center mt-24">
-        <TestPapersNav />
-        <EnrollTestPapersPageTwo key="two" />
+        <ContestNav />
+        <EnrollContestTwoPage key="two" />
       </div>
     );
   return (
     <div className="flex justify-center mt-24">
-      <TestPapersNav />
-      <EnrollTestPapersPageThree key="three" />
+      <ContestNav />
+      <EnrollContestThreePage key="three" />
     </div>
   );
 }

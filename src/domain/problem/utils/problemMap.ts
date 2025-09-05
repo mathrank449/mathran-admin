@@ -1,4 +1,4 @@
-import type { DifficultyType, ProblemType } from "../../types/problem";
+import type { DifficultyType, ProblemType } from "../types/problem";
 
 export const difficultyMap: Record<DifficultyType, string> = {
   "": "전체",

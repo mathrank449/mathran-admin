@@ -7,7 +7,6 @@ function SubmissionResultByProblem({
   index: number;
   submissionProblem: SubmissionLogProblemItemResult;
 }) {
-  console.log(submissionProblem);
   return (
     <div
       className={`whitespace-nowrap py-2 font-bold ${

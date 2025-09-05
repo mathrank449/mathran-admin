@@ -42,7 +42,7 @@ function ProblemListPage() {
     queryKey: ["v1/problem/single/", queryList] as const,
     queryFn: ({ queryKey }) => getSingleProblemsByQuery(queryKey[1]),
   });
-  console.log(queryList);
+  console.log(problemList);
 
   useEffect(() => {
     setQueryList((prev) => ({

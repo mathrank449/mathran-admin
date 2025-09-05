@@ -1,6 +1,6 @@
 import { useTestPapersStore } from "../hooks/useTestPapers";
 import { AiOutlineCopy } from "react-icons/ai";
-import { difficultyMap, problemMap } from "../utils/problemMap";
+import { difficultyMap, problemMap } from "../../../problem/utils/problemMap";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
