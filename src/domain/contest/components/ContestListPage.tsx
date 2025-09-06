@@ -7,6 +7,7 @@ import ContestHeader from "./ContestHeader";
 import ContestItem from "./ContestItem";
 import type { ContestQueryListType } from "../types/contest";
 import { getContestByQuery } from "../apis/contest";
+import Pagination from "../../../shared/components/Pagination";
 
 const typeMap: Record<string, ContestQueryListType["queryType"]> = {
   전체: "all",
@@ -15,6 +16,7 @@ const typeMap: Record<string, ContestQueryListType["queryType"]> = {
 };
 
 function ContestListPage() {
+  const [page, setPage] = useState(1);
   const [selectedType, setSelectedType] = useState("전체");
   const [queryList, setQueryList] = useState<ContestQueryListType>({
     queryType: "all",
@@ -23,9 +25,9 @@ function ContestListPage() {
     difficulty: "",
   });
   console.log(queryList);
-  const { data: testPaperList, isLoading } = useQuery({
-    queryKey: ["v1/problem/contest/", queryList] as const,
-    queryFn: ({ queryKey }) => getContestByQuery(queryKey[1]),
+  const { data: contestListPagination, isLoading } = useQuery({
+    queryKey: ["v1/problem/contest/", queryList, page] as const,
+    queryFn: ({ queryKey }) => getContestByQuery(queryKey[1], queryKey[2]),
   });
 
   return (
@@ -101,8 +103,8 @@ function ContestListPage() {
       </nav>
       <div>
         <ContestHeader />
-        {!isLoading && testPaperList ? (
-          testPaperList?.queryResults
+        {!isLoading && contestListPagination?.queryResults ? (
+          contestListPagination?.queryResults
             .sort((a, b) => Number(a.contestId) - Number(b.contestId))
             .map((contest, index) => (
               <ContestItem
@@ -115,6 +117,16 @@ function ContestListPage() {
           <div>데이터 없음</div>
         )}
       </div>
+      {contestListPagination && (
+        <Pagination
+          setPage={setPage}
+          pageInfo={{
+            currentPageNumber: contestListPagination?.currentPageNumber,
+            possibleNextPageNumbers:
+              contestListPagination?.possibleNextPageNumbers,
+          }}
+        />
+      )}
     </div>
   );
 }

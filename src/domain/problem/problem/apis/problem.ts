@@ -2,37 +2,76 @@ import { AxiosError } from "axios";
 import instance from "../../../../shared/apis/instance";
 import type {
   ProblemItemResponse,
+  ProblemListPagination,
   SingleProblemQueryListType,
   SubmitAnswerResponse,
 } from "../types/problem";
+import type { School } from "../../types/school";
 
 export const getSingleProblemsByQuery = async (
-  query: SingleProblemQueryListType
-): Promise<ProblemItemResponse[]> => {
+  query: SingleProblemQueryListType,
+  page: number,
+  school?: School | undefined,
+  region?: string | undefined,
+  district?: string | undefined
+): Promise<ProblemListPagination> => {
+  const location = [region, district].filter(Boolean).join(" ");
   try {
     let problemResponse;
     if (query.queryType === "all") {
       problemResponse = await instance.get(
-        `/v1/problem/single?singleProblemId=&coursePath=${query.courseInfo?.coursePath}&singleProblemName=${query.singleProblemName}&answerType=&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&pageSize=10&pageNumber=1`
+        `/v1/problem/single?singleProblemId=&coursePath=${
+          query.courseInfo?.coursePath
+        }&singleProblemName=${
+          query.singleProblemName
+        }&answerType=&difficultyMinInclude=${
+          query.difficulty
+        }&difficultyMaxInclude=${query.difficulty}&schoolCode=${
+          school?.schoolCode ?? ""
+        }&location=${location}&pageSize=10&pageNumber=${page}`
       );
     }
 
     if (query.queryType === "new") {
       problemResponse = await instance.get(
-        `/v1/problem/single?singleProblemId=&coursePath=${query.courseInfo?.coursePath}&singleProblemName=${query.singleProblemName}&answerType=&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&orderColumn=DATE&direction=DESC&pageSize=10&pageNumber=1`
+        `/v1/problem/single?singleProblemId=&coursePath=${
+          query.courseInfo?.coursePath
+        }&singleProblemName=${
+          query.singleProblemName
+        }&answerType=&difficultyMinInclude=${
+          query.difficulty
+        }&difficultyMaxInclude=${query.difficulty}&schoolCode=${
+          school?.schoolCode ?? ""
+        }&location=${location}&orderColumn=DATE&direction=DESC&pageSize=10&pageNumber=${page}`
       );
     }
     if (query.queryType === "popular") {
       problemResponse = await instance.get(
-        `/v1/problem/single?singleProblemId=&coursePath=${query.courseInfo?.coursePath}&singleProblemName=${query.singleProblemName}&answerType=&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&orderColumn=TOTAL_TRY_COUNT&direction=DESC&pageSize=10&pageNumber=1`
+        `/v1/problem/single?singleProblemId=&coursePath=${
+          query.courseInfo?.coursePath
+        }&singleProblemName=${
+          query.singleProblemName
+        }&answerType=&difficultyMinInclude=${
+          query.difficulty
+        }&difficultyMaxInclude=${query.difficulty}&schoolCode=${
+          school?.schoolCode ?? ""
+        }&location=${location}&orderColumn=TOTAL_TRY_COUNT&direction=DESC&pageSize=10&pageNumber=${page}`
       );
     } else {
       problemResponse = await instance.get(
-        `/v1/problem/single?singleProblemId=&coursePath=${query.courseInfo?.coursePath}&singleProblemName=${query.singleProblemName}&answerType=&difficultyMinInclude=${query.difficulty}&difficultyMaxInclude=${query.difficulty}&pageSize=10&pageNumber=1`
+        `/v1/problem/single?singleProblemId=&coursePath=${
+          query.courseInfo?.coursePath
+        }&singleProblemName=${
+          query.singleProblemName
+        }&answerType=&difficultyMinInclude=${
+          query.difficulty
+        }&difficultyMaxInclude=${query.difficulty}&schoolCode=${
+          school?.schoolCode ?? ""
+        }&location=${location}&pageSize=10&pageNumber=${page}`
       );
     }
 
-    return problemResponse.data.queryResults;
+    return problemResponse.data;
   } catch (e) {
     if (e instanceof AxiosError) {
       throw e.message;

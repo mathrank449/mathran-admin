@@ -1,3 +1,4 @@
+import type { PageInfo } from "../../../../shared/type/Page";
 import type {
   CourseType,
   DifficultyType,
@@ -22,14 +23,18 @@ export type ProblemItemResponse = {
   accuracy: number;
 };
 
-export type SingleProblemQueryListType = {
+export interface ProblemListPagination extends PageInfo {
+  queryResults: ProblemItemResponse[];
+}
+
+export interface SingleProblemQueryListType {
   queryType: "all" | "new" | "popular" | "course" | "school";
   singleProblemId: string | "";
   courseInfo: CourseType | undefined;
   singleProblemName: string | "";
   answerType: ProblemType | undefined;
   difficulty: DifficultyType | "";
-};
+}
 
 export type SubmitAnswerResponse = {
   success: boolean | undefined; // 제출 성공 여부

@@ -201,6 +201,7 @@ function EnrollTestPapersOnePage() {
                     className="border border-gray-300 rounded px-2 py-1 w-38 max-h-40 overflow-y-auto"
                     disabled={!region}
                   >
+                    <option value="">전체지역</option>
                     {region &&
                       districtsMap[region].map((d) => (
                         <option key={d} value={d}>

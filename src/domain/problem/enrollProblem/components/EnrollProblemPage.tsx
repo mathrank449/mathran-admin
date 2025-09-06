@@ -48,12 +48,14 @@ function EnrollProblemPage() {
   const [selectedDifficultyIndex, setSelectedDifficultyIndex] = useState(0);
   const [selectedProblemTypeIndex, setSelectedProblemTypeIndex] = useState(0);
   const [yearChecked, setYearChecked] = useState(false);
-  const [year, setYear] = useState(2025);
+  const [year, setYear] = useState<number | undefined>(undefined);
 
   const [schoolChecked, setSchoolChecked] = useState(false);
-  const [region, setRegion] = useState("");
-  const [district, setDistrict] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState("");
+  const [region, setRegion] = useState<string | undefined>(undefined);
+  const [district, setDistrict] = useState<string | undefined>(undefined);
+  const [selectedSchool, setSelectedSchool] = useState<School | undefined>(
+    undefined
+  );
   const [schools, setSchool] = useState<School[]>([]);
   const [selectedUnit, setSelectedUnit] = useState<CourseType | undefined>(
     undefined
@@ -66,11 +68,13 @@ function EnrollProblemPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const schoolData = await getSchoolsByLocation({
-        cityName: region,
-        district,
-      });
-      setSchool(schoolData);
+      if (region && district) {
+        const schoolData = await getSchoolsByLocation({
+          cityName: region,
+          district,
+        });
+        setSchool(schoolData);
+      }
     };
     fetchData();
   }, [district]);
@@ -151,7 +155,10 @@ function EnrollProblemPage() {
                 <input
                   type="checkbox"
                   checked={yearChecked}
-                  onChange={(e) => setYearChecked(e.target.checked)}
+                  onChange={(e) => {
+                    setYear(undefined);
+                    setYearChecked(e.target.checked);
+                  }}
                   className="w-4 h-4 ml-1 align-[-2px]"
                 />
               </div>
@@ -173,7 +180,12 @@ function EnrollProblemPage() {
                 <input
                   type="checkbox"
                   checked={schoolChecked}
-                  onChange={(e) => setSchoolChecked(e.target.checked)}
+                  onChange={(e) => {
+                    setRegion(undefined);
+                    setDistrict(undefined);
+                    setSelectedSchool(undefined);
+                    setSchoolChecked(e.target.checked);
+                  }}
                   className="w-4 h-4"
                 />
               </div>
@@ -187,8 +199,8 @@ function EnrollProblemPage() {
                       value={region}
                       onChange={(e) => {
                         setRegion(e.target.value);
-                        setDistrict("");
-                        setSelectedSchool("");
+                        setDistrict(districtsMap[e.target.value][0]);
+                        setSelectedSchool(undefined);
                       }}
                       className="border border-gray-300 rounded px-2 py-1 w-32 max-h-40 overflow-y-auto"
                     >
@@ -207,11 +219,12 @@ function EnrollProblemPage() {
                       value={district}
                       onChange={(e) => {
                         setDistrict(e.target.value);
-                        setSelectedSchool("");
+                        setSelectedSchool(undefined);
                       }}
                       className="border border-gray-300 rounded px-2 py-1 w-38 max-h-40 overflow-y-auto"
                       disabled={!region}
                     >
+                      <option value="">전체지역</option>
                       {region &&
                         districtsMap[region].map((d) => (
                           <option key={d} value={d}>
@@ -224,17 +237,23 @@ function EnrollProblemPage() {
                   {/* 학교 선택 */}
                   <div className="relative flex-1 pr-2">
                     <select
-                      value={selectedSchool}
-                      onChange={(e) => setSelectedSchool(e.target.value)}
+                      value={selectedSchool?.schoolCode ?? ""}
+                      onChange={(e) => {
+                        const school = schools.find(
+                          (s) => s.schoolCode === e.target.value
+                        );
+                        setSelectedSchool(school);
+                      }}
                       className="border border-gray-300 rounded px-2 py-1 w-52 max-h-40 overflow-y-auto"
                       disabled={!district}
                     >
                       <option value="">학교 선택</option>
-                      {district &&
+                      {region &&
+                        district &&
                         schools.map((school) => (
                           <option
                             key={school.schoolCode}
-                            value={school.schoolName}
+                            value={school.schoolCode}
                           >
                             {school.schoolName}
                           </option>
@@ -249,44 +268,20 @@ function EnrollProblemPage() {
         <button
           className="absolute right-12 bottom-4 bg-blue-600 px-6 py-1 cursor-pointer"
           onClick={async () => {
-            let problems;
             if (selectedUnit === undefined) {
               alert("단원을 선택해주세요");
               return;
             }
-            if (yearChecked && schoolChecked) {
-              problems = await getProblemsByQuery({
-                difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
-                answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-                coursePath: selectedUnit.coursePath,
-                year: String(year),
-                location: "",
-              });
-            } else if (yearChecked) {
-              problems = await getProblemsByQuery({
-                difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
-                answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-                coursePath: selectedUnit.coursePath,
-                year: String(year),
-                location: "",
-              });
-            } else if (schoolChecked) {
-              problems = await getProblemsByQuery({
-                difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
-                answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-                coursePath: selectedUnit.coursePath,
-                year: "",
-                location: "",
-              });
-            } else {
-              problems = await getProblemsByQuery({
-                difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
-                answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-                coursePath: selectedUnit.coursePath,
-                year: "",
-                location: "",
-              });
-            }
+
+            const problems = await getProblemsByQuery({
+              difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
+              answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
+              coursePath: selectedUnit.coursePath,
+              year: String(year ?? ""),
+              location: [region, district].filter(Boolean).join(" "),
+              school: selectedSchool ?? "",
+            });
+
             console.log(problems);
             if (problems.length === 0) {
               alert("해당 조건을 만족하는 문제가 없습니다.");

@@ -1,5 +1,7 @@
 // types/problem.ts
 
+import type { School } from "./school";
+
 export type ProblemType = "" | "MULTIPLE_CHOICE" | "SHORT_ANSWER";
 export type ProblemKoreaType = "객관식" | "단답형";
 export type DifficultyType =
@@ -70,10 +72,11 @@ export interface ScoreProblemResponse extends ProblemResponse {
   score: number;
 }
 
-export type QueryListType = {
+export interface QueryListType {
   difficulty: DifficultyType | "";
   answerType: ProblemType | "";
   coursePath: string;
   location: string | "";
   year: string | "";
-};
+  school?: "" | School;
+}

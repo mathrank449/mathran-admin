@@ -10,6 +10,7 @@ import type { DifficultyType } from "../../types/problem";
 import { difficultys } from "../../utils/difficultys";
 import { pathMap } from "../utils/pathMap";
 import { useNavigate } from "@tanstack/react-router";
+import Pagination from "../../../../shared/components/Pagination";
 
 const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
   전체: "all",
@@ -21,6 +22,7 @@ const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
 
 function ProblemListPage() {
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
   const { data: gradeList } = useQuery({
     queryKey: [`v1/problem/course/`, ""],
     queryFn: ({ queryKey }) => getCourse(queryKey[1]),
@@ -38,11 +40,11 @@ function ProblemListPage() {
     difficulty: "",
   });
 
-  const { data: problemList, isLoading } = useQuery({
-    queryKey: ["v1/problem/single/", queryList] as const,
-    queryFn: ({ queryKey }) => getSingleProblemsByQuery(queryKey[1]),
+  const { data: problemListPagination, isLoading } = useQuery({
+    queryKey: ["v1/problem/single/", queryList, page] as const,
+    queryFn: ({ queryKey }) =>
+      getSingleProblemsByQuery(queryKey[1], queryKey[2]),
   });
-  console.log(problemList);
 
   useEffect(() => {
     setQueryList((prev) => ({
@@ -153,8 +155,8 @@ function ProblemListPage() {
       </nav>
       <div>
         <ProblemListHeader />
-        {!isLoading && problemList ? (
-          problemList
+        {!isLoading && problemListPagination ? (
+          problemListPagination.queryResults
             .sort((a, b) => Number(a.id) - Number(b.id))
             .map((problem, index) => (
               <ProblemItem key={problem.id} problem={problem} index={index} />
@@ -163,6 +165,16 @@ function ProblemListPage() {
           <div>데이터 없음</div>
         )}
       </div>
+      {problemListPagination && (
+        <Pagination
+          setPage={setPage}
+          pageInfo={{
+            currentPageNumber: problemListPagination?.currentPageNumber,
+            possibleNextPageNumbers:
+              problemListPagination?.possibleNextPageNumbers,
+          }}
+        />
+      )}
     </div>
   );
 }

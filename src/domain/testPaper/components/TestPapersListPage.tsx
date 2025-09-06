@@ -7,6 +7,7 @@ import TestPaperHeader from "./TestPaperHeader";
 import TestPaperItem from "./TestPaperItem";
 import type { TestPaperQueryListType } from "../types/testPaper";
 import { getTestPapersByQuery } from "../apis/testPaper";
+import Pagination from "../../../shared/components/Pagination";
 
 const typeMap: Record<string, TestPaperQueryListType["queryType"]> = {
   전체: "all",
@@ -15,6 +16,7 @@ const typeMap: Record<string, TestPaperQueryListType["queryType"]> = {
 };
 
 function TestPapersListPage() {
+  const [page, setPage] = useState(1);
   const [selectedType, setSelectedType] = useState("전체");
   const [queryList, setQueryList] = useState<TestPaperQueryListType>({
     queryType: "all",
@@ -22,10 +24,10 @@ function TestPapersListPage() {
     testPaperName: "",
     difficulty: "",
   });
-  console.log(queryList);
-  const { data: testPaperList, isLoading } = useQuery({
-    queryKey: ["v1/problem/assessment/", queryList] as const,
-    queryFn: ({ queryKey }) => getTestPapersByQuery(queryKey[1]),
+
+  const { data: testPaperListPagination, isLoading } = useQuery({
+    queryKey: ["v1/problem/assessment/", queryList, page] as const,
+    queryFn: ({ queryKey }) => getTestPapersByQuery(queryKey[1], queryKey[2]),
   });
 
   return (
@@ -100,8 +102,8 @@ function TestPapersListPage() {
       </nav>
       <div>
         <TestPaperHeader />
-        {!isLoading && testPaperList ? (
-          testPaperList?.queryResults
+        {!isLoading && testPaperListPagination?.queryResults ? (
+          testPaperListPagination?.queryResults
             .sort((a, b) => Number(a.assessmentId) - Number(b.assessmentId))
             .map((testPaper, index) => (
               <TestPaperItem
@@ -114,6 +116,16 @@ function TestPapersListPage() {
           <div>데이터 없음</div>
         )}
       </div>
+      {testPaperListPagination && (
+        <Pagination
+          setPage={setPage}
+          pageInfo={{
+            currentPageNumber: testPaperListPagination?.currentPageNumber,
+            possibleNextPageNumbers:
+              testPaperListPagination?.possibleNextPageNumbers,
+          }}
+        />
+      )}
     </div>
   );
 }

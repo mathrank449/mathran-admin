@@ -1,11 +1,12 @@
+import type { SetStateAction } from "react";
 import type { PageInfo } from "../type/Page";
 
 function Pagination({
   pageInfo,
-  handleClick,
+  setPage,
 }: {
   pageInfo: PageInfo;
-  handleClick: () => void;
+  setPage: React.Dispatch<SetStateAction<number>>;
 }) {
   let pages;
   if (
@@ -35,7 +36,9 @@ function Pagination({
       {pages.map((page) => (
         <button
           key={page}
-          onClick={handleClick}
+          onClick={() => {
+            setPage(page);
+          }}
           className={`px-4 py-2 rounded border cursor-pointer ${
             pageInfo.currentPageNumber === page
               ? "bg-blue-500 text-white"

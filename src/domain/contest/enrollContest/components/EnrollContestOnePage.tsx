@@ -201,6 +201,7 @@ function EnrollContestOnePage() {
                     className="border border-gray-300 rounded px-2 py-1 w-38 max-h-40 overflow-y-auto"
                     disabled={!region}
                   >
+                    <option value="">전체지역</option>
                     {region &&
                       districtsMap[region].map((d) => (
                         <option key={d} value={d}>
@@ -244,45 +245,57 @@ function EnrollContestOnePage() {
             return;
           }
           if (yearChecked && schoolChecked) {
-            problems = await getProblemsByQuery({
-              difficulty:
-                koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
-              answerType:
-                koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
-              coursePath: selectedUnit.coursePath,
-              year: String(year),
-              location: "",
-            });
+            problems = await getProblemsByQuery(
+              {
+                difficulty:
+                  koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
+                answerType:
+                  koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
+                coursePath: selectedUnit.coursePath,
+                year: String(year),
+                location: "",
+              },
+              1
+            );
           } else if (yearChecked) {
-            problems = await getProblemsByQuery({
-              difficulty:
-                koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
-              answerType:
-                koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
-              coursePath: selectedUnit.coursePath,
-              year: String(year),
-              location: "",
-            });
+            problems = await getProblemsByQuery(
+              {
+                difficulty:
+                  koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
+                answerType:
+                  koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
+                coursePath: selectedUnit.coursePath,
+                year: String(year),
+                location: "",
+              },
+              1
+            );
           } else if (schoolChecked) {
-            problems = await getProblemsByQuery({
-              difficulty:
-                koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
-              answerType:
-                koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
-              coursePath: selectedUnit.coursePath,
-              year: "",
-              location: "",
-            });
+            problems = await getProblemsByQuery(
+              {
+                difficulty:
+                  koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
+                answerType:
+                  koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
+                coursePath: selectedUnit.coursePath,
+                year: "",
+                location: "",
+              },
+              1
+            );
           } else {
-            problems = await getProblemsByQuery({
-              difficulty:
-                koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
-              answerType:
-                koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
-              coursePath: selectedUnit.coursePath,
-              year: "",
-              location: "",
-            });
+            problems = await getProblemsByQuery(
+              {
+                difficulty:
+                  koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
+                answerType:
+                  koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
+                coursePath: selectedUnit.coursePath,
+                year: "",
+                location: "",
+              },
+              1
+            );
           }
           console.log(problems);
           if (problems.length === 0) {

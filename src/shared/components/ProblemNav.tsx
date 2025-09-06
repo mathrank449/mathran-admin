@@ -43,14 +43,13 @@ export function ProblemNav({ isVisible }: ProblemNavProps) {
         <CategoryGrid
           title="지역별 문제"
           items={[
-            { title: "서울", linkTo: "problems" },
-            { title: "대전", linkTo: "" },
-            { title: "부산", linkTo: "" },
-            { title: "경기", linkTo: "" },
-            { title: "대구", linkTo: "" },
-            { title: "충남", linkTo: "" },
-            { title: "광주", linkTo: "" },
-            { title: "강원도", linkTo: "" },
+            { title: "서울", linkTo: "/problems/seoul" },
+            { title: "부산", linkTo: "/problems/busan" },
+            { title: "대구", linkTo: "/problems/daegu" },
+            { title: "인천", linkTo: "/problems/incheon" },
+            { title: "광주", linkTo: "/problems/gwangju" },
+            { title: "대전", linkTo: "/problems/daejeon" },
+            { title: "울산", linkTo: "/problems/ulsan" },
           ]}
         />
 

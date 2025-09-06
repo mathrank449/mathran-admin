@@ -9,6 +9,7 @@ import { difficultys } from "../../utils/difficultys";
 import ProblemListHeader from "./ProblemListHeader";
 import ProblemItem from "./ProblemItem";
 import UnitSelectionByGrade from "../../components/UnitSelectionByGrade";
+import Pagination from "../../../../shared/components/Pagination";
 
 const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
   전체: "all",
@@ -18,6 +19,7 @@ const typeMap: Record<string, SingleProblemQueryListType["queryType"]> = {
 };
 
 function CourseProblemList() {
+  const [page, setPage] = useState(1);
   const [selectedType, setSelectedType] = useState("전체");
   const [queryList, setQueryList] = useState<SingleProblemQueryListType>({
     queryType: "all",
@@ -31,9 +33,10 @@ function CourseProblemList() {
     difficulty: "",
   });
 
-  const { data: problemList, isLoading } = useQuery({
-    queryKey: ["v1/problem/single/", queryList] as const,
-    queryFn: ({ queryKey }) => getSingleProblemsByQuery(queryKey[1]),
+  const { data: problemListPagination, isLoading } = useQuery({
+    queryKey: ["v1/problem/single/", queryList, page] as const,
+    queryFn: ({ queryKey }) =>
+      getSingleProblemsByQuery(queryKey[1], queryKey[2]),
   });
 
   useEffect(() => {
@@ -157,14 +160,24 @@ function CourseProblemList() {
         </nav>
         <div>
           <ProblemListHeader />
-          {!isLoading && problemList ? (
-            problemList.map((problem, index) => (
+          {!isLoading && problemListPagination?.queryResults ? (
+            problemListPagination.queryResults.map((problem, index) => (
               <ProblemItem key={problem.id} problem={problem} index={index} />
             ))
           ) : (
             <div>데이터 없음</div>
           )}
         </div>
+        {problemListPagination && (
+          <Pagination
+            setPage={setPage}
+            pageInfo={{
+              currentPageNumber: problemListPagination?.currentPageNumber,
+              possibleNextPageNumbers:
+                problemListPagination?.possibleNextPageNumbers,
+            }}
+          />
+        )}
       </div>
     );
   return (

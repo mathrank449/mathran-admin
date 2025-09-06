@@ -7,25 +7,26 @@ import type {
 } from "../types/testPaper";
 
 export const getTestPapersByQuery = async (
-  query: TestPaperQueryListType
+  query: TestPaperQueryListType,
+  page: number
 ): Promise<TestPaperResponse> => {
   try {
     let response;
     if (query.queryType === "all") {
       response = await instance.get(
-        `/v1/problem/assessment?assessmentName=${query.testPaperName}&difficulty=${query.difficulty}&pageSize=20&pageNumber=1`
+        `/v1/problem/assessment?assessmentName=${query.testPaperName}&difficulty=${query.difficulty}&pageSize=20&pageNumber=${page}`
       );
     } else if (query.queryType === "new") {
       response = await instance.get(
-        `/v1/problem/assessment?assessmentName=${query.testPaperName}&difficulty=${query.difficulty}&order=LATEST&direction=DESC&pageSize=20&pageNumber=1`
+        `/v1/problem/assessment?assessmentName=${query.testPaperName}&difficulty=${query.difficulty}&order=LATEST&direction=DESC&pageSize=20&pageNumber=${page}`
       );
     } else if (query.queryType === "popular") {
       response = await instance.get(
-        `/v1/problem/assessment?assessmentName=${query.testPaperName}&difficulty=${query.difficulty}&order=DISTINCT_USER_COUNT&direction=DESC&pageSize=20&pageNumber=1`
+        `/v1/problem/assessment?assessmentName=${query.testPaperName}&difficulty=${query.difficulty}&order=DISTINCT_USER_COUNT&direction=DESC&pageSize=20&pageNumber=${page}`
       );
     } else {
       response = await instance.get(
-        `/v1/problem/assessment?assessmentName=${query.testPaperName}&difficulty=${query.difficulty}&pageSize=20&pageNumber=1`
+        `/v1/problem/assessment?assessmentName=${query.testPaperName}&difficulty=${query.difficulty}&pageSize=20&pageNumber=${page}`
       );
     }
     return response?.data;

@@ -8,25 +8,26 @@ import type {
 import type { ApiError } from "../../../shared/type/error";
 
 export const getContestByQuery = async (
-  query: ContestQueryListType
+  query: ContestQueryListType,
+  page: number
 ): Promise<ContestResponse> => {
   try {
     let response;
     if (query.queryType === "all") {
       response = await instance.get(
-        `/v1/problem/contest?contestName=${query.contestName}&difficulty=${query.difficulty}&pageSize=20&pageNumber=1`
+        `/v1/problem/contest?contestName=${query.contestName}&difficulty=${query.difficulty}&pageSize=20&pageNumber=${page}`
       );
     } else if (query.queryType === "new") {
       response = await instance.get(
-        `/v1/problem/contest?contestName=${query.contestName}&difficulty=${query.difficulty}&order=LATEST&direction=DESC&pageSize=20&pageNumber=1`
+        `/v1/problem/contest?contestName=${query.contestName}&difficulty=${query.difficulty}&order=LATEST&direction=DESC&pageSize=20&pageNumber=${page}`
       );
     } else if (query.queryType === "popular") {
       response = await instance.get(
-        `/v1/problem/contest?contestName=${query.contestName}&difficulty=${query.difficulty}&order=DISTINCT_USER_COUNT&direction=DESC&pageSize=20&pageNumber=1`
+        `/v1/problem/contest?contestName=${query.contestName}&difficulty=${query.difficulty}&order=DISTINCT_USER_COUNT&direction=DESC&pageSize=20&pageNumber=${page}`
       );
     } else {
       response = await instance.get(
-        `/v1/problem/contest?contestName=${query.contestName}&difficulty=${query.difficulty}&pageSize=20&pageNumber=1`
+        `/v1/problem/contest?contestName=${query.contestName}&difficulty=${query.difficulty}&pageSize=20&pageNumber=${page}`
       );
     }
     return response?.data;
