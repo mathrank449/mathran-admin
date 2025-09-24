@@ -11,8 +11,6 @@ function UnitSelection({
   grade,
   selectedUnits,
   setSelectedUnits,
-  selectedUnit,
-  setSelectedUnit,
 }: {
   grade: CourseType;
   selectedUnits: SelectedUnits;
@@ -26,21 +24,6 @@ function UnitSelection({
   );
   const { list: unitSmallList } = useCourseList(
     selectedUnits.middle?.coursePath
-  );
-
-  const renderCheckbox = (unit: CourseType) => (
-    <input
-      type="checkbox"
-      className="mr-2"
-      checked={selectedUnit?.coursePath === unit.coursePath}
-      onChange={(e) => {
-        if (e.target.checked) {
-          setSelectedUnit(unit);
-        } else {
-          setSelectedUnit(undefined);
-        }
-      }}
-    />
   );
 
   return (

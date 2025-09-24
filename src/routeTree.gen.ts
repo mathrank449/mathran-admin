@@ -37,7 +37,6 @@ import { Route as MainLayoutProblemsDaejeonRouteRouteImport } from './routes/_ma
 import { Route as MainLayoutProblemsDaeguRouteRouteImport } from './routes/_mainLayout/problems/daegu/route'
 import { Route as MainLayoutProblemsCourseRouteRouteImport } from './routes/_mainLayout/problems/course/route'
 import { Route as MainLayoutProblemsBusanRouteRouteImport } from './routes/_mainLayout/problems/busan/route'
-import { Route as MainLayoutQuestionsModifyQuestionIdRouteImport } from './routes/_mainLayout/questions/modify/$questionId'
 import { Route as MainLayoutSolutionBoardWriteQuestionRouteRouteImport } from './routes/_mainLayout/solution-board/write/question/route'
 import { Route as MainLayoutSolutionBoardListNoticeRouteRouteImport } from './routes/_mainLayout/solution-board/list/notice/route'
 import { Route as MainLayoutSolutionBoardListFreeRouteRouteImport } from './routes/_mainLayout/solution-board/list/free/route'
@@ -209,12 +208,6 @@ const MainLayoutProblemsBusanRouteRoute =
     path: '/problems/busan',
     getParentRoute: () => MainLayoutRouteRoute,
   } as any)
-const MainLayoutQuestionsModifyQuestionIdRoute =
-  MainLayoutQuestionsModifyQuestionIdRouteImport.update({
-    id: '/questions/modify/$questionId',
-    path: '/questions/modify/$questionId',
-    getParentRoute: () => MainLayoutRouteRoute,
-  } as any)
 const MainLayoutSolutionBoardWriteQuestionRouteRoute =
   MainLayoutSolutionBoardWriteQuestionRouteRouteImport.update({
     id: '/solution-board/write/question',
@@ -308,7 +301,6 @@ export interface FileRoutesByFullPath {
   '/solution-board/list/free': typeof MainLayoutSolutionBoardListFreeRouteRoute
   '/solution-board/list/notice': typeof MainLayoutSolutionBoardListNoticeRouteRoute
   '/solution-board/write/question': typeof MainLayoutSolutionBoardWriteQuestionRouteRoute
-  '/questions/modify/$questionId': typeof MainLayoutQuestionsModifyQuestionIdRoute
   '/solution-board/question/contest/$contestId': typeof MainLayoutSolutionBoardQuestionContestContestIdRouteRoute
   '/solution-board/question/problem/$problemId': typeof MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute
   '/solution-board/question/testPaper/$testPaperId': typeof MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute
@@ -348,7 +340,6 @@ export interface FileRoutesByTo {
   '/solution-board/list/free': typeof MainLayoutSolutionBoardListFreeRouteRoute
   '/solution-board/list/notice': typeof MainLayoutSolutionBoardListNoticeRouteRoute
   '/solution-board/write/question': typeof MainLayoutSolutionBoardWriteQuestionRouteRoute
-  '/questions/modify/$questionId': typeof MainLayoutQuestionsModifyQuestionIdRoute
   '/solution-board/question/contest/$contestId': typeof MainLayoutSolutionBoardQuestionContestContestIdRouteRoute
   '/solution-board/question/problem/$problemId': typeof MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute
   '/solution-board/question/testPaper/$testPaperId': typeof MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute
@@ -390,7 +381,6 @@ export interface FileRoutesById {
   '/_mainLayout/solution-board/list/free': typeof MainLayoutSolutionBoardListFreeRouteRoute
   '/_mainLayout/solution-board/list/notice': typeof MainLayoutSolutionBoardListNoticeRouteRoute
   '/_mainLayout/solution-board/write/question': typeof MainLayoutSolutionBoardWriteQuestionRouteRoute
-  '/_mainLayout/questions/modify/$questionId': typeof MainLayoutQuestionsModifyQuestionIdRoute
   '/_mainLayout/solution-board/question/contest/$contestId': typeof MainLayoutSolutionBoardQuestionContestContestIdRouteRoute
   '/_mainLayout/solution-board/question/problem/$problemId': typeof MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute
   '/_mainLayout/solution-board/question/testPaper/$testPaperId': typeof MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute
@@ -432,7 +422,6 @@ export interface FileRouteTypes {
     | '/solution-board/list/free'
     | '/solution-board/list/notice'
     | '/solution-board/write/question'
-    | '/questions/modify/$questionId'
     | '/solution-board/question/contest/$contestId'
     | '/solution-board/question/problem/$problemId'
     | '/solution-board/question/testPaper/$testPaperId'
@@ -472,7 +461,6 @@ export interface FileRouteTypes {
     | '/solution-board/list/free'
     | '/solution-board/list/notice'
     | '/solution-board/write/question'
-    | '/questions/modify/$questionId'
     | '/solution-board/question/contest/$contestId'
     | '/solution-board/question/problem/$problemId'
     | '/solution-board/question/testPaper/$testPaperId'
@@ -513,7 +501,6 @@ export interface FileRouteTypes {
     | '/_mainLayout/solution-board/list/free'
     | '/_mainLayout/solution-board/list/notice'
     | '/_mainLayout/solution-board/write/question'
-    | '/_mainLayout/questions/modify/$questionId'
     | '/_mainLayout/solution-board/question/contest/$contestId'
     | '/_mainLayout/solution-board/question/problem/$problemId'
     | '/_mainLayout/solution-board/question/testPaper/$testPaperId'
@@ -725,13 +712,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutProblemsBusanRouteRouteImport
       parentRoute: typeof MainLayoutRouteRoute
     }
-    '/_mainLayout/questions/modify/$questionId': {
-      id: '/_mainLayout/questions/modify/$questionId'
-      path: '/questions/modify/$questionId'
-      fullPath: '/questions/modify/$questionId'
-      preLoaderRoute: typeof MainLayoutQuestionsModifyQuestionIdRouteImport
-      parentRoute: typeof MainLayoutRouteRoute
-    }
     '/_mainLayout/solution-board/write/question': {
       id: '/_mainLayout/solution-board/write/question'
       path: '/solution-board/write/question'
@@ -836,7 +816,6 @@ interface MainLayoutRouteRouteChildren {
   MainLayoutSolutionBoardListFreeRouteRoute: typeof MainLayoutSolutionBoardListFreeRouteRoute
   MainLayoutSolutionBoardListNoticeRouteRoute: typeof MainLayoutSolutionBoardListNoticeRouteRoute
   MainLayoutSolutionBoardWriteQuestionRouteRoute: typeof MainLayoutSolutionBoardWriteQuestionRouteRoute
-  MainLayoutQuestionsModifyQuestionIdRoute: typeof MainLayoutQuestionsModifyQuestionIdRoute
   MainLayoutSolutionBoardQuestionContestContestIdRouteRoute: typeof MainLayoutSolutionBoardQuestionContestContestIdRouteRoute
   MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute: typeof MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute
   MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute: typeof MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute
@@ -881,8 +860,6 @@ const MainLayoutRouteRouteChildren: MainLayoutRouteRouteChildren = {
     MainLayoutSolutionBoardListNoticeRouteRoute,
   MainLayoutSolutionBoardWriteQuestionRouteRoute:
     MainLayoutSolutionBoardWriteQuestionRouteRoute,
-  MainLayoutQuestionsModifyQuestionIdRoute:
-    MainLayoutQuestionsModifyQuestionIdRoute,
   MainLayoutSolutionBoardQuestionContestContestIdRouteRoute:
     MainLayoutSolutionBoardQuestionContestContestIdRouteRoute,
   MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute:

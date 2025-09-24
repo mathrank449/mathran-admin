@@ -93,12 +93,7 @@ export function Header() {
         >
           게시판
         </button>
-        <button
-          className="text-lg cursor-pointer py-4"
-          onClick={() => {
-            navigate({ to: "/resources" });
-          }}
-        >
+        <button className="text-lg cursor-pointer py-4" onClick={() => {}}>
           자료실
         </button>
         <div

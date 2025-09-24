@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import instance from "../../../shared/apis/instance";
-import type { RankInfo, RankInfoPagination, UserRankInfo } from "../types/rank";
+import type { RankInfoPagination, UserRankInfo } from "../types/rank";
 
 export const getRankByMemberId = async (
   memberId: string

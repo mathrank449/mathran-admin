@@ -1,5 +1,5 @@
-import type { PageInfo } from "../../../shared/types/page";
-import type { MemberInfo, MemberType } from "../../user/types/user";
+import type { PageInfo } from "../../../shared/type/Page";
+import type { MemberInfo } from "../../user/types/user";
 
 type Tier =
   | "DIAMOND_STAR_1"

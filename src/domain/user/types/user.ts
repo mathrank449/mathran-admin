@@ -3,3 +3,8 @@ export interface LoginFormData {
   password: string;
   rememberMe: boolean;
 }
+
+export type MemberInfo = {
+  memberId: string;
+  nickName: string;
+};
