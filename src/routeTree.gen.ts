@@ -18,7 +18,6 @@ import { Route as MainLayoutEnrollProblemTwoRouteRouteImport } from './routes/_m
 import { Route as MainLayoutEnrollProblemThreeRouteRouteImport } from './routes/_mainLayout/enroll-problem-three/route'
 import { Route as MainLayoutEnrollProblemRouteRouteImport } from './routes/_mainLayout/enroll-problem/route'
 import { Route as MainLayoutEnrollContestsRouteRouteImport } from './routes/_mainLayout/enroll-contests/route'
-import { Route as MainLayoutAboutRouteRouteImport } from './routes/_mainLayout/about/route'
 import { Route as MainLayoutTestPapersIndexRouteImport } from './routes/_mainLayout/test-papers/index'
 import { Route as MainLayoutProblemsIndexRouteImport } from './routes/_mainLayout/problems/index'
 import { Route as MainLayoutContestsIndexRouteImport } from './routes/_mainLayout/contests/index'
@@ -97,11 +96,6 @@ const MainLayoutEnrollContestsRouteRoute =
     path: '/enroll-contests',
     getParentRoute: () => MainLayoutRouteRoute,
   } as any)
-const MainLayoutAboutRouteRoute = MainLayoutAboutRouteRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => MainLayoutRouteRoute,
-} as any)
 const MainLayoutTestPapersIndexRoute =
   MainLayoutTestPapersIndexRouteImport.update({
     id: '/test-papers/',
@@ -271,7 +265,6 @@ const MainLayoutSolutionBoardQuestionContestContestIdRouteRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof MainLayoutAboutRouteRoute
   '/enroll-contests': typeof MainLayoutEnrollContestsRouteRoute
   '/enroll-problem': typeof MainLayoutEnrollProblemRouteRoute
   '/enroll-problem-three': typeof MainLayoutEnrollProblemThreeRouteRoute
@@ -310,7 +303,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof MainLayoutAboutRouteRoute
   '/enroll-contests': typeof MainLayoutEnrollContestsRouteRoute
   '/enroll-problem': typeof MainLayoutEnrollProblemRouteRoute
   '/enroll-problem-three': typeof MainLayoutEnrollProblemThreeRouteRoute
@@ -351,7 +343,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_mainLayout': typeof MainLayoutRouteRouteWithChildren
-  '/_mainLayout/about': typeof MainLayoutAboutRouteRoute
   '/_mainLayout/enroll-contests': typeof MainLayoutEnrollContestsRouteRoute
   '/_mainLayout/enroll-problem': typeof MainLayoutEnrollProblemRouteRoute
   '/_mainLayout/enroll-problem-three': typeof MainLayoutEnrollProblemThreeRouteRoute
@@ -392,7 +383,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
     | '/enroll-contests'
     | '/enroll-problem'
     | '/enroll-problem-three'
@@ -431,7 +421,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
     | '/enroll-contests'
     | '/enroll-problem'
     | '/enroll-problem-three'
@@ -471,7 +460,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_mainLayout'
-    | '/_mainLayout/about'
     | '/_mainLayout/enroll-contests'
     | '/_mainLayout/enroll-problem'
     | '/_mainLayout/enroll-problem-three'
@@ -577,13 +565,6 @@ declare module '@tanstack/react-router' {
       path: '/enroll-contests'
       fullPath: '/enroll-contests'
       preLoaderRoute: typeof MainLayoutEnrollContestsRouteRouteImport
-      parentRoute: typeof MainLayoutRouteRoute
-    }
-    '/_mainLayout/about': {
-      id: '/_mainLayout/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof MainLayoutAboutRouteRouteImport
       parentRoute: typeof MainLayoutRouteRoute
     }
     '/_mainLayout/test-papers/': {
@@ -786,7 +767,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface MainLayoutRouteRouteChildren {
-  MainLayoutAboutRouteRoute: typeof MainLayoutAboutRouteRoute
   MainLayoutEnrollContestsRouteRoute: typeof MainLayoutEnrollContestsRouteRoute
   MainLayoutEnrollProblemRouteRoute: typeof MainLayoutEnrollProblemRouteRoute
   MainLayoutEnrollProblemThreeRouteRoute: typeof MainLayoutEnrollProblemThreeRouteRoute
@@ -825,7 +805,6 @@ interface MainLayoutRouteRouteChildren {
 }
 
 const MainLayoutRouteRouteChildren: MainLayoutRouteRouteChildren = {
-  MainLayoutAboutRouteRoute: MainLayoutAboutRouteRoute,
   MainLayoutEnrollContestsRouteRoute: MainLayoutEnrollContestsRouteRoute,
   MainLayoutEnrollProblemRouteRoute: MainLayoutEnrollProblemRouteRoute,
   MainLayoutEnrollProblemThreeRouteRoute:

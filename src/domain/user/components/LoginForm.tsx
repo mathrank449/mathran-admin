@@ -9,6 +9,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { AxiosError } from "axios";
 import { useContext } from "react";
 import { UserContext } from "../../../shared/contexts/UserContext.ts";
+import { useAuthStore } from "../stores/authStore.ts";
 
 interface LoginFormProps {
   formData: LoginFormData;
@@ -21,18 +22,18 @@ const LoginForm = ({ formData, setFormData, handleSubmit }: LoginFormProps) => {
   if (!user) {
     throw new Error("useUsername must be used within AuthProvider");
   }
-  const { setUsername } = user;
+
   const navigate = useNavigate();
+  const { setAuth } = useAuthStore();
 
   const loginMutation = useMutation({
     mutationFn: (loginData: { loginId: string; password: string }) =>
       login(loginData.loginId, loginData.password),
     onSuccess: (data) => {
       instance.defaults.headers.common["Authorization"] = `${data.accessToken}`;
-      localStorage.setItem("mathran_admin_username", data.userName);
+      setAuth({ nickName: data.userName });
       alert("로그인에 성공하였습니다.");
       navigate({ to: "/" });
-      setUsername(data.userName);
     },
     onError: (error) => {
       if (error instanceof AxiosError) {

@@ -3,28 +3,24 @@ import { useNavigate } from "@tanstack/react-router";
 import { logout } from "../../domain/user/apis/auth";
 import { AiOutlineDown } from "react-icons/ai";
 import { AxiosError } from "axios";
-import { useContext, useState } from "react";
-import { UserContext } from "../contexts/UserContext";
+import { useState } from "react";
 import { ProblemNav } from "./ProblemNav";
 import { MoreNav } from "./MoreNav";
 import { EnrollNav } from "./EnrollNav";
+import { useAuthStore } from "../../domain/user/stores/authStore";
 
 export function Header() {
   const navigate = useNavigate();
   const [isHoveringEnrollNav, setIsHoveringEnrollNav] = useState(false);
   const [isHoveringProblemNav, setIsHoveringProblemNav] = useState(false);
   const [isHoveringMoreNav, setIsHoveringMoreNav] = useState(false);
-  const user = useContext(UserContext);
-  if (!user) {
-    throw new Error("useUsername must be used within AuthProvider");
-  }
-  const { username, removeUsername } = user;
+  const { isLogin, userInfo, clearAuth } = useAuthStore();
+
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      localStorage.removeItem("mathran_admin_username");
+      clearAuth();
       navigate({ to: "/login" }); // 로그아웃 후 이동할 경로
-      removeUsername();
     },
     onError: (error) => {
       if (error instanceof AxiosError) console.log(error.message);
@@ -108,10 +104,10 @@ export function Header() {
         </div>
         <div className="absolute right-4">
           {/* 오른쪽 로그인/로그아웃 */}
-          {username || localStorage.getItem("mathran_admin_username") ? (
+          {isLogin ? (
             <div className="flex items-center gap-4 mr-8">
               <span className="text-sm text-gray-700 font-medium">
-                {username}
+                {userInfo?.nickName}
               </span>
               <button
                 onClick={() => logoutMutation.mutate()}

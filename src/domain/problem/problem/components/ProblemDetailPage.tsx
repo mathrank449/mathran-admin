@@ -31,6 +31,9 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
   const [answers, setAnswers] = useState<string[]>([""]); // 여러 정답 관리
   const [startTime, setStartTime] = useState(0);
 
+  const [isModify, setIsModify] = useState(false);
+  const [modificationTitle, setModificationTitle] = useState("");
+
   const [submissionResult, setSubmissionResult] =
     useState<SubmitAnswerResponse>({
       success: undefined, // 제출 성공 여부
@@ -75,6 +78,36 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <div>
+              {isModify ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    className="font-bold border rounded px-2 py-1 w-full max-w-xs"
+                    value={modificationTitle}
+                    onChange={(e) => setModificationTitle(e.target.value)}
+                  />
+                  <button
+                    className="px-3 py-1 bg-blue-500 text-white rounded shadow hover:bg-blue-600 transition whitespace-nowrap cursor-pointer"
+                    onClick={() => {
+                      // 수정 API 쏘고 성공하면 제목 데이터 교체
+                    }}
+                  >
+                    완료
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-gray-300 text-gray-700 rounded shadow hover:bg-gray-400 transition whitespace-nowrap cursor-pointer"
+                    onClick={() => {
+                      setIsModify(false);
+                    }}
+                  >
+                    취소
+                  </button>
+                </div>
+              ) : (
+                <span className="font-bold mr-4">
+                  {problem.id}. {problem.singleProblemName}
+                </span>
+              )}
               <span className="font-bold mr-4">
                 {problem.id}. {problem.singleProblemName}
               </span>
@@ -197,6 +230,20 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
             className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
           >
             제출
+          </button>
+          <button
+            onClick={async () => {
+              setIsModify(true);
+            }}
+            className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
+          >
+            수정
+          </button>
+          <button
+            onClick={async () => {}}
+            className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
+          >
+            삭제
           </button>
         </div>
       </div>
