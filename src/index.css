@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.write .ql-container .ql-editor {
+  min-height: 400px;
+}

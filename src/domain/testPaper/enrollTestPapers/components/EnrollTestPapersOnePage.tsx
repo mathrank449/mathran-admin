@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import GradeItem from "../../../problem/components/GradeItem";
 import { useQuery } from "@tanstack/react-query";
 import { getCourse } from "../../../problem/apis/course";
-import type { CourseType } from "../../../problem/types/problem";
+import type {
+  CourseType,
+  PastProblemType,
+} from "../../../problem/types/problem";
 import { districtsMap, regions } from "../../../problem/datas/regions";
 import { getProblemsByQuery } from "../../../problem/apis/problem";
 import { useTestPapersStore } from "../hooks/useTestPapers";
@@ -25,6 +28,12 @@ const types = ["단원별 문제", "id로 찾기"];
 const difficultys = ["전체", "하", "중하", "중", "중상", "상", "킬러"];
 
 const problemTypes = ["전체", "객관식", "단답형"];
+const pastProblems = [
+  { value: "해당 없음", key: "" }, // null 허용
+  { value: "고1 기출문제", key: "HIGH_SCHOOL_1" },
+  { value: "고2 기출문제", key: "HIGH_SCHOOL_2" },
+  { value: "고3 기출문제", key: "HIGH_SCHOOL_3" },
+];
 
 function EnrollTestPapersOnePage() {
   const { insertProblems } = useTestPapersStore();
@@ -36,6 +45,7 @@ function EnrollTestPapersOnePage() {
   });
 
   const [selectedDifficultyIndex, setSelectedDifficultyIndex] = useState(0);
+  const [selectedPastProblemIndex, setSelectedPastProblemIndex] = useState(0);
   const [selectedProblemTypeIndex, setSelectedProblemTypeIndex] = useState(0);
   const [yearChecked, setYearChecked] = useState(false);
   const [year, setYear] = useState(2025);
@@ -129,6 +139,22 @@ function EnrollTestPapersOnePage() {
                     setSelectedProblemTypeIndex(index);
                   }}
                   selected={selectedProblemTypeIndex === index}
+                />
+              ))}
+            </div>
+          </div>
+          {/* 기출문제 */}
+          <div className="py-4">
+            <span className="text-md">기출문제</span>
+            <div className="flex flex-wrap gap-2 justify-start mt-2">
+              {pastProblems.map((pastProblem, index) => (
+                <GradeItem
+                  key={pastProblem.key}
+                  text={pastProblem.value}
+                  handleClick={() => {
+                    setSelectedPastProblemIndex(index);
+                  }}
+                  selected={selectedPastProblemIndex === index}
                 />
               ))}
             </div>
@@ -253,6 +279,8 @@ function EnrollTestPapersOnePage() {
               coursePath: selectedUnit.coursePath,
               year: String(year),
               location: "",
+              pastProblem: pastProblems[selectedPastProblemIndex]
+                .key as PastProblemType,
             });
           } else if (yearChecked) {
             problems = await getProblemsByQuery({
@@ -263,6 +291,8 @@ function EnrollTestPapersOnePage() {
               coursePath: selectedUnit.coursePath,
               year: String(year),
               location: "",
+              pastProblem: pastProblems[selectedPastProblemIndex]
+                .key as PastProblemType,
             });
           } else if (schoolChecked) {
             problems = await getProblemsByQuery({
@@ -273,6 +303,8 @@ function EnrollTestPapersOnePage() {
               coursePath: selectedUnit.coursePath,
               year: "",
               location: "",
+              pastProblem: pastProblems[selectedPastProblemIndex]
+                .key as PastProblemType,
             });
           } else {
             problems = await getProblemsByQuery({
@@ -283,6 +315,8 @@ function EnrollTestPapersOnePage() {
               coursePath: selectedUnit.coursePath,
               year: "",
               location: "",
+              pastProblem: pastProblems[selectedPastProblemIndex]
+                .key as PastProblemType,
             });
           }
           console.log(problems);

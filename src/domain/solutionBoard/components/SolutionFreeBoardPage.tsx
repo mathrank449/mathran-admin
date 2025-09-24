@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import BoardNav from "./BoardNav";
 import type { QuestionPostsResponsePagination } from "../types/question";
-import Pagination from "../../../shared/components/Pagination";
-import QuestionItem from "../list/components/QuestionItem";
-import QuestionListHeader from "../list/components/QuestionListHeader";
 import { getAllSolutionBoard } from "../apis/solutionBoard";
+import QuestionListHeader from "../list/components/QuestionListHeader";
+import QuestionItem from "../list/components/QuestionItem";
+import Pagination from "../../../shared/components/Pagination";
 
-function SolutionBoardPage() {
+function SolutionFreeBoardPage() {
   const [questionListPagination, setQuestionListPagination] =
     useState<QuestionPostsResponsePagination>({
       queryResults: [],
@@ -21,7 +21,7 @@ function SolutionBoardPage() {
     const fetchData = async () => {
       if (searchType == "작성자") {
         const questionListPaginationResponse = await getAllSolutionBoard(
-          { title: "", nickName: keyword },
+          { postType: "FREE", title: "", nickName: keyword },
           page
         );
         setQuestionListPagination(questionListPaginationResponse);
@@ -29,7 +29,7 @@ function SolutionBoardPage() {
 
       if (searchType == "글제목") {
         const questionListPaginationResponse = await getAllSolutionBoard(
-          { title: keyword, nickName: "" },
+          { postType: "FREE", title: keyword, nickName: "" },
           page
         );
         setQuestionListPagination(questionListPaginationResponse);
@@ -38,10 +38,6 @@ function SolutionBoardPage() {
     fetchData();
   }, [searchType, keyword]);
 
-  useEffect(() => {
-    setKeyword("");
-  }, [searchType]);
-
   const handleSearch = () => {
     console.log(`검색: ${searchType} -> ${keyword}`);
     // 여기서 검색 API 호출 또는 필터링 로직 실행
@@ -49,7 +45,7 @@ function SolutionBoardPage() {
 
   return (
     <div className="w-full max-w-[1680px] mx-auto mt-24 px-4">
-      <BoardNav title="전체" />
+      <BoardNav title="자유" />
       <div className="mt-6">
         <QuestionListHeader />
         {questionListPagination.queryResults.map((question, index) => (
@@ -97,4 +93,4 @@ function SolutionBoardPage() {
   );
 }
 
-export default SolutionBoardPage;
+export default SolutionFreeBoardPage;

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import BoardNav from "./BoardNav";
-import type { QuestionPostsResponsePagination } from "../types/question";
-import Pagination from "../../../shared/components/Pagination";
-import QuestionItem from "../list/components/QuestionItem";
 import QuestionListHeader from "../list/components/QuestionListHeader";
+import QuestionItem from "../list/components/QuestionItem";
+import Pagination from "../../../shared/components/Pagination";
+import type { QuestionPostsResponsePagination } from "../types/question";
 import { getAllSolutionBoard } from "../apis/solutionBoard";
 
-function SolutionBoardPage() {
+function SolutionTestPaperBoardPage({ testPaperId }: { testPaperId?: string }) {
   const [questionListPagination, setQuestionListPagination] =
     useState<QuestionPostsResponsePagination>({
       queryResults: [],
@@ -14,14 +14,31 @@ function SolutionBoardPage() {
       possibleNextPageNumbers: [],
     });
   const [page, setPage] = useState(1);
-  const [searchType, setSearchType] = useState("작성자");
-  const [keyword, setKeyword] = useState("");
+  const [searchType, setSearchType] = useState("문제집 번호");
+  const [keyword, setKeyword] = useState(testPaperId ?? "");
+
+  const handleSearch = () => {
+    console.log(`검색: ${searchType} -> ${keyword}`);
+    // 여기서 검색 API 호출 또는 필터링 로직 실행
+  };
 
   useEffect(() => {
     const fetchData = async () => {
+      if (searchType == "문제집 번호") {
+        const questionListPaginationResponse = await getAllSolutionBoard(
+          {
+            postType: "ASSESSMENT",
+            assessmentId: keyword,
+            title: "",
+            nickName: "",
+          },
+          page
+        );
+        setQuestionListPagination(questionListPaginationResponse);
+      }
       if (searchType == "작성자") {
         const questionListPaginationResponse = await getAllSolutionBoard(
-          { title: "", nickName: keyword },
+          { postType: "ASSESSMENT", title: "", nickName: keyword },
           page
         );
         setQuestionListPagination(questionListPaginationResponse);
@@ -29,7 +46,7 @@ function SolutionBoardPage() {
 
       if (searchType == "글제목") {
         const questionListPaginationResponse = await getAllSolutionBoard(
-          { title: keyword, nickName: "" },
+          { postType: "ASSESSMENT", title: keyword, nickName: "" },
           page
         );
         setQuestionListPagination(questionListPaginationResponse);
@@ -38,18 +55,9 @@ function SolutionBoardPage() {
     fetchData();
   }, [searchType, keyword]);
 
-  useEffect(() => {
-    setKeyword("");
-  }, [searchType]);
-
-  const handleSearch = () => {
-    console.log(`검색: ${searchType} -> ${keyword}`);
-    // 여기서 검색 API 호출 또는 필터링 로직 실행
-  };
-
   return (
-    <div className="w-full max-w-[1680px] mx-auto mt-24 px-4">
-      <BoardNav title="전체" />
+    <div className="w-[1680px] mx-auto mt-24 px-4">
+      <BoardNav title="문제집" />
       <div className="mt-6">
         <QuestionListHeader />
         {questionListPagination.queryResults.map((question, index) => (
@@ -66,7 +74,6 @@ function SolutionBoardPage() {
           />
         )}
       </div>
-
       {/* 검색 UI */}
       <div className="flex items-center mt-6 space-x-2 w-[600px] mx-auto">
         <select
@@ -76,6 +83,7 @@ function SolutionBoardPage() {
         >
           <option value="작성자">작성자</option>
           <option value="글제목">글제목</option>
+          <option value="문제집 번호">문제집 번호</option>
         </select>
 
         <input
@@ -97,4 +105,4 @@ function SolutionBoardPage() {
   );
 }
 
-export default SolutionBoardPage;
+export default SolutionTestPaperBoardPage;

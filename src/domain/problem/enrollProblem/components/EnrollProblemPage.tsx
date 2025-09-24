@@ -7,6 +7,7 @@ import { getProblemsByQuery } from "../../apis/problem";
 import type {
   CourseType,
   DifficultyType,
+  PastProblemType,
   ProblemType,
 } from "../../types/problem";
 import { useProblemStore } from "../stores/problems";
@@ -27,6 +28,12 @@ const difficultyMap: Record<string, DifficultyType> = {
   칼러: "KILLER",
 };
 const difficultys = ["전체", "하", "중하", "중", "중상", "상", "킬러"];
+const pastProblems = [
+  { value: "해당 없음", key: "" }, // null 허용
+  { value: "고1 기출문제", key: "HIGH_SCHOOL_1" },
+  { value: "고2 기출문제", key: "HIGH_SCHOOL_2" },
+  { value: "고3 기출문제", key: "HIGH_SCHOOL_3" },
+];
 
 const problemMap: Record<string, ProblemType> = {
   전체: "",
@@ -46,6 +53,7 @@ function EnrollProblemPage() {
   });
 
   const [selectedDifficultyIndex, setSelectedDifficultyIndex] = useState(0);
+  const [selectedPastProblemIndex, setSelectedPastProblemIndex] = useState(0);
   const [selectedProblemTypeIndex, setSelectedProblemTypeIndex] = useState(0);
   const [yearChecked, setYearChecked] = useState(false);
   const [year, setYear] = useState<number | undefined>(undefined);
@@ -81,7 +89,7 @@ function EnrollProblemPage() {
 
   return (
     <div className="flex justify-center mt-24">
-      <div className="border-solid border-gray-300 border-[1px] rounded-2xl w-[1480px] relative">
+      <div className="border-solid border-gray-300 border-[1px] rounded-2xl w-[1480px] pb-12 relative">
         <div className="w-full flex justify-start items-center pl-12 gap-12 py-4">
           {types.map((item, index) => (
             <button
@@ -144,6 +152,22 @@ function EnrollProblemPage() {
                       setSelectedProblemTypeIndex(index);
                     }}
                     selected={selectedProblemTypeIndex === index}
+                  />
+                ))}
+              </div>
+            </div>
+            {/* 기출문제 */}
+            <div className="py-4">
+              <span className="text-md">기출문제</span>
+              <div className="flex flex-wrap gap-2 justify-start mt-2">
+                {pastProblems.map((pastProblem, index) => (
+                  <GradeItem
+                    key={pastProblem.key}
+                    text={pastProblem.value}
+                    handleClick={() => {
+                      setSelectedPastProblemIndex(index);
+                    }}
+                    selected={selectedPastProblemIndex === index}
                   />
                 ))}
               </div>
@@ -280,6 +304,8 @@ function EnrollProblemPage() {
               year: String(year ?? ""),
               location: [region, district].filter(Boolean).join(" "),
               school: selectedSchool ?? "",
+              pastProblem: pastProblems[selectedPastProblemIndex]
+                .key as PastProblemType,
             });
 
             console.log(problems);

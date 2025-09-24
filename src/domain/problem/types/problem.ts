@@ -18,6 +18,13 @@ export type CourseType = {
   courseName: string;
 };
 
+export type PastProblemType =
+  | ""
+  | "NONE"
+  | "HIGH_SCHOOL_1"
+  | "HIGH_SCHOOL_2"
+  | "HIGH_SCHOOL_3 ";
+
 export type Problem = {
   id?: string | null;
   registrant?: string;
@@ -79,4 +86,5 @@ export interface QueryListType {
   location: string | "";
   year: string | "";
   school?: "" | School;
+  pastProblem: PastProblemType;
 }
