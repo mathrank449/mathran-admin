@@ -47,6 +47,7 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
       const preoblemDetailedRes = await getSingleProblemById(String(problemId));
       setStartTime(Date.now());
       setProblem(preoblemDetailedRes);
+      setModificationTitle(preoblemDetailedRes.singleProblemName);
 
       const challengeLogsResponse = await getChallengeLogsBySingleProblemId(
         String(problemId)
@@ -108,9 +109,6 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
                   {problem.id}. {problem.singleProblemName}
                 </span>
               )}
-              <span className="font-bold mr-4">
-                {problem.id}. {problem.singleProblemName}
-              </span>
               <span>
                 {problem.successAtFirstTry === true && (
                   <span className="text-md px-3 py-1 rounded-xl border-solid border border-blue-500 bg-blue-500 text-white">

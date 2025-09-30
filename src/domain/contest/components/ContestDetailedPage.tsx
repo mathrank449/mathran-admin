@@ -93,6 +93,7 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
     const fetchContest = async () => {
       const contestResponse = await getContestById(String(contestId));
       setContest(contestResponse);
+      setModificationTitle(contestResponse.contestName);
       const now = new Date();
       const start = new Date(contestResponse.startAt);
       const end = new Date(contestResponse.endAt);

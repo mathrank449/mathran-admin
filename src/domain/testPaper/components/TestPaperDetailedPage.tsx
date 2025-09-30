@@ -88,6 +88,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
     const fetchTestPaper = async () => {
       const testPaperResponse = await getTestPapersById(String(testPaperId));
       setTestPaper(testPaperResponse);
+      setModificationTitle(testPaperResponse.assessmentName);
 
       // itemDetails 개수만큼 정답 배열 초기화 (예: [[""], [""], ...])
       const initialAnswers = testPaperResponse.itemDetails.map(() => [""]);
