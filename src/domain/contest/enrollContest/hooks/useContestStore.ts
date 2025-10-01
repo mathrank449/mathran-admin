@@ -5,8 +5,8 @@ import type {
 } from "../../../problem/types/problem";
 
 type ContestStore = {
-  problems: ProblemResponse[][]; // 대회별 선택가능한 문제 배열
-  contestProblems: (ScoreProblemResponse | undefined)[]; // 대회 문제 배열
+  problems: ProblemResponse[][]; // 경시대회별 선택가능한 문제 배열
+  contestProblems: (ScoreProblemResponse | undefined)[]; // 경시대회 문제 배열
   title: string;
   time: number;
   startDate: string | undefined; // ISO 문자열
@@ -27,10 +27,10 @@ type ContestStore = {
   clearSelectedContestProblem: () => void;
 
   // 현재 선택된 대회 선택 가능한 문제 조작
-  insertProblems: (problem: ProblemResponse[]) => void; // selectedIndex의 문제집에 문제 리스트 삽입
-  clearProblems: () => void; // selectedIndex의 문제집에 문제 초기화
-  insertContestProblem: (problem: ScoreProblemResponse) => void; // selectedIndex의 문제집에 문제 삽입
-  setContestProblemScore: (socore: number) => void; // selectedIndex의 문제집에 문제 삽입
+  insertProblems: (problem: ProblemResponse[]) => void; // selectedIndex의 경시대회에 문제 리스트 삽입
+  clearProblems: () => void; // selectedIndex의 경시대회에 문제 초기화
+  insertContestProblem: (problem: ScoreProblemResponse) => void; // selectedIndex의 경시대회에 문제 삽입
+  setContestProblemScore: (socore: number) => void; // selectedIndex의 경시대회에 문제 삽입
 };
 
 export const useContestStore = create<ContestStore>((set) => ({

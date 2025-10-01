@@ -14,7 +14,7 @@ function SolutionContestBoardPage({ contestId }: { contestId?: string }) {
       possibleNextPageNumbers: [],
     });
   const [page, setPage] = useState(1);
-  const [searchType, setSearchType] = useState("대회 번호");
+  const [searchType, setSearchType] = useState("경시대회 번호");
   const [keyword, setKeyword] = useState(contestId ?? "");
 
   const handleSearch = () => {
@@ -24,7 +24,7 @@ function SolutionContestBoardPage({ contestId }: { contestId?: string }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (searchType == "대회 번호") {
+      if (searchType == "경시대회 번호") {
         const questionListPaginationResponse = await getAllSolutionBoard(
           {
             postType: "CONTEST",
@@ -57,7 +57,7 @@ function SolutionContestBoardPage({ contestId }: { contestId?: string }) {
 
   return (
     <div className="w-[1680px] mx-auto mt-24 px-4">
-      <BoardNav title="대회" />
+      <BoardNav title="경시대회" />
       <div className="mt-6">
         <QuestionListHeader />
         {questionListPagination.queryResults.map((question, index) => (
@@ -83,7 +83,7 @@ function SolutionContestBoardPage({ contestId }: { contestId?: string }) {
         >
           <option value="작성자">작성자</option>
           <option value="글제목">글제목</option>
-          <option value="대회 번호">대회 번호</option>
+          <option value="경시대회 번호">경시대회 번호</option>
         </select>
 
         <input

@@ -22,14 +22,14 @@ function WritingQuestionPage() {
 
     if (questionCategory === "testPaper") {
       if (id === "0") {
-        alert("문제집 번호를 입력해주세요");
+        alert("시험지 번호를 입력해주세요");
         return;
       }
     }
 
     if (questionCategory === "contest") {
       if (id === "0") {
-        alert("대회 번호를 입력해주세요");
+        alert("경시대회 번호를 입력해주세요");
         return;
       }
     }
@@ -118,8 +118,8 @@ function WritingQuestionPage() {
             >
               <option value="notice">공지</option>
               <option value="problem">문제 질문</option>
-              <option value="testPaper">문제집 질문</option>
-              <option value="contest">대회 질문</option>
+              <option value="testPaper">시험지 질문</option>
+              <option value="contest">경시대회 질문</option>
               <option value="free">자유</option>
             </select>
           </div>
@@ -138,7 +138,7 @@ function WritingQuestionPage() {
           )}
           {questionCategory === "testPaper" && (
             <div className="flex items-center gap-4">
-              <span className="font-medium">문제집 번호</span>
+              <span className="font-medium">시험지 번호</span>
               <input
                 type="text"
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-32"
@@ -151,7 +151,7 @@ function WritingQuestionPage() {
           )}
           {questionCategory === "contest" && (
             <div className="flex items-center gap-4">
-              <span className="font-medium">대회 번호</span>
+              <span className="font-medium">경시대회 번호</span>
               <input
                 type="text"
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-32"

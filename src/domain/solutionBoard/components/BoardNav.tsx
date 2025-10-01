@@ -6,8 +6,8 @@ function BoardNav({ title }: { title: string }) {
     { title: "자유", path: "/solution-board/list/free" },
     { title: "공지", path: "/solution-board/list/notice" },
     { title: "문제", path: "/solution-board/question/problem" },
-    { title: "문제집", path: "/solution-board/question/testPaper" },
-    { title: "대회", path: "/solution-board/question/contest" },
+    { title: "시험지", path: "/solution-board/question/testPaper" },
+    { title: "경시대회", path: "/solution-board/question/contest" },
   ];
   const navigate = useNavigate();
 

@@ -107,7 +107,7 @@ function QuestionDetailPage({ questionId }: { questionId: string }) {
                 className="text-sm text-blue-500 whitespace-nowrap mr-4"
                 href={`/contests/${question.contestId}`}
               >
-                대회
+                경시대회
               </a>
             )}
           </div>
@@ -119,13 +119,13 @@ function QuestionDetailPage({ questionId }: { questionId: string }) {
           )}
           {question.postType == "ASSESSMENT" && (
             <div className="flex items-center gap-4">
-              <span className="font-medium">문제집 번호</span>
+              <span className="font-medium">시험지 번호</span>
               <span className="px-3 py-2 w-32">{question.assessmentId}</span>
             </div>
           )}
           {question.postType == "CONTEST" && (
             <div className="flex items-center gap-4">
-              <span className="font-medium">대회 번호</span>
+              <span className="font-medium">경시대회 번호</span>
               <span className="px-3 py-2 w-32">{question.contestId}</span>
             </div>
           )}

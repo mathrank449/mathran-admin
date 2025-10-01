@@ -52,7 +52,7 @@ function EnrollContestThreePage() {
             {/* 문서 제목 */}
             <input
               type="text"
-              placeholder="대회 제목을 입력하세요"
+              placeholder="경시대회 제목을 입력하세요"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="flex-[3] focus:outline-none focus:ring-2 focus:ring-blue-400 px-2 rounded-md"
@@ -158,7 +158,7 @@ function EnrollContestThreePage() {
             <button
               onClick={async () => {
                 if (title == "") {
-                  alert("대회 제목이 없습니다.");
+                  alert("경시대회 제목이 없습니다.");
                   return;
                 }
                 try {
@@ -203,7 +203,7 @@ function EnrollContestThreePage() {
                     startAt: startDate,
                     endAt: endDate,
                   });
-                  alert("대회 등록 완료");
+                  alert("경시대회 등록 완료");
                   navigate({ to: "/" });
                 } catch (e) {
                   console.log(e);

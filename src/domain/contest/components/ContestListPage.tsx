@@ -33,7 +33,7 @@ function ContestListPage() {
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-left pl-12 bg-gray-50 text-3xl py-6 w-full">
-        대회
+        경시대회
       </div>
       <nav className="flex items-center gap-8 mt-12">
         <div className="flex gap-2 flex-wrap mr-24">
@@ -89,7 +89,7 @@ function ContestListPage() {
           <AiOutlineSearch className="text-gray-400 mr-2 w-5 h-5" />
           <input
             type="text"
-            placeholder="대회 제목으로 검색"
+            placeholder="경시대회 제목으로 검색"
             className="w-full outline-none text-gray-700 placeholder-gray-400"
             value={queryList.contestName}
             onChange={(e) => {

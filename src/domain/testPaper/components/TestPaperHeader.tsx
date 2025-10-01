@@ -2,10 +2,10 @@ function TestPaperHeader() {
   return (
     <div className="w-[1650px] custom-scrollbar whitespace-nowrap bg-white py-[10px] border-solid border-[#DEDEDE] border-2">
       <div className="w-[200px] inline-block text-center">
-        <span className="text-black text-xl">문제집 번호</span>
+        <span className="text-black text-xl">시험지 번호</span>
       </div>
       <div className="w-[850px] inline-block text-center">
-        <span className="text-black text-xl">문제집 제목</span>
+        <span className="text-black text-xl">시험지 제목</span>
       </div>
       <div className="w-[250px] inline-block text-center">
         <span className="text-black text-xl">난이도</span>

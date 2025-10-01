@@ -14,7 +14,7 @@ function SolutionTestPaperBoardPage({ testPaperId }: { testPaperId?: string }) {
       possibleNextPageNumbers: [],
     });
   const [page, setPage] = useState(1);
-  const [searchType, setSearchType] = useState("문제집 번호");
+  const [searchType, setSearchType] = useState("시험지 번호");
   const [keyword, setKeyword] = useState(testPaperId ?? "");
 
   const handleSearch = () => {
@@ -24,7 +24,7 @@ function SolutionTestPaperBoardPage({ testPaperId }: { testPaperId?: string }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (searchType == "문제집 번호") {
+      if (searchType == "시험지 번호") {
         const questionListPaginationResponse = await getAllSolutionBoard(
           {
             postType: "ASSESSMENT",
@@ -57,7 +57,7 @@ function SolutionTestPaperBoardPage({ testPaperId }: { testPaperId?: string }) {
 
   return (
     <div className="w-[1680px] mx-auto mt-24 px-4">
-      <BoardNav title="문제집" />
+      <BoardNav title="시험지" />
       <div className="mt-6">
         <QuestionListHeader />
         {questionListPagination.queryResults.map((question, index) => (
@@ -83,7 +83,7 @@ function SolutionTestPaperBoardPage({ testPaperId }: { testPaperId?: string }) {
         >
           <option value="작성자">작성자</option>
           <option value="글제목">글제목</option>
-          <option value="문제집 번호">문제집 번호</option>
+          <option value="시험지 번호">시험지 번호</option>
         </select>
 
         <input

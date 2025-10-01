@@ -48,7 +48,7 @@ function EnrollTestPapersPageThree() {
             {/* 문서 제목 */}
             <input
               type="text"
-              placeholder="문제집 제목을 입력하세요"
+              placeholder="시험지 제목을 입력하세요"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="flex-[3] focus:outline-none focus:ring-2 focus:ring-blue-400 px-2 rounded-md"
@@ -114,7 +114,7 @@ function EnrollTestPapersPageThree() {
             <button
               onClick={async () => {
                 if (title == "") {
-                  alert("문제집 제목이 없습니다.");
+                  alert("시험지 제목이 없습니다.");
                   return;
                 }
                 try {
@@ -152,7 +152,7 @@ function EnrollTestPapersPageThree() {
                     problems,
                     time,
                   });
-                  alert("문제집 등록 완료");
+                  alert("시험지 등록 완료");
                   navigate({ to: "/" });
                 } catch (e) {
                   console.log(e);

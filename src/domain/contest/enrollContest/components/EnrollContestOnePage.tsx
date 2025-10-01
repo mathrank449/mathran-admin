@@ -24,7 +24,7 @@ type SelectedUnits = {
   small?: CourseType;
 };
 
-const types = ["단원별 문제", "id로 찾기"];
+const types = ["단원별 문제"];
 const difficultys = ["전체", "하", "중하", "중", "중상", "상", "킬러"];
 const pastProblems = [
   { value: "해당 없음", key: "" }, // null 허용

@@ -100,7 +100,7 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
 
       if (now < start || now > end) {
         // 오늘이 시작 전이거나 종료 후
-        alert("참여할 수 없는 대회입니다.");
+        alert("참여할 수 없는 경시대회입니다.");
         navigate({ to: "/" });
       }
 
@@ -403,7 +403,7 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
               } catch (e) {
                 const err = e as ApiError;
                 if (err.code === 7010) {
-                  alert("응시 할 수 없는 대회입니다.");
+                  alert("응시 할 수 없는 경시대회입니다.");
                 }
               }
             }}

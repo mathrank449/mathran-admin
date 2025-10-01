@@ -5,8 +5,8 @@ import type {
 } from "../../../problem/types/problem";
 
 type TestPapersStore = {
-  problems: ProblemResponse[][]; // 문제집별 문제 배열
-  testPapers: (ScoreProblemResponse | undefined)[]; // 문제집 배열
+  problems: ProblemResponse[][]; // 시험지별 문제 배열
+  testPapers: (ScoreProblemResponse | undefined)[]; // 시험지 배열
   title: string;
   time: number;
   selectedIndex: number;
@@ -21,11 +21,11 @@ type TestPapersStore = {
   removeSelectedTestPaper: () => void;
   clearSelectedTestPaper: () => void;
 
-  // 현재 선택된 문제집 문제 조작
-  insertProblems: (problem: ProblemResponse[]) => void; // selectedIndex의 문제집에 문제 리스트 삽입
-  clearProblems: () => void; // selectedIndex의 문제집에 문제 리스트 삽입
-  insertTestPapers: (problem: ScoreProblemResponse) => void; // selectedIndex의 문제집에 문제 삽입
-  setTestPapersScore: (socore: number) => void; // selectedIndex의 문제집에 문제 삽입
+  // 현재 선택된 시험지 문제 조작
+  insertProblems: (problem: ProblemResponse[]) => void; // selectedIndex의 시험지에 문제 리스트 삽입
+  clearProblems: () => void; // selectedIndex의 시험지에 문제 리스트 삽입
+  insertTestPapers: (problem: ScoreProblemResponse) => void; // selectedIndex의 시험지에 문제 삽입
+  setTestPapersScore: (socore: number) => void; // selectedIndex의 시험지에 문제 삽입
 };
 
 export const useTestPapersStore = create<TestPapersStore>((set) => ({

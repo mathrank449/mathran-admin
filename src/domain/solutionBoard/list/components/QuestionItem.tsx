@@ -71,7 +71,7 @@ function QuestionItem({
             className="text-sm text-blue-500 whitespace-nowrap mr-4"
             href={`/contests/${question.contestId}`}
           >
-            [대회] {question.contestId}
+            [경시대회] {question.contestId}
           </a>
         )}
       </div>

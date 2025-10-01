@@ -17,7 +17,7 @@ import type { School } from "../../types/school";
 import type { SelectedUnits } from "../../types/course";
 import UnitSelectionByGrade from "../../components/UnitSelectionByGrade";
 
-const types = ["단원별 문제", "id로 찾기"];
+const types = ["단원별 문제"];
 const difficultyMap: Record<string, DifficultyType> = {
   전체: "",
   하: "LOW",
