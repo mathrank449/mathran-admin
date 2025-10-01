@@ -5,7 +5,6 @@ import { AiOutlineDown } from "react-icons/ai";
 import { AxiosError } from "axios";
 import { useState } from "react";
 import { ProblemNav } from "./ProblemNav";
-import { MoreNav } from "./MoreNav";
 import { EnrollNav } from "./EnrollNav";
 import { useAuthStore } from "../../domain/user/stores/authStore";
 
@@ -13,7 +12,6 @@ export function Header() {
   const navigate = useNavigate();
   const [isHoveringEnrollNav, setIsHoveringEnrollNav] = useState(false);
   const [isHoveringProblemNav, setIsHoveringProblemNav] = useState(false);
-  const [isHoveringMoreNav, setIsHoveringMoreNav] = useState(false);
   const { isLogin, userInfo, clearAuth } = useAuthStore();
 
   const logoutMutation = useMutation({
@@ -74,14 +72,6 @@ export function Header() {
           경시대회
         </button>
         <button
-          className="text-lg cursor-pointer  py-4"
-          onClick={() => {
-            navigate({ to: "/rankings" });
-          }}
-        >
-          랭킹
-        </button>
-        <button
           className="text-lg cursor-pointer py-4"
           onClick={() => {
             navigate({ to: "/solution-board/list/all" });
@@ -92,16 +82,7 @@ export function Header() {
         <button className="text-lg cursor-pointer py-4" onClick={() => {}}>
           자료실
         </button>
-        <div
-          className="relative py-4"
-          onMouseEnter={() => setIsHoveringMoreNav(true)}
-          onMouseLeave={() => setIsHoveringMoreNav(false)}
-        >
-          <span className="text-lg">더보기</span>
-          <AiOutlineDown className="inline-block ml-2 mb-1" />
-          {/* 드롭다운 메뉴 */}
-          <MoreNav isVisible={isHoveringMoreNav} />
-        </div>
+
         <div className="absolute right-4">
           {/* 오른쪽 로그인/로그아웃 */}
           {isLogin ? (

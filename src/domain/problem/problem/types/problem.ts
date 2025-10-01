@@ -27,13 +27,20 @@ export interface ProblemListPagination extends PageInfo {
   queryResults: ProblemItemResponse[];
 }
 
+export type PastProblemType =
+  | ""
+  | "HIGH_SCHOOL_1"
+  | "HIGH_SCHOOL_2"
+  | "HIGH_SCHOOL_3";
+
 export interface SingleProblemQueryListType {
-  queryType: "all" | "new" | "popular" | "course" | "school";
+  queryType: "all" | "new" | "popular" | "course" | "school" | "pastProblem";
   singleProblemId: string | "";
   courseInfo: CourseType | undefined;
   singleProblemName: string | "";
   answerType: ProblemType | undefined;
   difficulty: DifficultyType | "";
+  pastProblem: PastProblemType;
 }
 
 export type SubmitAnswerResponse = {

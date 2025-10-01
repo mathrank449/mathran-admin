@@ -23,22 +23,6 @@ export function ProblemNav({ isVisible }: ProblemNavProps) {
           ]}
         />
 
-        {/* 유형별 문제 */}
-        <CategoryColumn
-          title="문제"
-          items={[
-            { title: "단원별로 풀어보기", linkTo: "/problems/course" },
-            {
-              title: "틀린 문제 다시 풀어보기",
-              linkTo: "/problems/incorrect",
-            },
-            {
-              title: "맞춘 문제 다시 풀어보기",
-              linkTo: "/problems/correct",
-            },
-          ]}
-        />
-
         {/* 지역별 문제 */}
         <CategoryGrid
           title="지역별 문제"
@@ -57,11 +41,9 @@ export function ProblemNav({ isVisible }: ProblemNavProps) {
         <CategoryGrid
           title="기출 문제"
           items={[
-            { title: "수능", linkTo: "" },
-            { title: "고3 모의고사", linkTo: "" },
-            { title: "고2 모의고사", linkTo: "" },
-            { title: "고1 모의고사", linkTo: "" },
-            { title: "전국연합학력평가", linkTo: "" },
+            { title: "고1 모의고사", linkTo: "/problems/high-school-1" },
+            { title: "고2 모의고사", linkTo: "/problems/high-school-2" },
+            { title: "고3 모의고사", linkTo: "/problems/high-school-3" },
           ]}
         />
       </div>

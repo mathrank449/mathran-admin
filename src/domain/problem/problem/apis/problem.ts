@@ -57,6 +57,21 @@ export const getSingleProblemsByQuery = async (
           school?.schoolCode ?? ""
         }&location=${location}&orderColumn=TOTAL_TRY_COUNT&direction=DESC&pageSize=10&pageNumber=${page}`
       );
+    }
+    if (query.queryType === "pastProblem") {
+      problemResponse = await instance.get(
+        `/v1/problem/single?singleProblemId=&coursePath=${
+          query.courseInfo?.coursePath
+        }&singleProblemName=${
+          query.singleProblemName
+        }&answerType=&difficultyMinInclude=${
+          query.difficulty
+        }&difficultyMaxInclude=${query.difficulty}&schoolCode=${
+          school?.schoolCode ?? ""
+        }&location=${location}&pastProblem=${
+          query.pastProblem
+        }&pageSize=10&pageNumber=${page}`
+      );
     } else {
       problemResponse = await instance.get(
         `/v1/problem/single?singleProblemId=&coursePath=${
