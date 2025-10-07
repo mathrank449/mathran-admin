@@ -38,6 +38,7 @@ function ProblemListPage() {
     singleProblemName: "",
     answerType: undefined,
     difficulty: "",
+    pastProblem: "",
   });
 
   const { data: problemListPagination, isLoading } = useQuery({

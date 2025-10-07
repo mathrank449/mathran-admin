@@ -25,6 +25,7 @@ const ReactQuillEditor = forwardRef<ReactQuill, ReactQuillEditorProps>(
       console.log(content);
     };
 
+    /** 🖼 이미지 업로드 핸들러 */
     const handleImageUpload = () => {
       const input = document.createElement("input");
       input.setAttribute("type", "file");
@@ -35,11 +36,9 @@ const ReactQuillEditor = forwardRef<ReactQuill, ReactQuillEditorProps>(
         if (!input.files?.length) return;
         const file = input.files[0];
 
-        // 서버에 이미지 업로드
         const imageSource = await uploadImageToServer(file);
         const imageUrl = baseURL + `/v1/image?imageSource=${imageSource}`;
 
-        // Quill 에디터에 이미지 삽입
         const quillRefCurrent = ref as React.RefObject<ReactQuill>;
         const quill = quillRefCurrent?.current;
         if (!quill) return;
@@ -75,6 +74,7 @@ const ReactQuillEditor = forwardRef<ReactQuill, ReactQuillEditorProps>(
 );
 
 // ✅ memo로 감싸서 value가 바뀔 때만 리렌더링
-export default memo(ReactQuillEditor, (prev, next) => {
-  return prev.value === next.value;
-});
+export default memo(
+  ReactQuillEditor,
+  (prev, next) => prev.value === next.value
+);

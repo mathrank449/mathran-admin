@@ -5,6 +5,7 @@ import type {
   TestPaperQueryListType,
   TestPaperResponse,
 } from "../types/testPaper";
+import type { ApiError } from "../../../shared/type/error";
 
 export const getTestPapersByQuery = async (
   query: TestPaperQueryListType,
@@ -67,6 +68,35 @@ export const submitTestPapersByTestPaperId = async (
   } catch (e) {
     if (e instanceof AxiosError) {
       throw e.message;
+    }
+    throw e;
+  }
+};
+
+export const deleteTestPaperById = async (testPaperId: string) => {
+  try {
+    await instance.delete(`/v1/problem/assessment/${testPaperId}`);
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      if (e.response) throw e.response.data as ApiError; // 타입 단언
+      throw { code: -1, message: e.message } as ApiError;
+    }
+    throw e;
+  }
+};
+
+export const modifyTestPaperById = async (
+  testPaperId: string,
+  name: string
+) => {
+  try {
+    await instance.put(
+      `/v1/problem/assessment/${testPaperId}?assessmentName=${name}`
+    );
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      if (e.response) throw e.response.data as ApiError; // 타입 단언
+      throw { code: -1, message: e.message } as ApiError;
     }
     throw e;
   }

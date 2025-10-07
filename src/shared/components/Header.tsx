@@ -79,7 +79,12 @@ export function Header() {
         >
           게시판
         </button>
-        <button className="text-lg cursor-pointer py-4" onClick={() => {}}>
+        <button
+          className="text-lg cursor-pointer py-4"
+          onClick={() => {
+            navigate({ to: "/resource" });
+          }}
+        >
           자료실
         </button>
 

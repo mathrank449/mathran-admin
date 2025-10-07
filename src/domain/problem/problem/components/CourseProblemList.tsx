@@ -31,6 +31,7 @@ function CourseProblemList() {
     singleProblemName: "",
     answerType: undefined,
     difficulty: "",
+    pastProblem: "",
   });
 
   const { data: problemListPagination, isLoading } = useQuery({
@@ -67,6 +68,7 @@ function CourseProblemList() {
         singleProblemName: "",
         answerType: undefined,
         difficulty: "",
+        pastProblem: "",
       });
   }, [isUnitSelected]);
 

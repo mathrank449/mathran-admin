@@ -74,3 +74,32 @@ export const submitContestByContestId = async (
     throw e;
   }
 };
+
+export const deleteContestById = async (contestId: string) => {
+  try {
+    await instance.delete(`/v1/problem/contest/${contestId}`);
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      if (e.response) throw e.response.data as ApiError; // 타입 단언
+      throw { code: -1, message: e.message } as ApiError;
+    }
+    throw e;
+  }
+};
+
+export const modifyContestById = async (
+  contestId: string,
+  contestName: string
+) => {
+  try {
+    await instance.put(
+      `/v1/problem/contest/${contestId}?contestName=${contestName}`
+    );
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      if (e.response) throw e.response.data as ApiError; // 타입 단언
+      throw { code: -1, message: e.message } as ApiError;
+    }
+    throw e;
+  }
+};

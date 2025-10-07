@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
-import { getSingleProblemById, solveSingleProblem } from "../apis/problem";
+import {
+  deleteProblemById,
+  getSingleProblemById,
+  getSingleProblemSolutionById,
+  modifyProblemById,
+  solveSingleProblem,
+} from "../apis/problem";
 import type {
   ProblemItemResponse,
+  SingleProblemSolution,
   SubmitAnswerResponse,
 } from "../types/problem";
 import { AiOutlineCopy } from "react-icons/ai";
@@ -14,13 +21,15 @@ import type {
   ChallengeLogDetail,
 } from "../../../challengeLog/types/challengeLog";
 import { getChallengeLogsBySingleProblemId } from "../../../challengeLog/apis/challengeLog";
+import { useNavigate } from "@tanstack/react-router";
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 interface ProblemDetailPageProps {
-  problemId: string | number;
+  problemId: string;
 }
 
 function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
+  const navigate = useNavigate();
   const [problem, setProblem] = useState<ProblemItemResponse | null>(null);
   const [challengeLogs, setChallengeLogs] = useState<ChallengeLog[]>([]);
   const [selectedLog, setSelectedLog] = useState<number | undefined>(undefined);
@@ -41,19 +50,33 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
       submittedAnswer: [], // 사용자가 제출한 답안 목록
     });
 
+  const [solution, setSolution] = useState<SingleProblemSolution | undefined>(
+    undefined
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const preoblemDetailedRes = await getSingleProblemById(String(problemId));
+      const problemDetailedRes = await getSingleProblemById(String(problemId));
       setStartTime(Date.now());
-      setProblem(preoblemDetailedRes);
-      setModificationTitle(preoblemDetailedRes.singleProblemName);
+      setProblem(problemDetailedRes);
+      setModificationTitle(problemDetailedRes.singleProblemName);
 
       const challengeLogsResponse = await getChallengeLogsBySingleProblemId(
         String(problemId)
       );
       setChallengeLogs(challengeLogsResponse);
       setIsLoading(false);
+    };
+    fetchData();
+  }, [problemId]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const problemSolutionRes = await getSingleProblemSolutionById(
+        String(problemId)
+      );
+      setSolution(problemSolutionRes);
     };
     fetchData();
   }, [problemId]);
@@ -89,8 +112,22 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
                   />
                   <button
                     className="px-3 py-1 bg-blue-500 text-white rounded shadow hover:bg-blue-600 transition whitespace-nowrap cursor-pointer"
-                    onClick={() => {
-                      // 수정 API 쏘고 성공하면 제목 데이터 교체
+                    onClick={async () => {
+                      try {
+                        await modifyProblemById(
+                          String(problemId),
+                          modificationTitle
+                        );
+                        alert("문제 이름이 수정되었습니다.");
+                        const problemResponse = await getSingleProblemById(
+                          String(problemId)
+                        );
+                        setProblem(problemResponse);
+                        setIsModify(false);
+                      } catch (e) {
+                        alert("문제 이름 수정에 실패하였습니다.");
+                        console.log(e);
+                      }
                     }}
                   >
                     완료
@@ -134,10 +171,23 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
           <hr />
         </div>
 
-        <div className="mb-8 border-b-2 border-black pb-3">
-          <span className="font-bold mb-8 border-b-3 border-blue-400 pb-3">
+        <div className="flex justify-between items-center mb-8 border-b-2 border-black pb-3">
+          {/* 왼쪽: 제목 */}
+          <span className="font-bold text-lg border-b-4 border-blue-400 pb-2">
             문제
           </span>
+
+          {/* 오른쪽: 풀이 영상 링크 (solution에서 불러옴) */}
+          {solution?.solutionVideoLink && (
+            <a
+              href={solution.solutionVideoLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700 font-semibold transition-colors"
+            >
+              풀이 영상 보기 🎥
+            </a>
+          )}
         </div>
 
         <section className="relative w-[540px] mb-4 ml-[20px]">
@@ -218,6 +268,11 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
                   await getChallengeLogsBySingleProblemId(String(problemId));
                 setChallengeLogs(challengeLogsResponse);
 
+                const problemSolutionRes = await getSingleProblemSolutionById(
+                  String(problemId)
+                );
+                setSolution(problemSolutionRes);
+
                 setStartTime(Date.now());
               } catch (error) {
                 console.error(error);
@@ -238,7 +293,16 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
             수정
           </button>
           <button
-            onClick={async () => {}}
+            onClick={async () => {
+              try {
+                await deleteProblemById(String(problemId));
+                alert("문제가 삭제되었습니다.");
+                navigate({ to: "/problems" });
+              } catch (e) {
+                alert("문제 삭제가 실패하였습니다.");
+                console.log(e);
+              }
+            }}
             className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
           >
             삭제

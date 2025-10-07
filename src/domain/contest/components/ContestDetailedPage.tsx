@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import type { ContestDetailedResponse } from "../types/contest";
-import { getContestById, submitContestByContestId } from "../apis/contest";
+import {
+  deleteContestById,
+  getContestById,
+  modifyContestById,
+  submitContestByContestId,
+} from "../apis/contest";
 import { AiOutlineCopy } from "react-icons/ai";
 import { difficultyMap, problemMap } from "../../problem/utils/problemMap";
 import {
@@ -233,8 +238,19 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
                   />
                   <button
                     className="px-3 py-1 bg-blue-500 text-white rounded shadow hover:bg-blue-600 transition whitespace-nowrap cursor-pointer"
-                    onClick={() => {
-                      // 수정 API 쏘고 성공하면 제목 데이터 교체
+                    onClick={async () => {
+                      try {
+                        await modifyContestById(contestId, modificationTitle);
+                        alert("문제집 이름이 수정되었습니다.");
+                        const contestResponse = await getContestById(
+                          String(contestId)
+                        );
+                        setContest(contestResponse);
+                        setIsModify(false);
+                      } catch (e) {
+                        alert("경시대회 이름 수정에 실패하였습니다.");
+                        console.log(e);
+                      }
                     }}
                   >
                     완료
@@ -420,7 +436,16 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
             수정
           </button>
           <button
-            onClick={async () => {}}
+            onClick={async () => {
+              try {
+                await deleteContestById(contestId);
+                alert("경시대회가 삭제되었습니다.");
+                navigate({ to: "/contests" });
+              } catch (e) {
+                alert("경시대회 삭제가 실패하였습니다.");
+                console.log(e);
+              }
+            }}
             className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
           >
             삭제

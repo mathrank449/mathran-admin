@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import type { TestPaperDetailedResponse } from "../types/testPaper";
 import {
+  deleteTestPaperById,
   getTestPapersById,
+  modifyTestPaperById,
   submitTestPapersByTestPaperId,
 } from "../apis/testPaper";
 import { AiOutlineCopy } from "react-icons/ai";
@@ -18,10 +20,12 @@ import SubmissionLogListItem from "../../submissionLog/components/SubmissionLogL
 import SubmissionLogHeader from "../../submissionLog/components/SubmissionLogHeader";
 import SubmissionResultListHeader from "./SubmissionResultListHeader";
 import SubmissionResultByProblem from "./SubmissionResultByProblem";
+import { useNavigate } from "@tanstack/react-router";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
+  const navigate = useNavigate();
   const [testPaper, setTestPaper] = useState<TestPaperDetailedResponse | null>(
     null
   );
@@ -210,8 +214,22 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
                   />
                   <button
                     className="px-3 py-1 bg-blue-500 text-white rounded shadow hover:bg-blue-600 transition whitespace-nowrap cursor-pointer"
-                    onClick={() => {
-                      // 수정 API 쏘고 성공하면 제목 데이터 교체
+                    onClick={async () => {
+                      try {
+                        await modifyTestPaperById(
+                          testPaperId,
+                          modificationTitle
+                        );
+                        alert("문제집 이름이 수정되었습니다.");
+                        const testPaperResponse = await getTestPapersById(
+                          String(testPaperId)
+                        );
+                        setTestPaper(testPaperResponse);
+                        setIsModify(false);
+                      } catch (e) {
+                        alert("문제집 이름 수정에 실패하였습니다.");
+                        console.log(e);
+                      }
                     }}
                   >
                     완료
@@ -394,7 +412,16 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
             수정
           </button>
           <button
-            onClick={async () => {}}
+            onClick={async () => {
+              try {
+                await deleteTestPaperById(testPaperId);
+                alert("문제집이 삭제되었습니다.");
+                navigate({ to: "/test-papers" });
+              } catch (e) {
+                alert("문제집 삭제가 실패하였습니다.");
+                console.log(e);
+              }
+            }}
             className="cursor-pointer bg-blue-600 px-6 py-1 text-white text-md rounded-md w-auto"
           >
             삭제

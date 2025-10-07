@@ -39,6 +39,7 @@ function ProblemListByLocationPage({
     singleProblemName: "",
     answerType: undefined,
     difficulty: "",
+    pastProblem: "",
   });
 
   const [region, setRegion] = useState<string | undefined>(
