@@ -279,26 +279,13 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
                 </span>
               )}
 
-              <div className="flex justify-between gap-4">
-                {/* 오른쪽: 풀이 영상 링크 (solution에서 불러옴) */}
-                {solution && solution[selectedIndex].solutionVideoLink && (
-                  <a
-                    href={solution[selectedIndex].solutionVideoLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-700 font-semibold transition-colors"
-                  >
-                    풀이 영상 보기 🎥
-                  </a>
-                )}
-                {/* 시간 제한 */}
-                <div className="flex items-center gap-1">
-                  <span className="text-sm">시간제한/</span>
-                  <span className="focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center mx-1">
-                    {contest.minutes}
-                  </span>
-                  <span className="text-sm">분</span>
-                </div>
+              {/* 시간 제한 */}
+              <div className="flex items-center gap-1">
+                <span className="text-sm">시간제한/</span>
+                <span className="focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center mx-1">
+                  {contest.minutes}
+                </span>
+                <span className="text-sm">분</span>
               </div>
             </div>
 
@@ -328,13 +315,26 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
                 )}
               </div>
 
-              {/* 시간 제한 */}
-              <div className="flex items-center gap-1">
-                <span className="text-md">점수/</span>
-                <span className="text-md focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center">
-                  {contest?.itemDetails[selectedIndex].score}
-                </span>
-                <span className="text-sm">점</span>
+              <div className="flex justify-between gap-4">
+                {/* 오른쪽: 풀이 영상 링크 (solution에서 불러옴) */}
+                {solution && solution[selectedIndex].solutionVideoLink && (
+                  <a
+                    href={solution[selectedIndex].solutionVideoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 font-semibold transition-colors"
+                  >
+                    풀이 영상 보기 🎥
+                  </a>
+                )}
+                {/* 시간 제한 */}
+                <div className="flex items-center gap-1">
+                  <span className="text-md">점수/</span>
+                  <span className="text-md focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center">
+                    {contest?.itemDetails[selectedIndex].score}
+                  </span>
+                  <span className="text-sm">점</span>
+                </div>
               </div>
             </div>
 
