@@ -8,7 +8,7 @@ import {
 } from "../apis/problem";
 import type {
   ProblemItemResponse,
-  SingleProblemSolution,
+  ProblemSolution,
   SubmitAnswerResponse,
 } from "../types/problem";
 import { AiOutlineCopy } from "react-icons/ai";
@@ -50,7 +50,7 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
       submittedAnswer: [], // 사용자가 제출한 답안 목록
     });
 
-  const [solution, setSolution] = useState<SingleProblemSolution | undefined>(
+  const [solution, setSolution] = useState<ProblemSolution | undefined>(
     undefined
   );
 

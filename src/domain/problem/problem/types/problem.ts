@@ -50,7 +50,7 @@ export type SubmitAnswerResponse = {
 };
 
 // 정답 데이터 타입 정의
-export type SingleProblemSolution = {
+export type ProblemSolution = {
   imageSource: string; // 문제 이미지 경로 (또는 원본 이미지)
   path: string; // 문제 경로 또는 식별용 경로
   difficulty: DifficultyType; // 난이도

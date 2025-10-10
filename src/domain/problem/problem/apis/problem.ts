@@ -4,7 +4,7 @@ import type {
   ProblemItemResponse,
   ProblemListPagination,
   SingleProblemQueryListType,
-  SingleProblemSolution,
+  ProblemSolution,
   SubmitAnswerResponse,
 } from "../types/problem";
 import type { School } from "../../types/school";
@@ -115,7 +115,7 @@ export const getSingleProblemById = async (
 
 export const getSingleProblemSolutionById = async (
   id: string
-): Promise<SingleProblemSolution> => {
+): Promise<ProblemSolution> => {
   try {
     const { data } = await instance.get(`/v1/problem/single/${id}/solution`);
     return data;
