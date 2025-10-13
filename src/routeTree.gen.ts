@@ -27,7 +27,6 @@ import { Route as MainLayoutQuestionsQuestionIdRouteImport } from './routes/_mai
 import { Route as MainLayoutProblemsProblemIdRouteImport } from './routes/_mainLayout/problems/$problemId'
 import { Route as MainLayoutContestsContestIdRouteImport } from './routes/_mainLayout/contests/$contestId'
 import { Route as MainLayoutResourceWriteRouteRouteImport } from './routes/_mainLayout/resource/write/route'
-import { Route as MainLayoutResourceIdRouteRouteImport } from './routes/_mainLayout/resource/$id/route'
 import { Route as MainLayoutProblemsUlsanRouteRouteImport } from './routes/_mainLayout/problems/ulsan/route'
 import { Route as MainLayoutProblemsSeoulRouteRouteImport } from './routes/_mainLayout/problems/seoul/route'
 import { Route as MainLayoutProblemsSchoolRouteRouteImport } from './routes/_mainLayout/problems/school/route'
@@ -42,10 +41,12 @@ import { Route as MainLayoutProblemsDaejeonRouteRouteImport } from './routes/_ma
 import { Route as MainLayoutProblemsDaeguRouteRouteImport } from './routes/_mainLayout/problems/daegu/route'
 import { Route as MainLayoutProblemsCourseRouteRouteImport } from './routes/_mainLayout/problems/course/route'
 import { Route as MainLayoutProblemsBusanRouteRouteImport } from './routes/_mainLayout/problems/busan/route'
+import { Route as MainLayoutResourceIdIndexRouteImport } from './routes/_mainLayout/resource/$id/index'
 import { Route as MainLayoutSolutionBoardWriteQuestionRouteRouteImport } from './routes/_mainLayout/solution-board/write/question/route'
 import { Route as MainLayoutSolutionBoardListNoticeRouteRouteImport } from './routes/_mainLayout/solution-board/list/notice/route'
 import { Route as MainLayoutSolutionBoardListFreeRouteRouteImport } from './routes/_mainLayout/solution-board/list/free/route'
 import { Route as MainLayoutSolutionBoardListAllRouteRouteImport } from './routes/_mainLayout/solution-board/list/all/route'
+import { Route as MainLayoutResourceIdModifyRouteRouteImport } from './routes/_mainLayout/resource/$id/modify/route'
 import { Route as MainLayoutSolutionBoardQuestionTestPaperIndexRouteImport } from './routes/_mainLayout/solution-board/question/testPaper/index'
 import { Route as MainLayoutSolutionBoardQuestionProblemIndexRouteImport } from './routes/_mainLayout/solution-board/question/problem/index'
 import { Route as MainLayoutSolutionBoardQuestionContestIndexRouteImport } from './routes/_mainLayout/solution-board/question/contest/index'
@@ -153,12 +154,6 @@ const MainLayoutResourceWriteRouteRoute =
     path: '/resource/write',
     getParentRoute: () => MainLayoutRouteRoute,
   } as any)
-const MainLayoutResourceIdRouteRoute =
-  MainLayoutResourceIdRouteRouteImport.update({
-    id: '/resource/$id',
-    path: '/resource/$id',
-    getParentRoute: () => MainLayoutRouteRoute,
-  } as any)
 const MainLayoutProblemsUlsanRouteRoute =
   MainLayoutProblemsUlsanRouteRouteImport.update({
     id: '/problems/ulsan',
@@ -243,6 +238,12 @@ const MainLayoutProblemsBusanRouteRoute =
     path: '/problems/busan',
     getParentRoute: () => MainLayoutRouteRoute,
   } as any)
+const MainLayoutResourceIdIndexRoute =
+  MainLayoutResourceIdIndexRouteImport.update({
+    id: '/resource/$id/',
+    path: '/resource/$id/',
+    getParentRoute: () => MainLayoutRouteRoute,
+  } as any)
 const MainLayoutSolutionBoardWriteQuestionRouteRoute =
   MainLayoutSolutionBoardWriteQuestionRouteRouteImport.update({
     id: '/solution-board/write/question',
@@ -265,6 +266,12 @@ const MainLayoutSolutionBoardListAllRouteRoute =
   MainLayoutSolutionBoardListAllRouteRouteImport.update({
     id: '/solution-board/list/all',
     path: '/solution-board/list/all',
+    getParentRoute: () => MainLayoutRouteRoute,
+  } as any)
+const MainLayoutResourceIdModifyRouteRoute =
+  MainLayoutResourceIdModifyRouteRouteImport.update({
+    id: '/resource/$id/modify',
+    path: '/resource/$id/modify',
     getParentRoute: () => MainLayoutRouteRoute,
   } as any)
 const MainLayoutSolutionBoardQuestionTestPaperIndexRoute =
@@ -327,7 +334,6 @@ export interface FileRoutesByFullPath {
   '/problems/school': typeof MainLayoutProblemsSchoolRouteRoute
   '/problems/seoul': typeof MainLayoutProblemsSeoulRouteRoute
   '/problems/ulsan': typeof MainLayoutProblemsUlsanRouteRoute
-  '/resource/$id': typeof MainLayoutResourceIdRouteRoute
   '/resource/write': typeof MainLayoutResourceWriteRouteRoute
   '/contests/$contestId': typeof MainLayoutContestsContestIdRoute
   '/problems/$problemId': typeof MainLayoutProblemsProblemIdRoute
@@ -337,10 +343,12 @@ export interface FileRoutesByFullPath {
   '/problems': typeof MainLayoutProblemsIndexRoute
   '/resource': typeof MainLayoutResourceIndexRoute
   '/test-papers': typeof MainLayoutTestPapersIndexRoute
+  '/resource/$id/modify': typeof MainLayoutResourceIdModifyRouteRoute
   '/solution-board/list/all': typeof MainLayoutSolutionBoardListAllRouteRoute
   '/solution-board/list/free': typeof MainLayoutSolutionBoardListFreeRouteRoute
   '/solution-board/list/notice': typeof MainLayoutSolutionBoardListNoticeRouteRoute
   '/solution-board/write/question': typeof MainLayoutSolutionBoardWriteQuestionRouteRoute
+  '/resource/$id': typeof MainLayoutResourceIdIndexRoute
   '/solution-board/question/contest/$contestId': typeof MainLayoutSolutionBoardQuestionContestContestIdRouteRoute
   '/solution-board/question/problem/$problemId': typeof MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute
   '/solution-board/question/testPaper/$testPaperId': typeof MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute
@@ -371,7 +379,6 @@ export interface FileRoutesByTo {
   '/problems/school': typeof MainLayoutProblemsSchoolRouteRoute
   '/problems/seoul': typeof MainLayoutProblemsSeoulRouteRoute
   '/problems/ulsan': typeof MainLayoutProblemsUlsanRouteRoute
-  '/resource/$id': typeof MainLayoutResourceIdRouteRoute
   '/resource/write': typeof MainLayoutResourceWriteRouteRoute
   '/contests/$contestId': typeof MainLayoutContestsContestIdRoute
   '/problems/$problemId': typeof MainLayoutProblemsProblemIdRoute
@@ -381,10 +388,12 @@ export interface FileRoutesByTo {
   '/problems': typeof MainLayoutProblemsIndexRoute
   '/resource': typeof MainLayoutResourceIndexRoute
   '/test-papers': typeof MainLayoutTestPapersIndexRoute
+  '/resource/$id/modify': typeof MainLayoutResourceIdModifyRouteRoute
   '/solution-board/list/all': typeof MainLayoutSolutionBoardListAllRouteRoute
   '/solution-board/list/free': typeof MainLayoutSolutionBoardListFreeRouteRoute
   '/solution-board/list/notice': typeof MainLayoutSolutionBoardListNoticeRouteRoute
   '/solution-board/write/question': typeof MainLayoutSolutionBoardWriteQuestionRouteRoute
+  '/resource/$id': typeof MainLayoutResourceIdIndexRoute
   '/solution-board/question/contest/$contestId': typeof MainLayoutSolutionBoardQuestionContestContestIdRouteRoute
   '/solution-board/question/problem/$problemId': typeof MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute
   '/solution-board/question/testPaper/$testPaperId': typeof MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute
@@ -417,7 +426,6 @@ export interface FileRoutesById {
   '/_mainLayout/problems/school': typeof MainLayoutProblemsSchoolRouteRoute
   '/_mainLayout/problems/seoul': typeof MainLayoutProblemsSeoulRouteRoute
   '/_mainLayout/problems/ulsan': typeof MainLayoutProblemsUlsanRouteRoute
-  '/_mainLayout/resource/$id': typeof MainLayoutResourceIdRouteRoute
   '/_mainLayout/resource/write': typeof MainLayoutResourceWriteRouteRoute
   '/_mainLayout/contests/$contestId': typeof MainLayoutContestsContestIdRoute
   '/_mainLayout/problems/$problemId': typeof MainLayoutProblemsProblemIdRoute
@@ -427,10 +435,12 @@ export interface FileRoutesById {
   '/_mainLayout/problems/': typeof MainLayoutProblemsIndexRoute
   '/_mainLayout/resource/': typeof MainLayoutResourceIndexRoute
   '/_mainLayout/test-papers/': typeof MainLayoutTestPapersIndexRoute
+  '/_mainLayout/resource/$id/modify': typeof MainLayoutResourceIdModifyRouteRoute
   '/_mainLayout/solution-board/list/all': typeof MainLayoutSolutionBoardListAllRouteRoute
   '/_mainLayout/solution-board/list/free': typeof MainLayoutSolutionBoardListFreeRouteRoute
   '/_mainLayout/solution-board/list/notice': typeof MainLayoutSolutionBoardListNoticeRouteRoute
   '/_mainLayout/solution-board/write/question': typeof MainLayoutSolutionBoardWriteQuestionRouteRoute
+  '/_mainLayout/resource/$id/': typeof MainLayoutResourceIdIndexRoute
   '/_mainLayout/solution-board/question/contest/$contestId': typeof MainLayoutSolutionBoardQuestionContestContestIdRouteRoute
   '/_mainLayout/solution-board/question/problem/$problemId': typeof MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute
   '/_mainLayout/solution-board/question/testPaper/$testPaperId': typeof MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute
@@ -463,7 +473,6 @@ export interface FileRouteTypes {
     | '/problems/school'
     | '/problems/seoul'
     | '/problems/ulsan'
-    | '/resource/$id'
     | '/resource/write'
     | '/contests/$contestId'
     | '/problems/$problemId'
@@ -473,10 +482,12 @@ export interface FileRouteTypes {
     | '/problems'
     | '/resource'
     | '/test-papers'
+    | '/resource/$id/modify'
     | '/solution-board/list/all'
     | '/solution-board/list/free'
     | '/solution-board/list/notice'
     | '/solution-board/write/question'
+    | '/resource/$id'
     | '/solution-board/question/contest/$contestId'
     | '/solution-board/question/problem/$problemId'
     | '/solution-board/question/testPaper/$testPaperId'
@@ -507,7 +518,6 @@ export interface FileRouteTypes {
     | '/problems/school'
     | '/problems/seoul'
     | '/problems/ulsan'
-    | '/resource/$id'
     | '/resource/write'
     | '/contests/$contestId'
     | '/problems/$problemId'
@@ -517,10 +527,12 @@ export interface FileRouteTypes {
     | '/problems'
     | '/resource'
     | '/test-papers'
+    | '/resource/$id/modify'
     | '/solution-board/list/all'
     | '/solution-board/list/free'
     | '/solution-board/list/notice'
     | '/solution-board/write/question'
+    | '/resource/$id'
     | '/solution-board/question/contest/$contestId'
     | '/solution-board/question/problem/$problemId'
     | '/solution-board/question/testPaper/$testPaperId'
@@ -552,7 +564,6 @@ export interface FileRouteTypes {
     | '/_mainLayout/problems/school'
     | '/_mainLayout/problems/seoul'
     | '/_mainLayout/problems/ulsan'
-    | '/_mainLayout/resource/$id'
     | '/_mainLayout/resource/write'
     | '/_mainLayout/contests/$contestId'
     | '/_mainLayout/problems/$problemId'
@@ -562,10 +573,12 @@ export interface FileRouteTypes {
     | '/_mainLayout/problems/'
     | '/_mainLayout/resource/'
     | '/_mainLayout/test-papers/'
+    | '/_mainLayout/resource/$id/modify'
     | '/_mainLayout/solution-board/list/all'
     | '/_mainLayout/solution-board/list/free'
     | '/_mainLayout/solution-board/list/notice'
     | '/_mainLayout/solution-board/write/question'
+    | '/_mainLayout/resource/$id/'
     | '/_mainLayout/solution-board/question/contest/$contestId'
     | '/_mainLayout/solution-board/question/problem/$problemId'
     | '/_mainLayout/solution-board/question/testPaper/$testPaperId'
@@ -707,13 +720,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutResourceWriteRouteRouteImport
       parentRoute: typeof MainLayoutRouteRoute
     }
-    '/_mainLayout/resource/$id': {
-      id: '/_mainLayout/resource/$id'
-      path: '/resource/$id'
-      fullPath: '/resource/$id'
-      preLoaderRoute: typeof MainLayoutResourceIdRouteRouteImport
-      parentRoute: typeof MainLayoutRouteRoute
-    }
     '/_mainLayout/problems/ulsan': {
       id: '/_mainLayout/problems/ulsan'
       path: '/problems/ulsan'
@@ -812,6 +818,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutProblemsBusanRouteRouteImport
       parentRoute: typeof MainLayoutRouteRoute
     }
+    '/_mainLayout/resource/$id/': {
+      id: '/_mainLayout/resource/$id/'
+      path: '/resource/$id'
+      fullPath: '/resource/$id'
+      preLoaderRoute: typeof MainLayoutResourceIdIndexRouteImport
+      parentRoute: typeof MainLayoutRouteRoute
+    }
     '/_mainLayout/solution-board/write/question': {
       id: '/_mainLayout/solution-board/write/question'
       path: '/solution-board/write/question'
@@ -838,6 +851,13 @@ declare module '@tanstack/react-router' {
       path: '/solution-board/list/all'
       fullPath: '/solution-board/list/all'
       preLoaderRoute: typeof MainLayoutSolutionBoardListAllRouteRouteImport
+      parentRoute: typeof MainLayoutRouteRoute
+    }
+    '/_mainLayout/resource/$id/modify': {
+      id: '/_mainLayout/resource/$id/modify'
+      path: '/resource/$id/modify'
+      fullPath: '/resource/$id/modify'
+      preLoaderRoute: typeof MainLayoutResourceIdModifyRouteRouteImport
       parentRoute: typeof MainLayoutRouteRoute
     }
     '/_mainLayout/solution-board/question/testPaper/': {
@@ -907,7 +927,6 @@ interface MainLayoutRouteRouteChildren {
   MainLayoutProblemsSchoolRouteRoute: typeof MainLayoutProblemsSchoolRouteRoute
   MainLayoutProblemsSeoulRouteRoute: typeof MainLayoutProblemsSeoulRouteRoute
   MainLayoutProblemsUlsanRouteRoute: typeof MainLayoutProblemsUlsanRouteRoute
-  MainLayoutResourceIdRouteRoute: typeof MainLayoutResourceIdRouteRoute
   MainLayoutResourceWriteRouteRoute: typeof MainLayoutResourceWriteRouteRoute
   MainLayoutContestsContestIdRoute: typeof MainLayoutContestsContestIdRoute
   MainLayoutProblemsProblemIdRoute: typeof MainLayoutProblemsProblemIdRoute
@@ -917,10 +936,12 @@ interface MainLayoutRouteRouteChildren {
   MainLayoutProblemsIndexRoute: typeof MainLayoutProblemsIndexRoute
   MainLayoutResourceIndexRoute: typeof MainLayoutResourceIndexRoute
   MainLayoutTestPapersIndexRoute: typeof MainLayoutTestPapersIndexRoute
+  MainLayoutResourceIdModifyRouteRoute: typeof MainLayoutResourceIdModifyRouteRoute
   MainLayoutSolutionBoardListAllRouteRoute: typeof MainLayoutSolutionBoardListAllRouteRoute
   MainLayoutSolutionBoardListFreeRouteRoute: typeof MainLayoutSolutionBoardListFreeRouteRoute
   MainLayoutSolutionBoardListNoticeRouteRoute: typeof MainLayoutSolutionBoardListNoticeRouteRoute
   MainLayoutSolutionBoardWriteQuestionRouteRoute: typeof MainLayoutSolutionBoardWriteQuestionRouteRoute
+  MainLayoutResourceIdIndexRoute: typeof MainLayoutResourceIdIndexRoute
   MainLayoutSolutionBoardQuestionContestContestIdRouteRoute: typeof MainLayoutSolutionBoardQuestionContestContestIdRouteRoute
   MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute: typeof MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute
   MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute: typeof MainLayoutSolutionBoardQuestionTestPaperTestPaperIdRouteRoute
@@ -955,7 +976,6 @@ const MainLayoutRouteRouteChildren: MainLayoutRouteRouteChildren = {
   MainLayoutProblemsSchoolRouteRoute: MainLayoutProblemsSchoolRouteRoute,
   MainLayoutProblemsSeoulRouteRoute: MainLayoutProblemsSeoulRouteRoute,
   MainLayoutProblemsUlsanRouteRoute: MainLayoutProblemsUlsanRouteRoute,
-  MainLayoutResourceIdRouteRoute: MainLayoutResourceIdRouteRoute,
   MainLayoutResourceWriteRouteRoute: MainLayoutResourceWriteRouteRoute,
   MainLayoutContestsContestIdRoute: MainLayoutContestsContestIdRoute,
   MainLayoutProblemsProblemIdRoute: MainLayoutProblemsProblemIdRoute,
@@ -965,6 +985,7 @@ const MainLayoutRouteRouteChildren: MainLayoutRouteRouteChildren = {
   MainLayoutProblemsIndexRoute: MainLayoutProblemsIndexRoute,
   MainLayoutResourceIndexRoute: MainLayoutResourceIndexRoute,
   MainLayoutTestPapersIndexRoute: MainLayoutTestPapersIndexRoute,
+  MainLayoutResourceIdModifyRouteRoute: MainLayoutResourceIdModifyRouteRoute,
   MainLayoutSolutionBoardListAllRouteRoute:
     MainLayoutSolutionBoardListAllRouteRoute,
   MainLayoutSolutionBoardListFreeRouteRoute:
@@ -973,6 +994,7 @@ const MainLayoutRouteRouteChildren: MainLayoutRouteRouteChildren = {
     MainLayoutSolutionBoardListNoticeRouteRoute,
   MainLayoutSolutionBoardWriteQuestionRouteRoute:
     MainLayoutSolutionBoardWriteQuestionRouteRoute,
+  MainLayoutResourceIdIndexRoute: MainLayoutResourceIdIndexRoute,
   MainLayoutSolutionBoardQuestionContestContestIdRouteRoute:
     MainLayoutSolutionBoardQuestionContestContestIdRouteRoute,
   MainLayoutSolutionBoardQuestionProblemProblemIdRouteRoute:

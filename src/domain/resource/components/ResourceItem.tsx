@@ -59,9 +59,9 @@ function ResourceItem({
       <div className="inline-block align-middle w-[150px] text-center overflow-hidden truncate">
         <span
           className="text-sm text-black whitespace-nowrap"
-          title={String(resource.memberNickName)}
+          title={String(resource.price)}
         >
-          {resource.memberNickName}
+          {resource.price}원
         </span>
       </div>
       <div className="inline-block align-middle w-[200px] text-center overflow-hidden truncate">

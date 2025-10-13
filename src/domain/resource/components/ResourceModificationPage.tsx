@@ -1,14 +1,14 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ResourceType } from "../types/resource";
 import FileUpload from "./FileUpload";
 import VideoLinkInput from "./VideoLinkInput";
 import ReactQuillEditor from "../../solutionBoard/write/components/ReactQuillEditor";
 import type ReactQuill from "react-quill-new";
-import { postResource } from "../apis/resource";
+import { getDetailedResource, modifyResource } from "../apis/resource";
 import type { FileInfo } from "../../../shared/type/file";
 import { useNavigate } from "@tanstack/react-router";
 
-function WriteResourcePage() {
+function ResourceModificationPage({ id }: { id: string }) {
   const navigate = useNavigate();
   const quillRef = useRef<ReactQuill>(null);
   const [resourceCategory, setResourceCategory] =
@@ -17,15 +17,42 @@ function WriteResourcePage() {
   const [price, setPrice] = useState(0);
   const [videoLinks, setVideoLinks] = useState<string[]>([]);
   const [files, setFiles] = useState<FileInfo[]>([]);
+  const [text, setText] = useState("");
 
-  const onHandlePost = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const detailedResource = await getDetailedResource(id);
+      console.log(detailedResource);
+      setTitle(detailedResource.title);
+      setResourceCategory(detailedResource.resourceType);
+      setText(detailedResource.text);
+
+      if (
+        detailedResource.resourceType == "testPaper" ||
+        detailedResource.resourceType == "schoolPaper"
+      ) {
+        setFiles(
+          detailedResource.fileInfos?.map((file) => ({
+            fileName: file.fileRealName,
+            fileSource: file.fileSource,
+          })) ?? []
+        );
+      } else if (detailedResource.resourceType == "video") {
+        setVideoLinks(detailedResource.videoLinks ?? []);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  const onHandleModify = async () => {
     try {
       if (title == "") {
         alert("제목을 입력해주세요");
         return;
       }
 
-      await postResource({
+      await modifyResource(id, {
         resourceType: resourceCategory,
         title,
         text: quillRef.current?.getEditor().root.innerHTML ?? "",
@@ -92,7 +119,7 @@ function WriteResourcePage() {
         {/* 에디터 */}
         {/* 에디터 */}
         <div className="border border-gray-300 rounded-lg overflow-hidden write">
-          <ReactQuillEditor ref={quillRef} />
+          <ReactQuillEditor ref={quillRef} value={text} />
         </div>
 
         {resourceCategory === "testPaper" && (
@@ -116,14 +143,14 @@ function WriteResourcePage() {
         <div className="flex justify-center gap-6">
           <button
             className="my-3 cursor-pointer px-3 py-2 rounded-lg shadow transition bg-blue-500 text-white"
-            onClick={onHandlePost}
+            onClick={onHandleModify}
           >
-            자료 저장
+            자료 수정
           </button>
           <button
             className="my-3 cursor-pointer px-3 py-2 rounded-lg shadow transition bg-blue-500 text-white"
             onClick={() => {
-              navigate({ to: "/resource" });
+              navigate({ to: `/resource/${id}` });
             }}
           >
             취소
@@ -134,4 +161,4 @@ function WriteResourcePage() {
   );
 }
 
-export default WriteResourcePage;
+export default ResourceModificationPage;

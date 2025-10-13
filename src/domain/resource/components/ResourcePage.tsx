@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
-  ResourceItemType,
   ResourcesResponsePagination,
   ResourceType,
 } from "../types/resource";
@@ -8,64 +7,40 @@ import Pagination from "../../../shared/components/Pagination";
 import ResourceItem from "./ResourceItem";
 import ResourceListHeader from "./ResourceListHeader";
 import { useNavigate } from "@tanstack/react-router";
-
-const mockResourceList: ResourceItemType[] = [
-  {
-    resourceId: "res_001",
-    memberId: "mem_1001",
-    memberNickName: "플룬개발자",
-    resourceType: "schoolPaper",
-    title: "로블록스 스튜디오 기초 배우기",
-    price: 0,
-    createdAt: "2025-09-28T09:10:45.000Z",
-  },
-  {
-    resourceId: "res_002",
-    memberId: "mem_1002",
-    memberNickName: "다라치",
-    resourceType: "testPaper",
-    title: "블록코딩으로 간단한 게임 만들기 가이드",
-    price: 500,
-    createdAt: "2025-10-01T15:22:31.000Z",
-  },
-  {
-    resourceId: "res_003",
-    memberId: "mem_1003",
-    memberNickName: "코딩냥이",
-    resourceType: "video",
-    title: "UI 디자인 예시 - 마이페이지 섹션",
-    price: 300,
-    createdAt: "2025-10-04T20:05:12.000Z",
-  },
-  {
-    resourceId: "res_004",
-    memberId: "mem_1004",
-    memberNickName: "GomDev",
-    resourceType: "schoolPaper",
-    title: "Spring Boot와 React 연결하기",
-    price: 2000,
-    createdAt: "2025-10-05T01:15:00.000Z",
-  },
-];
+import { getResourePagination } from "../apis/resource";
 
 function ResourcePage() {
   const navigate = useNavigate();
-  const [resourceListPagination] = useState<ResourcesResponsePagination>({
-    queryResults: mockResourceList,
-    currentPageNumber: 1,
-    possibleNextPageNumbers: [],
-  });
-  const [, setPage] = useState(1);
+  const [resourceListPagination, setResourceListPagination] =
+    useState<ResourcesResponsePagination>({
+      queryResults: [],
+      currentPageNumber: 1,
+      possibleNextPageNumbers: [],
+    });
+  const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [selectedResourceType, setSelectedResourceType] = useState<
     ResourceType | "all"
   >("all");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const resourceListPaginationResponse = await getResourePagination(
+        { title: keyword, resourceType: selectedResourceType },
+        page
+      );
+      setResourceListPagination(resourceListPaginationResponse);
+    };
+
+    fetchData();
+  }, [keyword, selectedResourceType]);
 
   const handleSearch = () => {
     console.log(`${keyword}`);
     // 여기서 검색 API 호출 또는 필터링 로직 실행
   };
 
+  console.log(resourceListPagination);
   return (
     <div className="w-full max-w-[1680px] mx-auto mt-24 px-4">
       <nav className="flex justify-between items-center border-b border-gray-300">

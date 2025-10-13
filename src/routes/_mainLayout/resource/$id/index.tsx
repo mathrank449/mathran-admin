@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import ResourceDetailPage from "../../../../domain/resource/components/ResourceDetailPage";
 
-export const Route = createFileRoute("/_mainLayout/resource/$id")({
+export const Route = createFileRoute("/_mainLayout/resource/$id/")({
   component: RouteComponent,
 });
 

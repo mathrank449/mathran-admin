@@ -34,3 +34,7 @@
     pointer-events: none;
   }
 }
+
+.view .ql-container.ql-snow {
+  border: 0;
+}

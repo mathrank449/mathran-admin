@@ -11,45 +11,26 @@ export const getAllSolutionBoard = async (
   page: number
 ): Promise<QuestionPostsResponsePagination> => {
   try {
-    if (query.postType === "FREE" || query.postType === "NOTICE") {
-      const response = await instance.get(
-        `/v1/board/post?postType=${query.postType}&title=${query.title}&nickName=${query.nickName}&page=${page}&pageSize=10`
-      );
-      return response.data;
-    }
-    if (query.postType === "SINGLE_PROBLEM") {
-      const response = await instance.get(
-        `/v1/board/post?postType=${query.postType}&title=${
-          query.title
-        }&nickName=${query.nickName}&singleProblemId=${
-          query.singleProblemId ?? ""
-        }&page=${page}&pageSize=10`
-      );
-      return response.data;
-    }
-    if (query.postType === "ASSESSMENT") {
-      const response = await instance.get(
-        `/v1/board/post?postType=${query.postType}&title=${
-          query.title
-        }&nickName=${query.nickName}&assessmentId=${
-          query.assessmentId ?? ""
-        }&page=${page}&pageSize=10`
-      );
-      return response.data;
-    }
-    if (query.postType === "CONTEST") {
-      const response = await instance.get(
-        `/v1/board/post?postType=${query.postType}&title=${
-          query.title
-        }&nickName=${query.nickName}&contestId=${
-          query.contestId ?? ""
-        }&page=${page}&pageSize=10`
-      );
-      return response.data;
-    }
-    const response = await instance.get(
-      `/v1/board/post?title=${query.title}&nickName=${query.nickName}&page=${page}&pageSize=10`
-    );
+    // 기본 파라미터 객체 구성
+    const params: Record<string, string | number | undefined> = {
+      page,
+      pageSize: 10,
+      postType: query.postType,
+    };
+
+    // 값이 존재할 때만 추가
+    if (query.title) params.title = query.title;
+    if (query.nickName) params.nickName = query.nickName;
+
+    if (query.postType === "SINGLE_PROBLEM" && query.singleProblemId)
+      params.singleProblemId = query.singleProblemId;
+    if (query.postType === "ASSESSMENT" && query.assessmentId)
+      params.assessmentId = query.assessmentId;
+    if (query.postType === "CONTEST" && query.contestId)
+      params.contestId = query.contestId;
+
+    // Axios 요청
+    const response = await instance.get("/v1/board/post", { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching course:", error);

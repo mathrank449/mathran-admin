@@ -21,10 +21,6 @@ interface ReactQuillEditorProps {
 
 const ReactQuillEditor = forwardRef<ReactQuill, ReactQuillEditorProps>(
   ({ value = "" }, ref) => {
-    const handleChange = (content: string) => {
-      console.log(content);
-    };
-
     /** 🖼 이미지 업로드 핸들러 */
     const handleImageUpload = () => {
       const input = document.createElement("input");
@@ -65,7 +61,6 @@ const ReactQuillEditor = forwardRef<ReactQuill, ReactQuillEditorProps>(
         ref={ref}
         theme="snow"
         value={value}
-        onChange={handleChange}
         modules={modules}
         style={{ width: "800px", margin: "0 auto" }}
       />
