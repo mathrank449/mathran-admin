@@ -3,6 +3,7 @@ import type { ContestDetailedResponse } from "../types/contest";
 import {
   deleteContestById,
   getContestById,
+  getContestSolutionById,
   modifyContestById,
   submitContestByContestId,
 } from "../apis/contest";
@@ -23,6 +24,7 @@ import SubmissionResultListHeader from "../../testPaper/components/SubmissionRes
 import SubmissionResultByProblem from "../../testPaper/components/SubmissionResultByProblem";
 import type { ApiError } from "../../../shared/type/error";
 import { useNavigate } from "@tanstack/react-router";
+import type { ProblemSolution } from "../../problem/problem/types/problem";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -33,6 +35,9 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [isModify, setIsModify] = useState(false);
   const [modificationTitle, setModificationTitle] = useState("");
+  const [solution, setSolution] = useState<ProblemSolution[] | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -128,6 +133,10 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
       }
       setSubmissionLogs(submissionLogsResponse);
       setElapsedTime(0);
+      const contestSolutionRes = await getContestSolutionById(
+        String(contestId)
+      );
+      setSolution(contestSolutionRes);
     };
 
     fetchContest();
@@ -306,13 +315,26 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
                 )}
               </div>
 
-              {/* 시간 제한 */}
-              <div className="flex items-center gap-1">
-                <span className="text-md">점수/</span>
-                <span className="text-md focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center">
-                  {contest?.itemDetails[selectedIndex].score}
-                </span>
-                <span className="text-sm">점</span>
+              <div className="flex justify-between gap-4">
+                {/* 오른쪽: 풀이 영상 링크 (solution에서 불러옴) */}
+                {solution && solution[selectedIndex].solutionVideoLink && (
+                  <a
+                    href={solution[selectedIndex].solutionVideoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 font-semibold transition-colors"
+                  >
+                    풀이 영상 보기 🎥
+                  </a>
+                )}
+                {/* 시간 제한 */}
+                <div className="flex items-center gap-1">
+                  <span className="text-md">점수/</span>
+                  <span className="text-md focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center">
+                    {contest?.itemDetails[selectedIndex].score}
+                  </span>
+                  <span className="text-sm">점</span>
+                </div>
               </div>
             </div>
 
@@ -416,6 +438,11 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
                   await getSubmissionLogsByAssessmentId(String(contestId));
 
                 setSubmissionLogs(submissionLogsResponse);
+
+                const contestSolutionRes = await getContestSolutionById(
+                  String(contestId)
+                );
+                setSolution(contestSolutionRes);
               } catch (e) {
                 const err = e as ApiError;
                 if (err.code === 7010) {

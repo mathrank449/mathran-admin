@@ -3,6 +3,7 @@ import type { TestPaperDetailedResponse } from "../types/testPaper";
 import {
   deleteTestPaperById,
   getTestPapersById,
+  getTestPaperSolutionById,
   modifyTestPaperById,
   submitTestPapersByTestPaperId,
 } from "../apis/testPaper";
@@ -21,6 +22,7 @@ import SubmissionLogHeader from "../../submissionLog/components/SubmissionLogHea
 import SubmissionResultListHeader from "./SubmissionResultListHeader";
 import SubmissionResultByProblem from "./SubmissionResultByProblem";
 import { useNavigate } from "@tanstack/react-router";
+import type { ProblemSolution } from "../../problem/problem/types/problem";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -33,6 +35,9 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [isModify, setIsModify] = useState(false);
   const [modificationTitle, setModificationTitle] = useState("");
+  const [solution, setSolution] = useState<ProblemSolution[] | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -104,6 +109,10 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
 
       setSubmissionLogs(submissionLogsResponse);
       setElapsedTime(0);
+      const testPaperSolutionRes = await getTestPaperSolutionById(
+        String(testPaperId)
+      );
+      setSolution(testPaperSolutionRes);
     };
 
     fetchTestPaper();
@@ -144,7 +153,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
       prev.map((arr, pIdx) => (pIdx === problemIndex ? [...arr, ""] : arr))
     );
   };
-  console.log(selectedLog);
+
   return (
     <div className="flex justify-center mt-24 mr-8">
       {/* 상단 타이머 */}
@@ -182,7 +191,6 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
           </nav>
         </div>
 
-        {/*  */}
         <div className="flex items-center gap-8 ">
           <button
             className="cursor-pointer w-10 h-10 flex items-center justify-center 
@@ -285,13 +293,26 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
                 )}
               </div>
 
-              {/* 시간 제한 */}
-              <div className="flex items-center gap-1">
-                <span className="text-md">점수/</span>
-                <span className="text-md focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center">
-                  {testPaper?.itemDetails[selectedIndex].score}
-                </span>
-                <span className="text-sm">점</span>
+              <div className="flex justify-between gap-4">
+                {/* 오른쪽: 풀이 영상 링크 (solution에서 불러옴) */}
+                {solution && solution[selectedIndex].solutionVideoLink && (
+                  <a
+                    href={solution[selectedIndex].solutionVideoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 font-semibold transition-colors"
+                  >
+                    풀이 영상 보기 🎥
+                  </a>
+                )}
+                {/* 시간 제한 */}
+                <div className="flex items-center gap-1">
+                  <span className="text-md">점수/</span>
+                  <span className="text-md focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center">
+                    {testPaper?.itemDetails[selectedIndex].score}
+                  </span>
+                  <span className="text-sm">점</span>
+                </div>
               </div>
             </div>
 
@@ -395,6 +416,11 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
                   await getSubmissionLogsByAssessmentId(String(testPaperId));
 
                 setSubmissionLogs(submissionLogsResponse);
+
+                const testPaperSolutionRes = await getTestPaperSolutionById(
+                  String(testPaperId)
+                );
+                setSolution(testPaperSolutionRes);
               } catch (e) {
                 console.log(e);
               }

@@ -6,6 +6,7 @@ import type {
   TestPaperResponse,
 } from "../types/testPaper";
 import type { ApiError } from "../../../shared/type/error";
+import type { ProblemSolution } from "../../problem/problem/types/problem";
 
 export const getTestPapersByQuery = async (
   query: TestPaperQueryListType,
@@ -97,6 +98,20 @@ export const modifyTestPaperById = async (
     if (e instanceof AxiosError) {
       if (e.response) throw e.response.data as ApiError; // 타입 단언
       throw { code: -1, message: e.message } as ApiError;
+    }
+    throw e;
+  }
+};
+
+export const getTestPaperSolutionById = async (
+  id: string
+): Promise<ProblemSolution[]> => {
+  try {
+    const { data } = await instance.get(`/v1/problem/contest/${id}/solution`);
+    return data.results;
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      throw e.message;
     }
     throw e;
   }
