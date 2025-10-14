@@ -104,18 +104,16 @@ function ResourceDetailPage({ id }: { id: string }) {
           <>
             {videoLinks.map((video, index) => (
               <div key={index} className="mt-4">
-                <div className="yt-wrapper">
-                  <div className="yt-frame-container relative w-full pt-[56.25%] rounded-md overflow-hidden">
-                    <iframe
-                      className="absolute top-0 left-0 w-full h-full"
-                      src={`${extractYoutubeEmbed(
-                        video
-                      )}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1`}
-                      title={`YouTube video player ${index}`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    ></iframe>
-                  </div>
+                <div className="relative w-full pt-[56.25%] rounded-md overflow-hidden">
+                  <iframe
+                    className="absolute top-0 left-0 w-full h-full"
+                    src={`${extractYoutubeEmbed(
+                      video
+                    )}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1`}
+                    title={`YouTube video player ${index}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  ></iframe>
                 </div>
               </div>
             ))}
