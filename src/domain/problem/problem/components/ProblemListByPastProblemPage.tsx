@@ -41,7 +41,7 @@ function ProblemListByPastProblemPage({
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-left pl-12 bg-gray-50 text-3xl py-6 w-full">
-        전체 문제
+        기출 문제
       </div>
       <nav className="flex items-center gap-8 mt-12">
         <div className="flex gap-2 flex-wrap mr-24">
