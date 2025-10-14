@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import instance from "../../../shared/apis/instance";
 import type {
   ModifySolutionType,
@@ -72,7 +73,10 @@ export const postSolution = async (postData: PostSolutionType) => {
       return response.data;
     }
   } catch (e) {
-    console.log(e);
+    if (e instanceof AxiosError) {
+      throw e.message;
+    }
+    throw e;
   }
 };
 
@@ -87,7 +91,10 @@ export const modifySolution = async (
 
     return response.data;
   } catch (e) {
-    console.log(e);
+    if (e instanceof AxiosError) {
+      throw e.message;
+    }
+    throw e;
   }
 };
 
@@ -97,6 +104,9 @@ export const deleteSolution = async (postId: string) => {
 
     return response.data;
   } catch (e) {
-    console.log(e);
+    if (e instanceof AxiosError) {
+      throw e.message;
+    }
+    throw e;
   }
 };

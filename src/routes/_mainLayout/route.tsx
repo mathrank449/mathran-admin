@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Header } from "../../shared/components/Header";
+import Footer from "../../shared/components/Footer";
 
 export const Route = createFileRoute("/_mainLayout")({
   component: RouteComponent,
@@ -13,6 +14,9 @@ function RouteComponent() {
         <main className="bg-rbBg min-w-[1680px] relative">
           <Outlet />
         </main>
+        <div className="absolute bottom-0 left-0 w-full">
+          <Footer />
+        </div>
       </div>
     </>
   );

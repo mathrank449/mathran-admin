@@ -26,7 +26,9 @@ export const uploadFileToServer = async (file: File): Promise<string> => {
 export const downloadFile = async (file: FileRealInfo) => {
   try {
     const response = await instance.get(
-      `/v1/file/download?fileSource=${file.fileSource}&fileRealName=${file.fileRealName}`,
+      `/v1/file/download?fileSource=${encodeURIComponent(
+        file.fileSource
+      )}&fileRealName=${encodeURIComponent(file.fileRealName)}`,
       {
         responseType: "blob", // 🔥 파일을 blob(이진 데이터)로 받기
         headers: { "Content-Type": "multipart/form-data" },
