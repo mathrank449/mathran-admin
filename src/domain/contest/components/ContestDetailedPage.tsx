@@ -278,14 +278,23 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
                   {contest.contestId}. {contest.contestName}
                 </span>
               )}
-
-              {/* 시간 제한 */}
-              <div className="flex items-center gap-1">
-                <span className="text-sm">시간제한/</span>
-                <span className="focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center mx-1">
-                  {contest.minutes}
-                </span>
-                <span className="text-sm">분</span>
+              <div className="flex items-center gap-4">
+                <button
+                  className="text-blue-600 text-md hover:text-blue-800 cursor-pointer"
+                  onClick={() => {
+                    window.location.href = `/solution-board/question/contest/${contest.contestId}`;
+                  }}
+                >
+                  질문 게시판 보기
+                </button>
+                {/* 시간 제한 */}
+                <div className="flex items-center gap-1">
+                  <span className="text-sm">시간제한/</span>
+                  <span className="focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center mx-1">
+                    {contest.minutes}
+                  </span>
+                  <span className="text-sm">분</span>
+                </div>
               </div>
             </div>
 

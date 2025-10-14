@@ -162,7 +162,7 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
             <button
               className="text-blue-600 text-md hover:text-blue-800 cursor-pointer"
               onClick={() => {
-                window.location.href = `/solution-board/${problem.id}`;
+                window.location.href = `/solution-board/question/problem${problem.id}`;
               }}
             >
               풀이 게시판 보기
