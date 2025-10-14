@@ -25,6 +25,7 @@ export const Route = createRootRoute({
         "Authorization"
       ] = `Bearer ${response.accessToken}`;
       setAuth({ nickName: response.userName });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       clearAuth();
     }

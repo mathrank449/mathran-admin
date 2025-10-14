@@ -26,7 +26,7 @@ function Index() {
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
       <Header />
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16">
+      <main className="flex-1 flex flex-col items-center justify-center px-8 py-12 mb-[120px]">
         <img
           src="/mathran_logo.png"
           className="w-48 md:w-64 lg:w-72 mb-6 mx-auto"
@@ -55,7 +55,7 @@ function Index() {
           ))}
         </div>
       </main>
-      <div className="absolute bottom-0 left-0 w-full">
+      <div className="static bottom-0 left-0 w-full">
         <Footer />
       </div>
     </div>

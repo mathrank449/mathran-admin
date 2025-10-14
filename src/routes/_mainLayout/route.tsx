@@ -14,9 +14,9 @@ function RouteComponent() {
         <main className="bg-rbBg min-w-[1680px] relative">
           <Outlet />
         </main>
-        <div className="absolute bottom-0 left-0 w-full">
-          <Footer />
-        </div>
+      </div>
+      <div className="static bottom-0 left-0 w-full">
+        <Footer />
       </div>
     </>
   );
