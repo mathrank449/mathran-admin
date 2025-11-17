@@ -325,7 +325,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
               </div>
             </div>
 
-            <section className="w-[540px] mb-4">
+            <section className="relative w-[596px] mb-4 ml-5">
               <div className="flex py-4 justify-center">
                 <div className="mr-12 flex flex-col gap-2 items-center">
                   <AiOutlineCopy size={24} className="mb-2 cursor-pointer" />
@@ -337,7 +337,7 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
                   </span>
                 </div>
                 <img
-                  className="h-64"
+                  className="w-[500px] h-auto object-contain"
                   src={`${baseURL}/v1/image?imageSource=${problem.problemImage}`}
                   alt="문제 이미지"
                 />

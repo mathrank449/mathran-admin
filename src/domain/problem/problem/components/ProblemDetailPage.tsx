@@ -190,9 +190,9 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
           )}
         </div>
 
-        <section className="relative w-[540px] mb-4 ml-[20px]">
+        <section className="relative w-[596px] mb-4 ml-5">
           <div className="flex py-4">
-            <div className="mr-12 flex flex-col gap-2 ml-4 items-center">
+            <div className="mr-12 flex flex-col gap-2 ml-4 items-center w-16">
               <AiOutlineCopy size={24} className="mb-2 cursor-pointer" />
               <span className="text-md text-blue-400 px-2 font-bold rounded-lg bg-gray-100 text-center">
                 {difficultyToKorean(problem.difficulty)}
@@ -202,7 +202,7 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
               </span>
             </div>
             <img
-              className="h-46"
+              className="w-[500px] h-auto object-contain"
               src={`${baseURL}/v1/image?imageSource=${problem.problemImage}`}
               alt="문제 이미지"
             />
