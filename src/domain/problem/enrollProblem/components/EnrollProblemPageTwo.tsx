@@ -31,7 +31,10 @@ function EnrollProblemPageTwo() {
       <div className="relative border-solid border-gray-300 border-[1px] rounded-2xl w-[680px] h-[720px]">
         <div className="py-12 h-[640px] overflow-y-auto">
           {problems.map((problem) => (
-            <section className="relative w-[540px] mb-4 ml-[20px] border-solid border-gray-300 border-[1px] rounded-2xl">
+            <section
+              key={problem.id}
+              className="relative w-[540px] mb-4 ml-[20px] border-solid border-gray-300 border-[1px] rounded-2xl"
+            >
               <div className="bg-[#F6F6F6] p-4 rounded-t-2xl">
                 <span className="font-bold text-xl">{problem.id}번 문제</span>
               </div>
@@ -56,7 +59,7 @@ function EnrollProblemPageTwo() {
                   </span>
                 </div>
                 <img
-                  className="w-48"
+                  className="w-48 h-auto object-contain"
                   src={`${baseURL}/v1/image?imageSource=${problem.problemImage}`}
                   alt="문제 이미지"
                 />

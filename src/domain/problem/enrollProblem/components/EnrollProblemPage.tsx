@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import GradeItem from "../../components/GradeItem";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getCourse } from "../../apis/course";
 import { districtsMap, regions } from "../../datas/regions";
 import { getProblemsByQuery } from "../../apis/problem";
@@ -25,11 +25,11 @@ const difficultyMap: Record<string, DifficultyType> = {
   중: "MID",
   중상: "MID_HIGH",
   상: "HIGH",
-  칼러: "KILLER",
+  킬러: "KILLER",
 };
 const difficultys = ["전체", "하", "중하", "중", "중상", "상", "킬러"];
 const pastProblems = [
-  { value: "해당 없음", key: "" }, // null 허용
+  { value: "해당 없음", key: "" },
   { value: "고1 기출문제", key: "HIGH_SCHOOL_1" },
   { value: "고2 기출문제", key: "HIGH_SCHOOL_2" },
   { value: "고3 기출문제", key: "HIGH_SCHOOL_3" },
@@ -69,10 +69,83 @@ function EnrollProblemPage() {
     undefined
   );
 
+  // 무한 스크롤을 위한 observer ref
+  const observerTarget = useRef<HTMLDivElement>(null);
+
   const { data: gradeList } = useQuery({
     queryKey: [`v1/problem/course/`, ""],
     queryFn: ({ queryKey }) => getCourse(queryKey[1]),
   });
+
+  // 무한 스크롤 쿼리
+  const {
+    data: problemsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: [
+      "problems",
+      selectedUnit?.coursePath,
+      selectedDifficultyIndex,
+      selectedProblemTypeIndex,
+      selectedPastProblemIndex,
+      year,
+      region,
+      district,
+      selectedSchool?.schoolCode,
+    ],
+    queryFn: ({ pageParam = 1 }) => {
+      if (!selectedUnit) return Promise.resolve([]);
+
+      return getProblemsByQuery(
+        {
+          difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
+          answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
+          coursePath: selectedUnit.coursePath,
+          year: String(year ?? ""),
+          location: [region, district].filter(Boolean).join(" "),
+          school: selectedSchool ?? "",
+          pastProblem: pastProblems[selectedPastProblemIndex]
+            .key as PastProblemType,
+        },
+        pageParam,
+        10
+      );
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      // 마지막 페이지에 데이터가 없으면 더 이상 페이지가 없음
+      if (!lastPage || lastPage.length === 0) return undefined;
+      // 다음 페이지 번호 반환
+      return allPages.length + 1;
+    },
+    initialPageParam: 1,
+    enabled: !!selectedUnit, // selectedUnit이 있을 때만 쿼리 실행
+  });
+
+  // Intersection Observer를 사용한 무한 스크롤
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,6 +159,24 @@ function EnrollProblemPage() {
     };
     fetchData();
   }, [district]);
+
+  // 모든 페이지의 문제를 flat하게 만들기
+  const allProblems = problemsData?.pages.flat() ?? [];
+
+  const handleNextClick = useCallback(() => {
+    if (selectedUnit === undefined) {
+      alert("단원을 선택해주세요");
+      return;
+    }
+
+    if (allProblems.length === 0) {
+      alert("해당 조건을 만족하는 문제가 없습니다.");
+      return;
+    }
+
+    setProblems(allProblems);
+    navigate({ to: "/enroll-problem-two" });
+  }, [selectedUnit, allProblems, setProblems, navigate]);
 
   return (
     <div className="flex justify-center mt-24">
@@ -198,7 +289,6 @@ function EnrollProblemPage() {
             </div>
             {/* 학교 */}
             <div className="py-4">
-              {/* 체크박스 */}
               <div className="flex items-center gap-2">
                 <span className="text-md">학교</span>
                 <input
@@ -214,10 +304,8 @@ function EnrollProblemPage() {
                 />
               </div>
 
-              {/* 드롭다운 */}
               {schoolChecked && (
                 <div className="flex gap-2 mt-2">
-                  {/* 지역 선택 */}
                   <div className="relative">
                     <select
                       value={region}
@@ -237,7 +325,6 @@ function EnrollProblemPage() {
                     </select>
                   </div>
 
-                  {/* 구 선택 */}
                   <div className="relative">
                     <select
                       value={district}
@@ -258,7 +345,6 @@ function EnrollProblemPage() {
                     </select>
                   </div>
 
-                  {/* 학교 선택 */}
                   <div className="relative flex-1 pr-2">
                     <select
                       value={selectedSchool?.schoolCode ?? ""}
@@ -287,35 +373,26 @@ function EnrollProblemPage() {
                 </div>
               )}
             </div>
+
+            {/* 문제 목록 미리보기 (선택사항) */}
+            {selectedUnit && (
+              <div className="py-4 border-t border-gray-300 mt-4">
+                <span className="text-md font-semibold">
+                  불러온 문제: {allProblems.length}개
+                </span>
+                {isLoading && <div className="mt-2">로딩 중...</div>}
+                {isFetchingNextPage && (
+                  <div className="mt-2">더 불러오는 중...</div>
+                )}
+                {/* 무한 스크롤 트리거 요소 */}
+                <div ref={observerTarget} className="h-4" />
+              </div>
+            )}
           </div>
         </div>
         <button
           className="absolute right-12 bottom-4 bg-blue-600 px-6 py-1 cursor-pointer"
-          onClick={async () => {
-            if (selectedUnit === undefined) {
-              alert("단원을 선택해주세요");
-              return;
-            }
-
-            const problems = await getProblemsByQuery({
-              difficulty: difficultyMap[difficultys[selectedDifficultyIndex]],
-              answerType: problemMap[problemTypes[selectedProblemTypeIndex]],
-              coursePath: selectedUnit.coursePath,
-              year: String(year ?? ""),
-              location: [region, district].filter(Boolean).join(" "),
-              school: selectedSchool ?? "",
-              pastProblem: pastProblems[selectedPastProblemIndex]
-                .key as PastProblemType,
-            });
-
-            console.log(problems);
-            if (problems.length === 0) {
-              alert("해당 조건을 만족하는 문제가 없습니다.");
-              return;
-            }
-            setProblems(problems);
-            navigate({ to: "/enroll-problem-two" });
-          }}
+          onClick={handleNextClick}
         >
           <span className="text-white text-md">다음</span>
         </button>
