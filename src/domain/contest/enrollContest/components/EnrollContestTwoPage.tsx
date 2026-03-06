@@ -45,7 +45,7 @@ function EnrollContestTwoPage() {
                   </span>
                 </div>
                 <img
-                  className="w-48"
+                  className="w-80 h-auto object-contain"
                   src={`${baseURL}/v1/image?imageSource=${problem.problemImage}`}
                   alt="문제 이미지"
                 />
