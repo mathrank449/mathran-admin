@@ -80,6 +80,7 @@ export interface ScoreProblemResponse extends ProblemResponse {
 }
 
 export interface QueryListType {
+  problemId?: string;
   difficulty: DifficultyType | "";
   answerType: ProblemType | "";
   coursePath: string;
@@ -87,4 +88,11 @@ export interface QueryListType {
   year: string | "";
   school?: "" | School;
   pastProblem: PastProblemType;
+}
+
+export interface ProblemPageResponse {
+  queryResults: ProblemResponse[];
+  currentPageNumber: number;
+  currentPageSize: number;
+  possibleNextPageNumbers: number[];
 }

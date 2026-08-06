@@ -1,386 +1,270 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import GradeItem from "../../../problem/components/GradeItem";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getCourse } from "../../../problem/apis/course";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getProblemPageByQuery } from "../../../problem/apis/problem";
+import UnitSelectionByGrade from "../../../problem/components/UnitSelectionByGrade";
+import type { SelectedUnitsGrade } from "../../../problem/types/course";
 import type {
   CourseType,
-  PastProblemType,
+  DifficultyType,
+  ProblemResponse,
+  ProblemType,
+  QueryListType,
 } from "../../../problem/types/problem";
-import { districtsMap, regions } from "../../../problem/datas/regions";
-import { getProblemsByQuery } from "../../../problem/apis/problem";
 import { useTestPapersStore } from "../hooks/useTestPapers";
+import { loadImageAspectRatio } from "../services/problemImage";
+import EnrollTestPapersPageTwo from "./EnrollTestPapersPageTwo";
 
-import { getSchoolsByLocation } from "../../../problem/apis/school";
-import type { School } from "../../../problem/types/school";
-import UnitSelectionByGrade from "../../../problem/components/UnitSelectionByGrade";
-import {
-  koreanDifficultyMap,
-  koreanProblemMap,
-} from "../../../problem/utils/problemMap";
-
-type SelectedUnits = {
-  large?: CourseType;
-  middle?: CourseType;
-  small?: CourseType;
-};
-
-const types = ["단원별 문제"];
-const difficultys = ["전체", "하", "중하", "중", "중상", "상", "킬러"];
-
-const problemTypes = ["전체", "객관식", "단답형"];
-const pastProblems = [
-  { value: "해당 없음", key: "" },
-  { value: "고1 기출문제", key: "HIGH_SCHOOL_1" },
-  { value: "고2 기출문제", key: "HIGH_SCHOOL_2" },
-  { value: "고3 기출문제", key: "HIGH_SCHOOL_3" },
+const difficultyOptions: { value: DifficultyType; label: string }[] = [
+  { value: "", label: "전체 난이도" },
+  { value: "LOW", label: "하" },
+  { value: "MID_LOW", label: "중하" },
+  { value: "MID", label: "중" },
+  { value: "MID_HIGH", label: "중상" },
+  { value: "HIGH", label: "상" },
+  { value: "KILLER", label: "킬러" },
 ];
 
-function EnrollTestPapersOnePage() {
-  const { insertProblems } = useTestPapersStore();
-  const [selectedType, setSelectedType] = useState(0);
-  const [selectedUnits, setSelectedUnits] = useState<SelectedUnits>({
-    large: undefined,
-    middle: undefined,
-    small: undefined,
+const answerTypeOptions: { value: ProblemType; label: string }[] = [
+  { value: "", label: "전체 유형" },
+  { value: "MULTIPLE_CHOICE", label: "객관식" },
+  { value: "SHORT_ANSWER", label: "주관식" },
+];
+
+const emptyQuery: QueryListType = {
+  problemId: "",
+  difficulty: "",
+  answerType: "",
+  coursePath: "",
+  location: "",
+  year: "",
+};
+
+function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
+  const testPapers = useTestPapersStore((state) => state.testPapers);
+  const insertTestPapers = useTestPapersStore((state) => state.insertTestPapers);
+  const removeTestPaper = useTestPapersStore((state) => state.removeTestPaper);
+  const [filters, setFilters] = useState<QueryListType>(emptyQuery);
+  const [appliedFilters, setAppliedFilters] = useState<QueryListType>(emptyQuery);
+  const [page, setPage] = useState(1);
+  const [problems, setProblems] = useState<ProblemResponse[]>([]);
+  const [selectingId, setSelectingId] = useState<string | null>(null);
+  const [showCourseFilter, setShowCourseFilter] = useState(false);
+  const [selectedUnits, setSelectedUnits] = useState<SelectedUnitsGrade>({});
+  const [selectedUnit, setSelectedUnit] = useState<CourseType>();
+
+  const { data, isFetching, error } = useQuery({
+    queryKey: ["assessment-problem-picker", appliedFilters, page],
+    queryFn: () => getProblemPageByQuery(appliedFilters, page, 12),
   });
 
-  const [selectedDifficultyIndex, setSelectedDifficultyIndex] = useState(0);
-  const [selectedPastProblemIndex, setSelectedPastProblemIndex] = useState(0);
-  const [selectedProblemTypeIndex, setSelectedProblemTypeIndex] = useState(0);
-  const [yearChecked, setYearChecked] = useState(false);
-  const [year, setYear] = useState(2025);
+  useEffect(() => {
+    if (!data) return;
+    setProblems((current) => {
+      const combined = page === 1 ? data.queryResults : [...current, ...data.queryResults];
+      return Array.from(new Map(combined.map((problem) => [problem.id, problem])).values());
+    });
+  }, [data, page]);
 
-  const [schoolChecked, setSchoolChecked] = useState(false);
-  const [region, setRegion] = useState("");
-  const [district, setDistrict] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState("");
-  const [schools, setSchool] = useState<School[]>([]);
-  const [selectedUnit, setSelectedUnit] = useState<CourseType | undefined>(
-    undefined
+  const selectedIds = useMemo(
+    () => new Set(testPapers.map((problem) => problem.id)),
+    [testPapers]
+  );
+  const nextPage = data?.possibleNextPageNumbers.find(
+    (candidate) => candidate > data.currentPageNumber
   );
 
-  // 무한 스크롤을 위한 observer ref
-  const observerTarget = useRef<HTMLDivElement>(null);
-
-  const { data: gradeList } = useQuery({
-    queryKey: [`v1/problem/course/`, ""],
-    queryFn: ({ queryKey }) => getCourse(queryKey[1]),
-  });
-
-  // 무한 스크롤 쿼리
-  const {
-    data: problemsData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useInfiniteQuery({
-    queryKey: [
-      "testPaperProblems",
-      selectedUnit?.coursePath,
-      selectedDifficultyIndex,
-      selectedProblemTypeIndex,
-      selectedPastProblemIndex,
-      yearChecked ? year : null,
-      schoolChecked ? region : null,
-      schoolChecked ? district : null,
-      schoolChecked ? selectedSchool : null,
-    ],
-    queryFn: ({ pageParam = 1 }) => {
-      if (!selectedUnit) return Promise.resolve([]);
-
-      return getProblemsByQuery(
-        {
-          difficulty: koreanDifficultyMap[difficultys[selectedDifficultyIndex]],
-          answerType: koreanProblemMap[problemTypes[selectedProblemTypeIndex]],
-          coursePath: selectedUnit.coursePath,
-          year: yearChecked ? String(year) : "",
-          location:
-            schoolChecked && region && district ? `${region} ${district}` : "",
-          school:
-            schoolChecked && selectedSchool
-              ? schools.find((s) => s.schoolName === selectedSchool)
-              : undefined,
-          pastProblem: pastProblems[selectedPastProblemIndex]
-            .key as PastProblemType,
-        },
-        pageParam,
-        10
+  const toggleProblem = async (problem: ProblemResponse) => {
+    const selectedIndex = testPapers.findIndex((item) => item.id === problem.id);
+    if (selectedIndex !== -1) {
+      removeTestPaper(selectedIndex);
+      return;
+    }
+    if (testPapers.length >= 50) {
+      alert("한 시험지에는 최대 50문항까지 넣을 수 있습니다.");
+      return;
+    }
+    setSelectingId(problem.id);
+    try {
+      insertTestPapers({
+        ...problem,
+        score: 0,
+        pdfGapAfter: 16,
+        imageAspectRatio: await loadImageAspectRatio(problem.problemImage),
+      });
+    } catch (imageError) {
+      alert(
+        imageError instanceof Error
+          ? imageError.message
+          : "문제 이미지를 불러오지 못했습니다."
       );
-    },
-    getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage || lastPage.length === 0) return undefined;
-      return allPages.length + 1;
-    },
-    initialPageParam: 1,
-    enabled: !!selectedUnit,
-  });
-
-  // Intersection Observer를 사용한 무한 스크롤
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
+    } finally {
+      setSelectingId(null);
     }
+  };
 
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (region && district) {
-        const schoolData = await getSchoolsByLocation({
-          cityName: region,
-          district,
-        });
-        setSchool(schoolData);
-      }
-    };
-    fetchData();
-  }, [district, region]);
-
-  // 모든 페이지의 문제를 flat하게 만들기
-  const allProblems = problemsData?.pages.flat() ?? [];
-
-  const handleNextClick = useCallback(() => {
-    if (selectedUnit === undefined) {
-      alert("단원을 선택해주세요");
-      return;
-    }
-
-    if (allProblems.length === 0) {
-      alert("해당 조건을 만족하는 문제가 없습니다.");
-      return;
-    }
-
-    insertProblems(allProblems);
-  }, [selectedUnit, allProblems, insertProblems]);
+  const applyFilters = () => {
+    setProblems([]);
+    setPage(1);
+    setAppliedFilters({
+      ...filters,
+      coursePath: selectedUnit?.coursePath ?? "",
+    });
+  };
 
   return (
-    <div className="border-solid border-gray-300 border-[1px] rounded-2xl w-[1480px] relative">
-      <div className="w-full flex justify-start items-center pl-12 gap-12 py-4">
-        {types.map((item, index) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setSelectedType(index)}
-            className={`cursor-pointer pb-1 ${
-              selectedType === index
-                ? "border-b-2 border-blue-500"
-                : "border-b-2 border-transparent"
-            }`}
-          >
-            <h2 className="font-bold text-lg">{item}</h2>
-          </button>
-        ))}
-      </div>
-      <div className="flex border-t-[1px] border-gray-300 border-solid">
-        <div className="w-[840px] border-r-[1px] border-gray-300 border-solid">
-          <div className="py-4 px-12 h-[500px] overflow-y-auto">
-            {gradeList ? (
-              <div>
-                <UnitSelectionByGrade
-                  selectedUnits={selectedUnits}
-                  setSelectedUnits={setSelectedUnits}
-                  selectedUnit={selectedUnit}
-                  setSelectedUnit={setSelectedUnit}
-                />
-              </div>
-            ) : (
-              <div>Loading...</div>
-            )}
-          </div>
-        </div>
-        <div className="w-[540px] pl-4 mt-4">
-          {/* 난이도 */}
-          <div className="py-4">
-            <span className="text-md">난이도</span>
-            <div className="flex flex-wrap gap-2 justify-start mt-2">
-              {difficultys.map((difficulty, index) => (
-                <GradeItem
-                  key={difficulty}
-                  text={difficulty}
-                  handleClick={() => {
-                    setSelectedDifficultyIndex(index);
-                  }}
-                  selected={selectedDifficultyIndex === index}
-                />
-              ))}
-            </div>
-          </div>
-          {/* 문제 타입 */}
-          <div className="py-4">
-            <span className="text-md">문제 유형</span>
-            <div className="flex flex-wrap gap-2 justify-start mt-2">
-              {problemTypes.map((problemType, index) => (
-                <GradeItem
-                  key={problemType}
-                  text={problemType}
-                  handleClick={() => {
-                    setSelectedProblemTypeIndex(index);
-                  }}
-                  selected={selectedProblemTypeIndex === index}
-                />
-              ))}
-            </div>
-          </div>
-          {/* 기출문제 */}
-          <div className="py-4">
-            <span className="text-md">기출문제</span>
-            <div className="flex flex-wrap gap-2 justify-start mt-2">
-              {pastProblems.map((pastProblem, index) => (
-                <GradeItem
-                  key={pastProblem.key}
-                  text={pastProblem.value}
-                  handleClick={() => {
-                    setSelectedPastProblemIndex(index);
-                  }}
-                  selected={selectedPastProblemIndex === index}
-                />
-              ))}
-            </div>
-          </div>
-          {/* 연도 */}
-          <div className="py-4">
-            <div className="mb-2">
-              <span className="text-md">연도</span>
-              <input
-                type="checkbox"
-                checked={yearChecked}
-                onChange={(e) => {
-                  setYear(2025);
-                  setYearChecked(e.target.checked);
-                }}
-                className="w-4 h-4 ml-1 align-[-2px]"
-              />
-            </div>
-            {yearChecked && (
-              <input
-                type="number"
-                value={year}
-                disabled={!yearChecked}
-                onChange={(e) => setYear(Number(e.target.value))}
-                className="border border-gray-300 rounded-xl px-2 py-1 w-24"
-              />
-            )}
-          </div>
-          {/* 학교 */}
-          <div className="py-4">
-            <div className="flex items-center gap-2">
-              <span className="text-md">학교</span>
-              <input
-                type="checkbox"
-                checked={schoolChecked}
-                onChange={(e) => {
-                  setRegion("");
-                  setDistrict("");
-                  setSelectedSchool("");
-                  setSchoolChecked(e.target.checked);
-                }}
-                className="w-4 h-4"
-              />
-            </div>
-
-            {schoolChecked && (
-              <div className="flex gap-2 mt-2">
-                <div className="relative">
-                  <select
-                    value={region}
-                    onChange={(e) => {
-                      setRegion(e.target.value);
-                      setDistrict("");
-                      setSelectedSchool("");
-                    }}
-                    className="border border-gray-300 rounded px-2 py-1 w-32 max-h-40 overflow-y-auto"
-                  >
-                    <option value="">전체지역</option>
-                    {regions.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="relative">
-                  <select
-                    value={district}
-                    onChange={(e) => {
-                      setDistrict(e.target.value);
-                      setSelectedSchool("");
-                    }}
-                    className="border border-gray-300 rounded px-2 py-1 w-38 max-h-40 overflow-y-auto"
-                    disabled={!region}
-                  >
-                    <option value="">전체지역</option>
-                    {region &&
-                      districtsMap[region].map((d) => (
-                        <option key={d} value={d}>
-                          {d}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-
-                <div className="relative flex-1 pr-2">
-                  <select
-                    value={selectedSchool}
-                    onChange={(e) => setSelectedSchool(e.target.value)}
-                    className="border border-gray-300 rounded px-2 py-1 w-52 max-h-40 overflow-y-auto"
-                    disabled={!district}
-                  >
-                    <option value="">학교 선택</option>
-                    {district &&
-                      schools.map((school) => (
-                        <option
-                          key={school.schoolCode}
-                          value={school.schoolName}
-                        >
-                          {school.schoolName}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 문제 목록 미리보기 */}
-          {selectedUnit && (
-            <div className="py-4 border-t border-gray-300 mt-4">
-              <span className="text-md font-semibold">
-                불러온 문제: {allProblems.length}개
-              </span>
-              {isLoading && <div className="mt-2">로딩 중...</div>}
-              {isFetchingNextPage && (
-                <div className="mt-2">더 불러오는 중...</div>
-              )}
-              {/* 무한 스크롤 트리거 요소 */}
-              <div ref={observerTarget} className="h-4" />
-            </div>
-          )}
-        </div>
-      </div>
-      <button
-        className="absolute right-12 bottom-4 bg-blue-600 px-6 py-1 cursor-pointer"
-        onClick={handleNextClick}
+    <section>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          applyFilters();
+        }}
+        className="rounded-xl border border-gray-300 bg-white p-6"
       >
-        <span className="text-white text-md">다음</span>
-      </button>
-    </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">문항 선택</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              조건을 바꾸면서 문제 이미지를 확인하고 여러 문항을 선택하세요.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowCourseFilter((visible) => !visible)}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+          >
+            {showCourseFilter ? "단원 선택 닫기" : "단원 선택"}
+          </button>
+        </div>
+
+        <div className="mt-6 grid grid-cols-5 gap-3">
+          <input
+            type="number"
+            min={1}
+            value={filters.problemId ?? ""}
+            onChange={(event) => setFilters({ ...filters, problemId: event.target.value })}
+            placeholder="문제 ID"
+            className="rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-700"
+          />
+          <select
+            value={filters.difficulty}
+            onChange={(event) =>
+              setFilters({ ...filters, difficulty: event.target.value as DifficultyType })
+            }
+            className="rounded-lg border border-gray-300 px-3 py-2"
+          >
+            {difficultyOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+          <select
+            value={filters.answerType}
+            onChange={(event) =>
+              setFilters({ ...filters, answerType: event.target.value as ProblemType })
+            }
+            className="rounded-lg border border-gray-300 px-3 py-2"
+          >
+            {answerTypeOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+          <input
+            type="number"
+            value={filters.year}
+            onChange={(event) => setFilters({ ...filters, year: event.target.value })}
+            placeholder="출제 연도"
+            className="rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-700"
+          />
+          <input
+            type="text"
+            value={filters.location}
+            onChange={(event) => setFilters({ ...filters, location: event.target.value })}
+            placeholder="지역"
+            className="rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-700"
+          />
+        </div>
+
+        {showCourseFilter && (
+          <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-5">
+            <UnitSelectionByGrade
+              selectedUnits={selectedUnits}
+              setSelectedUnits={setSelectedUnits}
+              selectedUnit={selectedUnit}
+              setSelectedUnit={setSelectedUnit}
+            />
+          </div>
+        )}
+
+        <div className="mt-5 flex items-center justify-between border-t border-gray-200 pt-5">
+          <p className="text-sm text-gray-600">
+            선택 {testPapers.length}개
+            {selectedUnit ? ` · ${selectedUnit.courseName}` : " · 전체 단원"}
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setFilters(emptyQuery);
+                setSelectedUnit(undefined);
+                setSelectedUnits({});
+                setProblems([]);
+                setPage(1);
+                setAppliedFilters(emptyQuery);
+              }}
+              className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+            >
+              조건 초기화
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-gray-900 px-6 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+            >
+              검색
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div className="mt-8">
+        <EnrollTestPapersPageTwo
+          problems={problems}
+          selectedIds={selectedIds}
+          selectingId={selectingId}
+          onToggle={toggleProblem}
+        />
+        {error && (
+          <p className="mt-6 text-center text-sm text-red-600">
+            문제 목록을 불러오지 못했습니다.
+          </p>
+        )}
+        {isFetching && (
+          <p className="mt-6 text-center text-sm text-gray-500">문제를 불러오는 중입니다.</p>
+        )}
+        {!isFetching && nextPage !== undefined && (
+          <button
+            type="button"
+            onClick={() => setPage(nextPage)}
+            className="mx-auto mt-8 block rounded-lg border border-gray-300 bg-white px-8 py-3 font-semibold text-gray-700 hover:bg-gray-100"
+          >
+            문제 더 보기
+          </button>
+        )}
+      </div>
+
+      <div className="sticky bottom-4 z-10 mt-8 flex items-center justify-between rounded-xl border border-gray-300 bg-white/95 px-6 py-4 shadow-lg backdrop-blur">
+        <div>
+          <p className="font-bold text-gray-900">선택 문항 {testPapers.length}개</p>
+          <p className="mt-1 text-xs text-gray-500">PDF 편집 화면에서 순서와 문항 사이 공백을 조절합니다.</p>
+        </div>
+        <button
+          type="button"
+          onClick={onContinue}
+          disabled={testPapers.length === 0}
+          className="rounded-lg bg-gray-900 px-7 py-3 font-bold text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+        >
+          선택 완료 · PDF 편집
+        </button>
+      </div>
+    </section>
   );
 }
 

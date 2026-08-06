@@ -1,37 +1,28 @@
+import { useState } from "react";
 import { useTestPapersStore } from "../hooks/useTestPapers";
 import EnrollTestPapersOnePage from "./EnrollTestPapersOnePage";
 import EnrollTestPapersPageThree from "./EnrollTestPapersPageThree";
-import EnrollTestPapersPageTwo from "./EnrollTestPapersPageTwo";
-import TestPapersNav from "./TestPapersNav";
 
 function EnrollTestPapersPage() {
-  const selectedIndex = useTestPapersStore((state) => state.selectedIndex);
-  const testPapers = useTestPapersStore((state) => state.testPapers);
-  const problems = useTestPapersStore((state) => state.problems);
+  const [isEditingPdf, setIsEditingPdf] = useState(false);
+  const selectedCount = useTestPapersStore((state) => state.testPapers.length);
 
-  if (
-    problems[selectedIndex].length === 0 &&
-    testPapers[selectedIndex] === undefined
-  )
-    return (
-      <div className="flex justify-center mt-24">
-        <TestPapersNav />
-        <EnrollTestPapersOnePage key="one" />
-      </div>
-    );
-
-  if (testPapers[selectedIndex] === undefined)
-    return (
-      <div className="flex justify-center mt-24">
-        <TestPapersNav />
-        <EnrollTestPapersPageTwo key="two" />
-      </div>
-    );
   return (
-    <div className="flex justify-center mt-24">
-      <TestPapersNav />
-      <EnrollTestPapersPageThree key="three" />
-    </div>
+    <main className="mx-auto w-[1480px] pb-20 pt-16">
+      <div className="mb-8 flex items-end justify-between border-b border-gray-300 pb-5">
+        <div>
+          <p className="text-sm text-gray-500">출제 / 시험지 등록</p>
+          <h1 className="mt-1 text-3xl font-bold text-gray-900">시험지 등록</h1>
+        </div>
+        <p className="text-sm text-gray-600">선택 문항 {selectedCount}개</p>
+      </div>
+
+      {isEditingPdf ? (
+        <EnrollTestPapersPageThree onBack={() => setIsEditingPdf(false)} />
+      ) : (
+        <EnrollTestPapersOnePage onContinue={() => setIsEditingPdf(true)} />
+      )}
+    </main>
   );
 }
 
