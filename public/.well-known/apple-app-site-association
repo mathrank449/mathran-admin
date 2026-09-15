@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "M8YVMZ6P6D.kr.co.mathrank.mathrankApp"
+        ],
+        "components": [
+          {
+            "/": "/assessment/*",
+            "comment": "MathRank printed assessment QR links"
+          }
+        ]
+      }
+    ]
+  }
+}

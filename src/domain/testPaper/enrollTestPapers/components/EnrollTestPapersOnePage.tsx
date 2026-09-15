@@ -37,6 +37,7 @@ const emptyQuery: QueryListType = {
   coursePath: "",
   location: "",
   year: "",
+  pastProblem: "",
 };
 
 function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {

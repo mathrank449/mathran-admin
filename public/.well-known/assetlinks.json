@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "kr.co.mathrank.mathrank_app",
+      "sha256_cert_fingerprints": [
+        "28:20:CF:7F:3E:59:76:D5:30:3E:BA:11:85:A9:6E:CD:A6:3A:E1:44:E9:E4:27:34:C2:61:8D:A9:63:9E:89:11",
+        "90:B2:AC:3E:BA:90:2B:E5:B6:82:3B:DC:96:56:0B:E3:F5:CE:B1:6C:CB:65:F7:16:D0:73:F3:79:A1:B9:DD:D4"
+      ]
+    }
+  }
+]
