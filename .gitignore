@@ -33,3 +33,5 @@ coverage/
 # Local PDF verification artifacts
 /tmp/
 /output/
+.vercel
+.env*
