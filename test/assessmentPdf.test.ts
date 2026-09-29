@@ -34,7 +34,7 @@ const problem = (
   } as AssessmentPdfProblem);
 
 describe("assessment registration contract", () => {
-  test("uses a 900-second answer lock and returns an assessment ID", () => {
+  test("registers an unlimited assessment with immediate answer input", () => {
     const draft: AssessmentPdfDraft = {
       title: " 7월 실전 모의고사 ",
       minutes: 60,
@@ -46,7 +46,7 @@ describe("assessment registration contract", () => {
       assessmentName: "7월 실전 모의고사",
       items: [{ problemId: 10, score: 100 }],
       minutes: 60,
-      answerInputDelaySeconds: 900,
+      answerInputDelaySeconds: 0,
     });
     expect(parseAssessmentId({ assessmentId: "123" })).toBe("123");
     expect(parseAssessmentId(456)).toBe("456");
@@ -56,11 +56,11 @@ describe("assessment registration contract", () => {
   test("validates time, score, and selected items", () => {
     const draft: AssessmentPdfDraft = {
       title: "시험지",
-      minutes: 15,
+      minutes: 0,
       columnCount: 1,
       items: [problem("1", { score: 99 })],
     };
-    expect(validateAssessmentPdfDraft(draft)).toContain("16분");
+    expect(validateAssessmentPdfDraft(draft)).toContain("호환용");
     expect(
       validateAssessmentPdfDraft({ ...draft, minutes: 60 })
     ).toContain("100점");
@@ -133,6 +133,21 @@ describe("assessment PDF editor state", () => {
     ]);
     expect(useTestPapersStore.getState().selectedIndex).toBe(2);
     expect(useTestPapersStore.getState().createdAssessmentId).toBeNull();
+  });
+
+  test("applies one gap value to every selected problem", () => {
+    useTestPapersStore.setState({
+      testPapers: [problem("1"), problem("2"), problem("3")],
+      selectedIndex: 0,
+      createdAssessmentId: "999",
+    });
+
+    useTestPapersStore.getState().setAllTestPapersGap(72);
+
+    expect(
+      useTestPapersStore.getState().testPapers.map((item) => item.pdfGapAfter)
+    ).toEqual([72, 72, 72]);
+    expect(useTestPapersStore.getState().createdAssessmentId).toBe("999");
   });
 });
 

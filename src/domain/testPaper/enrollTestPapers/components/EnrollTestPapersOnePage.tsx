@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getProblemPageByQuery } from "../../../problem/apis/problem";
 import UnitSelectionByGrade from "../../../problem/components/UnitSelectionByGrade";
-import type { SelectedUnitsGrade } from "../../../problem/types/course";
 import type {
-  CourseType,
   DifficultyType,
   ProblemResponse,
   ProblemType,
@@ -12,6 +9,16 @@ import type {
 } from "../../../problem/types/problem";
 import { useTestPapersStore } from "../hooks/useTestPapers";
 import { loadImageAspectRatio } from "../services/problemImage";
+import {
+  selectedCourseRoots,
+  type CourseSelectionRules,
+} from "../services/courseSelection";
+import { getProblemPageByCourseRules } from "../services/courseProblemSearch";
+import {
+  selectRandomProblems,
+  type DifficultyCounts,
+} from "../services/randomProblemSelection";
+import { loadRandomProblemCandidates } from "../services/randomProblemLoader";
 import EnrollTestPapersPageTwo from "./EnrollTestPapersPageTwo";
 
 const difficultyOptions: { value: DifficultyType; label: string }[] = [
@@ -50,12 +57,31 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
   const [problems, setProblems] = useState<ProblemResponse[]>([]);
   const [selectingId, setSelectingId] = useState<string | null>(null);
   const [showCourseFilter, setShowCourseFilter] = useState(false);
-  const [selectedUnits, setSelectedUnits] = useState<SelectedUnitsGrade>({});
-  const [selectedUnit, setSelectedUnit] = useState<CourseType>();
+  const [selectionRules, setSelectionRules] = useState<CourseSelectionRules>({});
+  const [appliedSelectionRules, setAppliedSelectionRules] =
+    useState<CourseSelectionRules>({});
+  const [difficultyCounts, setDifficultyCounts] = useState<DifficultyCounts>({
+    low: 5,
+    middle: 10,
+    high: 5,
+  });
+  const [isAutoSelecting, setIsAutoSelecting] = useState(false);
+  const [autoSelectionMessage, setAutoSelectionMessage] = useState<string | null>(null);
 
   const { data, isFetching, error } = useQuery({
-    queryKey: ["assessment-problem-picker", appliedFilters, page],
-    queryFn: () => getProblemPageByQuery(appliedFilters, page, 12),
+    queryKey: [
+      "assessment-problem-picker",
+      appliedFilters,
+      appliedSelectionRules,
+      page,
+    ],
+    queryFn: () =>
+      getProblemPageByCourseRules(
+        appliedFilters,
+        appliedSelectionRules,
+        page,
+        12
+      ),
   });
 
   useEffect(() => {
@@ -74,12 +100,7 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
     (candidate) => candidate > data.currentPageNumber
   );
 
-  const toggleProblem = async (problem: ProblemResponse) => {
-    const selectedIndex = testPapers.findIndex((item) => item.id === problem.id);
-    if (selectedIndex !== -1) {
-      removeTestPaper(selectedIndex);
-      return;
-    }
+  const addProblem = async (problem: ProblemResponse) => {
     if (testPapers.length >= 50) {
       alert("한 시험지에는 최대 50문항까지 넣을 수 있습니다.");
       return;
@@ -103,13 +124,66 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
     }
   };
 
+  const toggleProblem = async (problem: ProblemResponse) => {
+    const selectedIndex = testPapers.findIndex((item) => item.id === problem.id);
+    if (selectedIndex !== -1) {
+      removeTestPaper(selectedIndex);
+      return;
+    }
+    await addProblem(problem);
+  };
+
   const applyFilters = () => {
     setProblems([]);
     setPage(1);
     setAppliedFilters({
       ...filters,
-      coursePath: selectedUnit?.coursePath ?? "",
+      coursePath: "",
     });
+    setAppliedSelectionRules({ ...selectionRules });
+  };
+
+  const autoSelectByDifficulty = async () => {
+    const requested =
+      difficultyCounts.low + difficultyCounts.middle + difficultyCounts.high;
+    if (requested <= 0) {
+      setAutoSelectionMessage("난이도별 문항 수를 한 개 이상 입력해주세요.");
+      return;
+    }
+    if (testPapers.length + requested > 50) {
+      setAutoSelectionMessage("기존 선택을 포함해 최대 50문항까지 구성할 수 있습니다.");
+      return;
+    }
+    setIsAutoSelecting(true);
+    setAutoSelectionMessage("조건에 맞는 문제를 조회하고 있습니다.");
+    try {
+      const candidates = await loadRandomProblemCandidates(
+        { ...filters, problemId: "", difficulty: "", coursePath: "" },
+        selectionRules
+      );
+      const chosen = selectRandomProblems(
+        candidates.filter((problem) => !selectedIds.has(problem.id)),
+        difficultyCounts
+      );
+      const prepared = await Promise.all(
+        chosen.map(async (problem) => ({
+          ...problem,
+          score: 0,
+          pdfGapAfter: 16,
+          imageAspectRatio: await loadImageAspectRatio(problem.problemImage),
+        }))
+      );
+      prepared.forEach(insertTestPapers);
+      setAutoSelectionMessage(`${prepared.length}개 문항을 무작위로 추가했습니다.`);
+    } catch (selectionError) {
+      setAutoSelectionMessage(
+        selectionError instanceof Error
+          ? selectionError.message
+          : "무작위 출제에 실패했습니다."
+      );
+    } finally {
+      setIsAutoSelecting(false);
+    }
   };
 
   return (
@@ -187,26 +261,74 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
         {showCourseFilter && (
           <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-5">
             <UnitSelectionByGrade
-              selectedUnits={selectedUnits}
-              setSelectedUnits={setSelectedUnits}
-              selectedUnit={selectedUnit}
-              setSelectedUnit={setSelectedUnit}
+              selectionRules={selectionRules}
+              onSelectionRulesChange={setSelectionRules}
             />
           </div>
         )}
 
+        <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-5">
+          <div className="flex items-end justify-between gap-6">
+            <div>
+              <p className="text-sm font-bold text-gray-900">난이도별 무작위 출제</p>
+              <p className="mt-1 text-xs text-gray-500">
+                현재 검색 조건과 선택 단원 안에서 중복 없이 문제를 추가합니다.
+              </p>
+            </div>
+            <div className="flex items-end gap-3">
+              {(
+                [
+                  ["low", "하"],
+                  ["middle", "중"],
+                  ["high", "상"],
+                ] as const
+              ).map(([key, label]) => (
+                <label key={key} className="text-xs font-semibold text-gray-600">
+                  {label}
+                  <input
+                    type="number"
+                    min={0}
+                    max={50}
+                    value={difficultyCounts[key]}
+                    onChange={(event) =>
+                      setDifficultyCounts({
+                        ...difficultyCounts,
+                        [key]: Math.max(0, Number(event.target.value)),
+                      })
+                    }
+                    className="mt-1 block w-20 rounded-lg border border-gray-300 bg-white px-3 py-2 text-right text-sm"
+                  />
+                </label>
+              ))}
+              <button
+                type="button"
+                onClick={autoSelectByDifficulty}
+                disabled={isAutoSelecting}
+                className="rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-700 disabled:bg-gray-400"
+              >
+                {isAutoSelecting ? "구성 중..." : "조건대로 추가"}
+              </button>
+            </div>
+          </div>
+          {autoSelectionMessage && (
+            <p className="mt-3 text-xs text-gray-700">{autoSelectionMessage}</p>
+          )}
+        </div>
+
         <div className="mt-5 flex items-center justify-between border-t border-gray-200 pt-5">
           <p className="text-sm text-gray-600">
             선택 {testPapers.length}개
-            {selectedUnit ? ` · ${selectedUnit.courseName}` : " · 전체 단원"}
+            {selectedCourseRoots(selectionRules).length > 0
+              ? ` · 선택 범위 ${selectedCourseRoots(selectionRules).length}개`
+              : " · 전체 단원"}
           </p>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => {
                 setFilters(emptyQuery);
-                setSelectedUnit(undefined);
-                setSelectedUnits({});
+                setSelectionRules({});
+                setAppliedSelectionRules({});
                 setProblems([]);
                 setPage(1);
                 setAppliedFilters(emptyQuery);

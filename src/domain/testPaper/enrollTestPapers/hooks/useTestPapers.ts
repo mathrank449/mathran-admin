@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { AssessmentPdfProblem } from "../types/assessmentPdf";
+import { PDF_MAX_GAP } from "../services/pdfLayoutPlanner";
 
 type TestPapersStore = {
   testPapers: AssessmentPdfProblem[];
@@ -21,6 +22,7 @@ type TestPapersStore = {
   reorderTestPaper: (fromIndex: number, toIndex: number) => void;
   setTestPapersScore: (score: number) => void;
   setTestPapersGap: (gapAfter: number) => void;
+  setAllTestPapersGap: (gapAfter: number) => void;
   rebalanceScores: () => void;
 };
 
@@ -124,6 +126,14 @@ export const useTestPapersStore = create<TestPapersStore>((set) => ({
       };
       return { testPapers };
     }),
+
+  setAllTestPapersGap: (gapAfter) =>
+    set((state) => ({
+      testPapers: state.testPapers.map((item) => ({
+        ...item,
+        pdfGapAfter: Math.max(0, Math.min(PDF_MAX_GAP, gapAfter)),
+      })),
+    })),
 
   rebalanceScores: () =>
     set((state) => {

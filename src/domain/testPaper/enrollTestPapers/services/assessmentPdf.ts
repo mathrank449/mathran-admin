@@ -1,4 +1,4 @@
-import { PDFDocument, type PDFImage } from "pdf-lib";
+import { PDFDocument, StandardFonts, type PDFImage } from "pdf-lib";
 import QRCode from "qrcode";
 import type { AssessmentPdfDraft } from "../types/assessmentPdf";
 import { canonicalAssessmentUrl } from "../types/assessmentPdf";
@@ -81,6 +81,7 @@ export const generateAssessmentPdf = async ({
   });
 
   const document = await PDFDocument.create();
+  const numberFont = await document.embedFont(StandardFonts.HelveticaBold);
   const logo = await embedImage(document, logoBytes);
   const titleImage = await embedImage(document, titleImageBytes);
   const qr = await document.embedPng(dataUrlToBytes(qrDataUrl));
@@ -137,6 +138,12 @@ export const generateAssessmentPdf = async ({
     for (const placement of plan.placements.filter(
       (candidate) => candidate.pageIndex === pageIndex
     )) {
+      page.drawText(`${placement.itemIndex + 1}.`, {
+        x: placement.left,
+        y: A4_PAGE_HEIGHT - placement.numberTop - 13,
+        size: 11,
+        font: numberFont,
+      });
       page.drawImage(images[placement.itemIndex], {
         x: placement.left,
         y: A4_PAGE_HEIGHT - placement.top - placement.height,

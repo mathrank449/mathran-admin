@@ -3,6 +3,7 @@ export const A4_PAGE_HEIGHT = 841.89;
 export const PDF_MARGIN = 32;
 export const PDF_HEADER_HEIGHT = 64;
 export const PDF_COLUMN_GAP = 16;
+export const PDF_PROBLEM_NUMBER_HEIGHT = 18;
 export const PDF_MAX_GAP = Math.floor(
   A4_PAGE_HEIGHT - PDF_MARGIN * 2 - PDF_HEADER_HEIGHT
 );
@@ -19,6 +20,7 @@ export interface PdfPlacement {
   column: number;
   left: number;
   top: number;
+  numberTop: number;
   width: number;
   height: number;
 }
@@ -64,14 +66,15 @@ export const planAssessmentPdf = (
     }
 
     const height = columnWidth / item.aspectRatio;
+    const occupiedHeight = PDF_PROBLEM_NUMBER_HEIGHT + height;
     const fullPageCapacity = A4_PAGE_HEIGHT - PDF_MARGIN * 2;
-    if (height > fullPageCapacity) {
+    if (occupiedHeight > fullPageCapacity) {
       throw new PdfLayoutError(
         `${item.itemIndex + 1}번 문제 이미지는 가로 폭을 유지한 채 A4 한 페이지에 들어가지 않습니다.`
       );
     }
 
-    while (top + height > A4_PAGE_HEIGHT - PDF_MARGIN) {
+    while (top + occupiedHeight > A4_PAGE_HEIGHT - PDF_MARGIN) {
       moveToNextColumnOrPage();
     }
 
@@ -80,11 +83,12 @@ export const planAssessmentPdf = (
       pageIndex: page,
       column,
       left: PDF_MARGIN + column * (columnWidth + PDF_COLUMN_GAP),
-      top,
+      top: top + PDF_PROBLEM_NUMBER_HEIGHT,
+      numberTop: top,
       width: columnWidth,
       height,
     });
-    top += height + Math.min(PDF_MAX_GAP, Math.max(0, item.gapAfter));
+    top += occupiedHeight + Math.min(PDF_MAX_GAP, Math.max(0, item.gapAfter));
   }
 
   return {

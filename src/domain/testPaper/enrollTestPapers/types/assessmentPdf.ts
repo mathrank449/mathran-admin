@@ -12,7 +12,7 @@ export interface AssessmentRegisterPayload {
     score: number;
   }[];
   minutes: number;
-  answerInputDelaySeconds: 900;
+  answerInputDelaySeconds: 0;
 }
 
 export interface AssessmentPdfDraft {
@@ -45,8 +45,8 @@ export const validateAssessmentPdfDraft = (
   if (draft.title.trim().length === 0) {
     return "문제집 제목을 입력해주세요.";
   }
-  if (!Number.isInteger(draft.minutes) || draft.minutes < 16 || draft.minutes > 600) {
-    return "시험 시간은 16분 이상 600분 이하로 입력해주세요.";
+  if (!Number.isInteger(draft.minutes) || draft.minutes < 1 || draft.minutes > 600) {
+    return "호환용 시험 시간 값이 올바르지 않습니다.";
   }
   if (draft.items.length === 0) {
     return "문항을 한 개 이상 선택해주세요.";
@@ -81,5 +81,5 @@ export const toAssessmentRegisterPayload = (
     score: item.score,
   })),
   minutes: draft.minutes,
-  answerInputDelaySeconds: 900,
+  answerInputDelaySeconds: 0,
 });

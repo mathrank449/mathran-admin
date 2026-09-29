@@ -6,6 +6,7 @@ import {
   PDF_COLUMN_GAP,
   PDF_HEADER_HEIGHT,
   PDF_MARGIN,
+  PDF_PROBLEM_NUMBER_HEIGHT,
   planAssessmentPdf,
 } from "../services/pdfLayoutPlanner";
 import { getProblemImageUrl } from "../services/problemImage";
@@ -165,19 +166,27 @@ export default function AssessmentPdfPreview({
                       } ${draggedIndex === placement.itemIndex ? "opacity-45" : ""}`}
                       style={{
                         left: placement.left * SCALE,
-                        top: placement.top * SCALE,
+                        top: placement.numberTop * SCALE,
                         width: placement.width * SCALE,
-                        height: placement.height * SCALE,
+                        height:
+                          (placement.height + PDF_PROBLEM_NUMBER_HEIGHT) * SCALE,
                       }}
                       aria-label={`${placement.itemIndex + 1}번 문항 선택 및 순서 이동`}
                     >
                       <img
                         src={getProblemImageUrl(item.problemImage)}
                         alt={`${placement.itemIndex + 1}번 문제`}
-                        className="h-full w-full pointer-events-none object-contain"
+                        className="pointer-events-none absolute bottom-0 left-0 w-full object-contain"
+                        style={{ height: placement.height * SCALE }}
                       />
-                      <span className="absolute -left-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-gray-900 px-1 text-[10px] font-bold text-white">
-                        {placement.itemIndex + 1}
+                      <span
+                        className="absolute left-0 top-0 text-left font-bold text-gray-900"
+                        style={{
+                          height: PDF_PROBLEM_NUMBER_HEIGHT * SCALE,
+                          fontSize: 11 * SCALE,
+                        }}
+                      >
+                        {placement.itemIndex + 1}.
                       </span>
                     </button>
                   );

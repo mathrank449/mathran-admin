@@ -21,11 +21,10 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
     setSelectedIndex,
     setTestPapersScore,
     setTestPapersGap,
+    setAllTestPapersGap,
     removeTestPaper,
     reorderTestPaper,
     rebalanceScores,
-    time,
-    setTime,
     title,
     setTitle,
     columnCount,
@@ -54,7 +53,8 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
 
   const makeDraft = (): AssessmentPdfDraft => ({
     title,
-    minutes: time,
+    // 운영 API의 기존 필수 필드와 호환하기 위한 값이다. 일반 시험지는 서버에서 무제한으로 처리한다.
+    minutes: 600,
     columnCount,
     items: testPapers,
   });
@@ -114,7 +114,7 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
 
       <div className="grid grid-cols-[560px_1fr] items-start gap-10">
         <section className="space-y-5 rounded-xl border border-gray-300 bg-white p-6">
-          <div className="grid grid-cols-[1fr_140px] gap-3">
+          <div className="grid grid-cols-[1fr_180px] gap-3">
             <label className="text-sm font-semibold text-gray-700">
               시험지 제목
               <input
@@ -125,20 +125,58 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
                 className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 font-normal outline-none focus:border-gray-700"
               />
             </label>
-            <label className="text-sm font-semibold text-gray-700">
-              제한 시간
-              <div className="mt-2 flex items-center rounded-lg border border-gray-300 px-3">
-                <input
-                  type="number"
-                  min={16}
-                  max={600}
-                  value={time}
-                  onChange={(event) => setTime(Number(event.target.value))}
-                  className="w-full py-3 text-right outline-none"
-                />
-                <span className="ml-2 text-sm text-gray-500">분</span>
+            <div className="text-sm font-semibold text-gray-700">
+              응시 시간
+              <div className="mt-2 rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-center font-bold text-gray-800">
+                제한 없음
               </div>
-            </label>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-800">전체 문항 간격</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  모든 문항에 같은 간격을 적용한 뒤 필요한 문항만 개별 조정할 수 있습니다.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                {[
+                  ["최소", 0],
+                  ["보통", 24],
+                  ["최대", PDF_MAX_GAP],
+                ].map(([label, gap]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setAllTestPapersGap(Number(gap))}
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <input
+                aria-label="전체 문항 간격"
+                type="range"
+                min={0}
+                max={PDF_MAX_GAP}
+                step={4}
+                value={testPapers[0]?.pdfGapAfter ?? 0}
+                onChange={(event) => setAllTestPapersGap(Number(event.target.value))}
+                className="w-full accent-gray-900"
+              />
+              <span className="w-16 text-right text-xs text-gray-600">
+                {testPapers.every(
+                  (item) => item.pdfGapAfter === testPapers[0]?.pdfGapAfter
+                )
+                  ? `${testPapers[0]?.pdfGapAfter ?? 0}pt`
+                  : "개별값"}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
@@ -259,7 +297,7 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
           <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
             총점 <strong>{testPapers.reduce((sum, item) => sum + item.score, 0)}점</strong>
             <span className="mx-2 text-gray-300">·</span>
-            답안 입력은 시험 시작 15분 후 활성화
+            시험 시작 즉시 답안 입력 가능 · 응시 시간 제한 없음
           </div>
 
           {message && (

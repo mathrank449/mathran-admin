@@ -14,8 +14,6 @@ export const verifyAuth = async ({
 
   await new Promise<void>((resolve, reject) => {
     let isDone = false; // 이미 처리 했는지 여부, 중복 실행 방지를 위한 플래그
-    let timerId: ReturnType<typeof setTimeout> | undefined;
-
     // 로그인 상태 구독
     const unsubscribeAuth = useAuthStore.subscribe(
       (state) => state.isLogin,
@@ -35,7 +33,7 @@ export const verifyAuth = async ({
       }
     );
 
-    timerId = setTimeout(() => {
+    const timerId = setTimeout(() => {
       // timeoutMs 안에 처리되지 못한 경우 timeout 에러
       if (isDone) return;
       isDone = true;
