@@ -1,105 +1,146 @@
 import { create } from "zustand";
-import type {
-  ProblemResponse,
-  ScoreProblemResponse,
-} from "../../../problem/types/problem";
+import type { AssessmentPdfProblem } from "../types/assessmentPdf";
+import { PDF_MAX_GAP } from "../services/pdfLayoutPlanner";
 
 type TestPapersStore = {
-  problems: ProblemResponse[][]; // 시험지별 문제 배열
-  testPapers: (ScoreProblemResponse | undefined)[]; // 시험지 배열
+  testPapers: AssessmentPdfProblem[];
   title: string;
   time: number;
   selectedIndex: number;
+  columnCount: 1 | 2;
+  createdAssessmentId: string | null;
 
   // setters
   setSelectedIndex: (index: number) => void;
   setTitle: (title: string) => void;
   setTime: (time: number) => void;
+  setColumnCount: (columnCount: 1 | 2) => void;
+  setCreatedAssessmentId: (assessmentId: string | null) => void;
 
-  // testPaper 조작
-  addTestPaper: () => void;
-  removeSelectedTestPaper: () => void;
-  clearSelectedTestPaper: () => void;
+  insertTestPapers: (problem: AssessmentPdfProblem) => void;
+  removeTestPaper: (index: number) => void;
+  reorderTestPaper: (fromIndex: number, toIndex: number) => void;
+  setTestPapersScore: (score: number) => void;
+  setTestPapersGap: (gapAfter: number) => void;
+  setAllTestPapersGap: (gapAfter: number) => void;
+  rebalanceScores: () => void;
+};
 
-  // 현재 선택된 시험지 문제 조작
-  insertProblems: (problem: ProblemResponse[]) => void; // selectedIndex의 시험지에 문제 리스트 삽입
-  clearProblems: () => void; // selectedIndex의 시험지에 문제 리스트 삽입
-  insertTestPapers: (problem: ScoreProblemResponse) => void; // selectedIndex의 시험지에 문제 삽입
-  setTestPapersScore: (socore: number) => void; // selectedIndex의 시험지에 문제 삽입
+const rebalance = (items: AssessmentPdfProblem[]) => {
+  if (items.length === 0) return items;
+  const quotient = Math.floor(100 / items.length);
+  return items.map((item, index) => ({
+    ...item,
+    score: quotient + (index < 100 % items.length ? 1 : 0),
+  }));
 };
 
 export const useTestPapersStore = create<TestPapersStore>((set) => ({
-  problems: [[]],
-  testPapers: [undefined],
+  testPapers: [],
   selectedIndex: 0,
   title: "",
   time: 20,
+  columnCount: 1,
+  createdAssessmentId: null,
 
-  setSelectedIndex: (index) => set({ selectedIndex: index }),
-  setTitle: (title) => set({ title }),
-  setTime: (time) => set({ time }),
-
-  addTestPaper: () =>
+  setSelectedIndex: (index) =>
     set((state) => ({
-      testPapers: [...state.testPapers, undefined],
-      problems: [...state.problems, []],
+      selectedIndex: Math.max(0, Math.min(index, state.testPapers.length - 1)),
     })),
-
-  removeSelectedTestPaper: () =>
-    set((state) => {
-      if (state.selectedIndex === 0) return state;
-      const newTestPapers = state.testPapers.filter(
-        (_, i) => i !== state.selectedIndex
-      );
-      const newProblems = state.problems.filter(
-        (_, i) => i !== state.selectedIndex
-      );
-      const newIndex = Math.max(0, state.selectedIndex - 1);
-      return {
-        testPapers: newTestPapers,
-        problems: newProblems,
-        selectedIndex: newIndex,
-      };
-    }),
-
-  clearSelectedTestPaper: () =>
-    set((state) => {
-      const newTestPapers = [...state.testPapers];
-      newTestPapers[state.selectedIndex] = undefined;
-      return { testPapers: newTestPapers };
-    }),
-
-  insertProblems: (problems) =>
-    set((state) => {
-      const newProblems = [...state.problems];
-      newProblems[state.selectedIndex] = problems;
-      return { problems: newProblems };
-    }),
-
-  clearProblems: () =>
-    set((state) => {
-      const newProblems = [...state.problems];
-      newProblems[state.selectedIndex] = [];
-      return { problems: newProblems };
-    }),
+  setTitle: (title) => set({ title, createdAssessmentId: null }),
+  setTime: (time) => set({ time, createdAssessmentId: null }),
+  setColumnCount: (columnCount) =>
+    set((state) => ({
+      columnCount,
+      testPapers: state.testPapers.map((problem) => ({ ...problem })),
+    })),
+  setCreatedAssessmentId: (createdAssessmentId) => set({ createdAssessmentId }),
 
   insertTestPapers: (problem) =>
     set((state) => {
-      const newTestPapers = [...state.testPapers];
-      newTestPapers[state.selectedIndex] = problem;
-      return { testPapers: newTestPapers };
+      if (
+        state.testPapers.length >= 50 ||
+        state.testPapers.some((item) => item.id === problem.id)
+      ) {
+        return state;
+      }
+      const testPapers = rebalance([...state.testPapers, problem]);
+      return {
+        testPapers,
+        selectedIndex: testPapers.length - 1,
+        createdAssessmentId: null,
+      };
+    }),
+
+  removeTestPaper: (index) =>
+    set((state) => {
+      if (index < 0 || index >= state.testPapers.length) return state;
+      const testPapers = rebalance(
+        state.testPapers.filter((_, itemIndex) => itemIndex !== index)
+      );
+      return {
+        testPapers,
+        selectedIndex: Math.max(0, Math.min(state.selectedIndex, testPapers.length - 1)),
+        createdAssessmentId: null,
+      };
+    }),
+
+  reorderTestPaper: (fromIndex, toIndex) =>
+    set((state) => {
+      if (
+        fromIndex === toIndex ||
+        fromIndex < 0 ||
+        toIndex < 0 ||
+        fromIndex >= state.testPapers.length ||
+        toIndex >= state.testPapers.length
+      ) {
+        return state;
+      }
+      const testPapers = [...state.testPapers];
+      const [moved] = testPapers.splice(fromIndex, 1);
+      testPapers.splice(toIndex, 0, moved);
+      return {
+        testPapers,
+        selectedIndex: toIndex,
+        createdAssessmentId: null,
+      };
     }),
 
   setTestPapersScore: (score) =>
     set((state) => {
-      const newTestPapers = [...state.testPapers];
-      const target = newTestPapers[state.selectedIndex];
+      const target = state.testPapers[state.selectedIndex];
+      if (!target) return state;
+      const testPapers = [...state.testPapers];
+      testPapers[state.selectedIndex] = { ...target, score };
+      return { testPapers, createdAssessmentId: null };
+    }),
 
-      if (!target) {
-        return state;
-      }
+  setTestPapersGap: (gapAfter) =>
+    set((state) => {
+      const target = state.testPapers[state.selectedIndex];
+      if (!target) return state;
+      const testPapers = [...state.testPapers];
+      testPapers[state.selectedIndex] = {
+        ...target,
+        pdfGapAfter: Math.max(0, gapAfter),
+      };
+      return { testPapers };
+    }),
 
-      target.score = score; // 여기서는 target이 항상 존재
-      return { testPapers: newTestPapers };
+  setAllTestPapersGap: (gapAfter) =>
+    set((state) => ({
+      testPapers: state.testPapers.map((item) => ({
+        ...item,
+        pdfGapAfter: Math.max(0, Math.min(PDF_MAX_GAP, gapAfter)),
+      })),
+    })),
+
+  rebalanceScores: () =>
+    set((state) => {
+      if (state.testPapers.length === 0) return state;
+      return {
+        testPapers: rebalance(state.testPapers),
+        createdAssessmentId: null,
+      };
     }),
 }));

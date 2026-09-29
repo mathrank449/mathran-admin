@@ -1,23 +1,24 @@
 import { AxiosError } from "axios";
 import instance from "../../../../shared/apis/instance";
+import {
+  type AssessmentPdfDraft,
+  parseAssessmentId,
+  toAssessmentRegisterPayload,
+} from "../types/assessmentPdf";
 
-export const enrollTestPapers = async (testPapers: {
-  title: string;
-  problems: {
-    problemId: string;
-    score: number;
-  }[];
-  time: number;
-}) => {
+export const enrollTestPapers = async (
+  draft: AssessmentPdfDraft
+): Promise<string> => {
   try {
-    await instance.post("/v1/problem/assessment", {
-      assessmentName: testPapers.title,
-      items: testPapers.problems,
-      minutes: testPapers.time,
-    });
+    const { data } = await instance.post<unknown>(
+      "/v1/problem/assessment",
+      toAssessmentRegisterPayload(draft)
+    );
+    return parseAssessmentId(data);
   } catch (e) {
     if (e instanceof AxiosError) {
-      throw Error(e.message);
+      throw new Error(e.response?.data?.message ?? e.message);
     }
+    throw e;
   }
 };

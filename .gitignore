@@ -29,3 +29,9 @@ dist-ssr
 coverage/
 # (TypeScript incremental build info)
 *.tsbuildinfo
+
+# Local PDF verification artifacts
+/tmp/
+/output/
+.vercel
+.env*
