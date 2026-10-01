@@ -7,6 +7,7 @@ import {
   toggleCourseSelection,
 } from "../src/domain/testPaper/enrollTestPapers/services/courseSelection";
 import { selectRandomProblems } from "../src/domain/testPaper/enrollTestPapers/services/randomProblemSelection";
+import { loadAllProblemPages } from "../src/domain/testPaper/enrollTestPapers/services/problemPagination";
 
 const problem = (
   id: string,
@@ -70,5 +71,40 @@ describe("difficulty random selection", () => {
     expect(() =>
       selectRandomProblems(candidates, { low: 3, middle: 0, high: 0 })
     ).toThrow(/3개가 필요하지만 2개/);
+  });
+
+  test("loads random candidates with the server-supported page size", async () => {
+    const calls: Array<{ page: number; pageSize: number }> = [];
+    const fetchPage = async (
+      _query: Parameters<typeof loadAllProblemPages>[0],
+      page: number,
+      pageSize: number
+    ) => {
+      calls.push({ page, pageSize });
+      return {
+        queryResults: [problem(String(page), "aaaa", "MID")],
+        currentPageNumber: page,
+        currentPageSize: pageSize,
+        possibleNextPageNumbers: page === 1 ? [2] : [],
+      };
+    };
+
+    const loaded = await loadAllProblemPages(
+      {
+        difficulty: "MID",
+        answerType: "",
+        coursePath: "",
+        location: "",
+        year: "",
+        pastProblem: "",
+      },
+      fetchPage
+    );
+
+    expect(calls).toEqual([
+      { page: 1, pageSize: 20 },
+      { page: 2, pageSize: 20 },
+    ]);
+    expect(loaded.map((item) => item.id)).toEqual(["1", "2"]);
   });
 });

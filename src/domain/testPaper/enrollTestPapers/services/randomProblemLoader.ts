@@ -5,6 +5,7 @@ import {
   selectedCourseRoots,
   type CourseSelectionRules,
 } from "./courseSelection";
+import { loadAllProblemPages } from "./problemPagination";
 import { randomSelectionDifficulties } from "./randomProblemSelection";
 
 export const loadRandomProblemCandidates = async (
@@ -16,14 +17,17 @@ export const loadRandomProblemCandidates = async (
   const pages = await Promise.all(
     randomSelectionDifficulties.flatMap((difficulty) =>
       paths.map((coursePath) =>
-        getProblemPageByQuery({ ...query, coursePath, difficulty }, 1, 100)
+        loadAllProblemPages(
+          { ...query, coursePath, difficulty },
+          getProblemPageByQuery
+        )
       )
     )
   );
   const merged = Array.from(
     new Map(
       pages
-        .flatMap((page) => page.queryResults)
+        .flatMap((problems) => problems)
         .map((problem) => [problem.id, problem])
     ).values()
   );
