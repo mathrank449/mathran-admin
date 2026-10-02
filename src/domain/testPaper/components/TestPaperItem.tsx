@@ -50,9 +50,9 @@ function TestPaperItem({
       <div className="inline-block align-middle w-[200px] text-center overflow-hidden truncate">
         <span
           className="text-sm text-black whitespace-nowrap"
-          title={String(testPaper.minutes)}
+          title="제한 없음"
         >
-          {testPaper.minutes}분
+          제한 없음
         </span>
       </div>
     </div>

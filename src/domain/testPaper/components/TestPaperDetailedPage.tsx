@@ -47,41 +47,6 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (!testPaper) return; // 아직 로딩 중이면 return
-    const timeLimitSeconds = testPaper.minutes * 60;
-
-    // 제한시간을 넘었고 아직 제출 결과가 없다면 자동 제출
-    if (elapsedTime >= timeLimitSeconds && !submissionResult) {
-      alert("제한 시간이 지나 현재 푼 부분까지 채점을 합니다.");
-      const autoSubmit = async () => {
-        try {
-          const submittedLogId = await submitTestPapersByTestPaperId(
-            testPaperId,
-            answers,
-            elapsedTime
-          );
-
-          const submissionLogDetailResponse =
-            await getSubmissionResultBySubmissionId(submittedLogId);
-
-          setElapsedTime(0);
-          setSubmissionResult(submissionLogDetailResponse);
-
-          const submissionLogsResponse = await getSubmissionLogsByAssessmentId(
-            String(testPaperId)
-          );
-
-          setSubmissionLogs(submissionLogsResponse);
-        } catch (e) {
-          console.error("자동 제출 실패:", e);
-        }
-      };
-
-      autoSubmit();
-    }
-  }, [elapsedTime]);
-
   const [answers, setAnswers] = useState<string[][]>([[""]]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [submissionLogs, setSubmissionLogs] = useState<SubmissionLogItem[]>([]);
@@ -269,9 +234,8 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
                 <div className="flex items-center gap-1">
                   <span className="text-sm">시간제한/</span>
                   <span className="focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md text-center mx-1">
-                    {testPaper.minutes}
+                    제한 없음
                   </span>
-                  <span className="text-sm">분</span>
                 </div>
               </div>
             </div>
