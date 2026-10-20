@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import UnitSelectionByGrade from "../../../problem/components/UnitSelectionByGrade";
 import type {
@@ -20,6 +20,7 @@ import {
 } from "../services/randomProblemSelection";
 import { loadRandomProblemCandidates } from "../services/randomProblemLoader";
 import EnrollTestPapersPageTwo from "./EnrollTestPapersPageTwo";
+import SelectedProblemsPanel from "./SelectedProblemsPanel";
 
 const difficultyOptions: { value: DifficultyType; label: string }[] = [
   { value: "", label: "전체 난이도" },
@@ -56,7 +57,6 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
   const [page, setPage] = useState(1);
   const [problems, setProblems] = useState<ProblemResponse[]>([]);
   const [selectingId, setSelectingId] = useState<string | null>(null);
-  const [showCourseFilter, setShowCourseFilter] = useState(false);
   const [selectionRules, setSelectionRules] = useState<CourseSelectionRules>({});
   const [appliedSelectionRules, setAppliedSelectionRules] =
     useState<CourseSelectionRules>({});
@@ -67,6 +67,8 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
   });
   const [isAutoSelecting, setIsAutoSelecting] = useState(false);
   const [autoSelectionMessage, setAutoSelectionMessage] = useState<string | null>(null);
+  const [recentlyAddedIds, setRecentlyAddedIds] = useState<Set<string>>(new Set());
+  const selectedPanelRef = useRef<HTMLDivElement>(null);
 
   const { data, isFetching, error } = useQuery({
     queryKey: [
@@ -174,7 +176,13 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
         }))
       );
       prepared.forEach(insertTestPapers);
-      setAutoSelectionMessage(`${prepared.length}개 문항을 무작위로 추가했습니다.`);
+      setRecentlyAddedIds(new Set(prepared.map((problem) => problem.id)));
+      setAutoSelectionMessage(
+        `${prepared.length}개 문항을 무작위로 추가했습니다. 아래 선택된 문항에서 확인하세요.`
+      );
+      requestAnimationFrame(() =>
+        selectedPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      );
     } catch (selectionError) {
       setAutoSelectionMessage(
         selectionError instanceof Error
@@ -202,13 +210,6 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
               조건을 바꾸면서 문제 이미지를 확인하고 여러 문항을 선택하세요.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowCourseFilter((visible) => !visible)}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
-          >
-            {showCourseFilter ? "단원 선택 닫기" : "단원 선택"}
-          </button>
         </div>
 
         <div className="mt-6 grid grid-cols-5 gap-3">
@@ -258,14 +259,13 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
           />
         </div>
 
-        {showCourseFilter && (
-          <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-5">
-            <UnitSelectionByGrade
-              selectionRules={selectionRules}
-              onSelectionRulesChange={setSelectionRules}
-            />
-          </div>
-        )}
+        <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-5">
+          <p className="mb-3 text-sm font-bold text-gray-900">단원 선택</p>
+          <UnitSelectionByGrade
+            selectionRules={selectionRules}
+            onSelectionRulesChange={setSelectionRules}
+          />
+        </div>
 
         <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-5">
           <div className="flex items-end justify-between gap-6">
@@ -314,6 +314,13 @@ function EnrollTestPapersOnePage({ onContinue }: { onContinue: () => void }) {
             <p className="mt-3 text-xs text-gray-700">{autoSelectionMessage}</p>
           )}
         </div>
+
+        <SelectedProblemsPanel
+          ref={selectedPanelRef}
+          problems={testPapers}
+          recentIds={recentlyAddedIds}
+          onRemove={removeTestPaper}
+        />
 
         <div className="mt-5 flex items-center justify-between border-t border-gray-200 pt-5">
           <p className="text-sm text-gray-600">
