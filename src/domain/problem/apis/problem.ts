@@ -20,6 +20,7 @@ export const getProblemPageByQuery = async (
     difficultyMinInclude: query.difficulty || undefined,
     difficultyMaxInclude: query.difficulty || undefined,
     answerType: query.answerType || undefined,
+    pastProblem: query.pastProblem || undefined,
     coursePath: query.coursePath || undefined,
     year: query.year || undefined,
     location: query.location || undefined,
