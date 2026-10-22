@@ -23,7 +23,7 @@ export type PastProblemType =
   | "NONE"
   | "HIGH_SCHOOL_1"
   | "HIGH_SCHOOL_2"
-  | "HIGH_SCHOOL_3 ";
+  | "HIGH_SCHOOL_3";
 
 export type Problem = {
   id?: string | null;

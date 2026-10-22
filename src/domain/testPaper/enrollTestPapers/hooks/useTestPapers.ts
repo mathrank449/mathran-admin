@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { AssessmentPdfProblem } from "../types/assessmentPdf";
 import { PDF_MAX_GAP } from "../services/pdfLayoutPlanner";
+import { distributeScores } from "../services/scoreDistribution";
 
 type TestPapersStore = {
   testPapers: AssessmentPdfProblem[];
@@ -26,14 +27,7 @@ type TestPapersStore = {
   rebalanceScores: () => void;
 };
 
-const rebalance = (items: AssessmentPdfProblem[]) => {
-  if (items.length === 0) return items;
-  const quotient = Math.floor(100 / items.length);
-  return items.map((item, index) => ({
-    ...item,
-    score: quotient + (index < 100 % items.length ? 1 : 0),
-  }));
-};
+const rebalance = (items: AssessmentPdfProblem[]) => distributeScores(items);
 
 export const useTestPapersStore = create<TestPapersStore>((set) => ({
   testPapers: [],

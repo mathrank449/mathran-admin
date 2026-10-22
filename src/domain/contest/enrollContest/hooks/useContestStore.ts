@@ -1,114 +1,94 @@
 import { create } from "zustand";
-import type {
-  ProblemResponse,
-  ScoreProblemResponse,
-} from "../../../problem/types/problem";
+import type { ScoreProblemResponse } from "../../../problem/types/problem";
+import { distributeScores } from "../../../testPaper/enrollTestPapers/services/scoreDistribution";
+import { CONTEST_MAX_PROBLEMS, defaultContestPeriod } from "../services/contestDraft";
 
 type ContestStore = {
-  problems: ProblemResponse[][]; // 경시대회별 선택가능한 문제 배열
-  contestProblems: (ScoreProblemResponse | undefined)[]; // 경시대회 문제 배열
+  contestProblems: ScoreProblemResponse[];
   title: string;
-  time: number;
-  startDate: string | undefined; // ISO 문자열
-  endDate: string | undefined; // ISO 문자열
-  selectedIndex: number;
-
-  // setters
+  minutes: number;
+  /** datetime-local 값 (YYYY-MM-DDTHH:mm) */
+  startAt: string;
+  endAt: string;
 
   setTitle: (title: string) => void;
-  setTime: (time: number) => void;
-  setStartDate: (date: string) => void;
-  setEndDate: (date: string) => void;
-  setSelectedIndex: (index: number) => void;
+  setMinutes: (minutes: number) => void;
+  setStartAt: (startAt: string) => void;
+  setEndAt: (endAt: string) => void;
 
-  // contest 조작
-  addContestProblem: () => void;
-  removeSelectedContestProblem: () => void;
-  clearSelectedContestProblem: () => void;
-
-  // 현재 선택된 대회 선택 가능한 문제 조작
-  insertProblems: (problem: ProblemResponse[]) => void; // selectedIndex의 경시대회에 문제 리스트 삽입
-  clearProblems: () => void; // selectedIndex의 경시대회에 문제 초기화
-  insertContestProblem: (problem: ScoreProblemResponse) => void; // selectedIndex의 경시대회에 문제 삽입
-  setContestProblemScore: (socore: number) => void; // selectedIndex의 경시대회에 문제 삽입
+  insertProblem: (problem: ScoreProblemResponse) => void;
+  removeProblem: (index: number) => void;
+  moveProblem: (fromIndex: number, toIndex: number) => void;
+  setProblemScore: (index: number, score: number) => void;
+  rebalanceScores: () => void;
+  reset: () => void;
 };
 
-export const useContestStore = create<ContestStore>((set) => ({
-  problems: [[]],
-  contestProblems: [undefined],
+const initialState = () => ({
+  contestProblems: [] as ScoreProblemResponse[],
   title: "",
-  time: 20,
-  startDate: undefined,
-  endDate: undefined,
-  selectedIndex: 0,
+  minutes: 60,
+  ...defaultContestPeriod(),
+});
+
+export const useContestStore = create<ContestStore>((set) => ({
+  ...initialState(),
 
   setTitle: (title) => set({ title }),
-  setTime: (time) => set({ time }),
-  setStartDate: (date) => set({ startDate: date }),
-  setEndDate: (date) => set({ endDate: date }),
-  setSelectedIndex: (index) => set({ selectedIndex: index }),
+  setMinutes: (minutes) => set({ minutes }),
+  setStartAt: (startAt) => set({ startAt }),
+  setEndAt: (endAt) => set({ endAt }),
 
-  addContestProblem: () =>
-    set((state) => ({
-      problems: [...state.problems, []],
-      contestProblems: [...state.contestProblems, undefined],
-    })),
-
-  removeSelectedContestProblem: () =>
+  insertProblem: (problem) =>
     set((state) => {
-      if (state.selectedIndex === 0) return state;
-      const newContestProblems = state.contestProblems.filter(
-        (_, i) => i !== state.selectedIndex
-      );
-      const newProblems = state.problems.filter(
-        (_, i) => i !== state.selectedIndex
-      );
-      const newIndex = Math.max(0, state.selectedIndex - 1);
+      if (
+        state.contestProblems.length >= CONTEST_MAX_PROBLEMS ||
+        state.contestProblems.some((item) => item.id === problem.id)
+      ) {
+        return state;
+      }
+      return { contestProblems: distributeScores([...state.contestProblems, problem]) };
+    }),
+
+  removeProblem: (index) =>
+    set((state) => {
+      if (index < 0 || index >= state.contestProblems.length) return state;
       return {
-        problems: newProblems,
-        contestProblems: newContestProblems,
-        selectedIndex: newIndex,
+        contestProblems: distributeScores(
+          state.contestProblems.filter((_, itemIndex) => itemIndex !== index)
+        ),
       };
     }),
 
-  clearSelectedContestProblem: () =>
+  moveProblem: (fromIndex, toIndex) =>
     set((state) => {
-      const newContestProblems = [...state.contestProblems];
-      newContestProblems[state.selectedIndex] = undefined;
-      return { contestProblems: newContestProblems };
-    }),
-
-  insertProblems: (problems) =>
-    set((state) => {
-      const newProblems = [...state.problems];
-      newProblems[state.selectedIndex] = problems;
-      return { problems: newProblems };
-    }),
-
-  clearProblems: () =>
-    set((state) => {
-      const newProblems = [...state.problems];
-      newProblems[state.selectedIndex] = [];
-      return { problems: newProblems };
-    }),
-
-  insertContestProblem: (problem) =>
-    set((state) => {
-      const newContestProblems = [...state.contestProblems];
-      newContestProblems[state.selectedIndex] = problem;
-      return { contestProblems: newContestProblems };
-    }),
-
-  setContestProblemScore: (score) =>
-    set((state) => {
-      const newContestProblems = [...state.contestProblems];
-      const target = newContestProblems[state.selectedIndex];
-
-      if (!target) {
+      const length = state.contestProblems.length;
+      if (
+        fromIndex === toIndex ||
+        fromIndex < 0 ||
+        toIndex < 0 ||
+        fromIndex >= length ||
+        toIndex >= length
+      ) {
         return state;
       }
-
-      target.score = score; // 여기서는 target이 항상 존재
-      return { contestProblems: newContestProblems };
+      const contestProblems = [...state.contestProblems];
+      const [moved] = contestProblems.splice(fromIndex, 1);
+      contestProblems.splice(toIndex, 0, moved);
+      return { contestProblems };
     }),
+
+  setProblemScore: (index, score) =>
+    set((state) => {
+      const target = state.contestProblems[index];
+      if (!target) return state;
+      const contestProblems = [...state.contestProblems];
+      contestProblems[index] = { ...target, score };
+      return { contestProblems };
+    }),
+
+  rebalanceScores: () =>
+    set((state) => ({ contestProblems: distributeScores(state.contestProblems) })),
+
+  reset: () => set(initialState()),
 }));
