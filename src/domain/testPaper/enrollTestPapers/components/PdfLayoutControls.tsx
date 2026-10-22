@@ -11,7 +11,7 @@ interface PdfLayoutControlsProps {
 }
 
 const segmentClassName = (active: boolean) =>
-  `rounded-md px-4 py-2 text-sm font-semibold ${
+  `whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold ${
     active ? "bg-gray-900 text-white" : "text-gray-600 hover:bg-gray-100"
   }`;
 
@@ -34,7 +34,7 @@ export default function PdfLayoutControls({
               모든 문항에 같은 간격을 적용한 뒤 필요한 문항만 개별 조정할 수 있습니다.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex shrink-0 gap-2">
             {[
               ["최소", 0],
               ["보통", 24],
@@ -44,7 +44,7 @@ export default function PdfLayoutControls({
                 key={label}
                 type="button"
                 onClick={() => onSetAllGap(Number(gap))}
-                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100"
+                className="whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100"
               >
                 {label}
               </button>
@@ -75,7 +75,7 @@ export default function PdfLayoutControls({
           <p className="text-sm font-semibold text-gray-800">페이지 구성</p>
           <p className="text-xs text-gray-500">2단은 왼쪽 열부터 자동 배치됩니다.</p>
         </div>
-        <div className="flex rounded-lg border border-gray-300 bg-white p-1">
+        <div className="flex shrink-0 rounded-lg border border-gray-300 bg-white p-1">
           {([1, 2] as const).map((count) => (
             <button
               key={count}
@@ -96,7 +96,7 @@ export default function PdfLayoutControls({
             칸을 나눠 고르게 배치하고, 넘치는 문항은 다음 장으로 넘깁니다.
           </p>
         </div>
-        <div className="flex rounded-lg border border-gray-300 bg-white p-1">
+        <div className="flex shrink-0 rounded-lg border border-gray-300 bg-white p-1">
           {([null, 4, 6] as const).map((count) => (
             <button
               key={count ?? "auto"}
