@@ -8,6 +8,7 @@ import {
   PDF_MARGIN,
   PDF_PROBLEM_NUMBER_HEIGHT,
   planAssessmentPdf,
+  type PdfMaxPerPage,
 } from "../services/pdfLayoutPlanner";
 import { getProblemImageUrl } from "../services/problemImage";
 
@@ -18,6 +19,10 @@ interface AssessmentPdfPreviewProps {
   title: string;
   items: AssessmentPdfProblem[];
   columnCount: 1 | 2;
+  maxPerPage: PdfMaxPerPage;
+  /** 시험지만 QR을 넣는다. 경시대회는 false */
+  showQr?: boolean;
+  titlePlaceholder?: string;
   selectedIndex: number;
   onSelectItem: (index: number) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
@@ -27,6 +32,9 @@ export default function AssessmentPdfPreview({
   title,
   items,
   columnCount,
+  maxPerPage,
+  showQr = true,
+  titlePlaceholder = "시험지 제목",
   selectedIndex,
   onSelectItem,
   onReorder,
@@ -38,7 +46,8 @@ export default function AssessmentPdfPreview({
       aspectRatio: item.imageAspectRatio,
       gapAfter: item.pdfGapAfter,
     })),
-    columnCount
+    columnCount,
+    maxPerPage
   );
 
   return (
@@ -50,7 +59,9 @@ export default function AssessmentPdfPreview({
             문항을 끌어 다른 문항 위에 놓으면 순서가 바뀝니다.
           </p>
         </div>
-        <span className="text-sm text-gray-500">{plan.pageCount}페이지 · {columnCount}단</span>
+        <span className="text-sm text-gray-500">{plan.pageCount}페이지 · {columnCount}단
+          {maxPerPage !== null && ` · 페이지당 최대 ${maxPerPage}문제`}
+        </span>
       </div>
 
       <div className="max-h-[1120px] overflow-y-auto pr-3">
@@ -87,19 +98,21 @@ export default function AssessmentPdfPreview({
                       fontSize: 14,
                     }}
                   >
-                    {title.trim() || "시험지 제목"}
+                    {title.trim() || titlePlaceholder}
                   </div>
-                  <div
-                    className="absolute grid place-items-center border border-gray-900 bg-white text-[9px] font-bold text-gray-700"
-                    style={{
-                      right: PDF_MARGIN * SCALE,
-                      top: PDF_MARGIN * SCALE,
-                      width: 48 * SCALE,
-                      height: 48 * SCALE,
-                    }}
-                  >
-                    QR
-                  </div>
+                  {showQr && (
+                    <div
+                      className="absolute grid place-items-center border border-gray-900 bg-white text-[9px] font-bold text-gray-700"
+                      style={{
+                        right: PDF_MARGIN * SCALE,
+                        top: PDF_MARGIN * SCALE,
+                        width: 48 * SCALE,
+                        height: 48 * SCALE,
+                      }}
+                    >
+                      QR
+                    </div>
+                  )}
                   <div
                     className="absolute bg-black"
                     style={{

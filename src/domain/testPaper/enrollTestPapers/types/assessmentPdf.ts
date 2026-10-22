@@ -1,4 +1,5 @@
 import type { ScoreProblemResponse } from "../../../problem/types/problem";
+import type { PdfMaxPerPage } from "../services/pdfLayoutPlanner";
 
 export interface AssessmentPdfProblem extends ScoreProblemResponse {
   pdfGapAfter: number;
@@ -19,6 +20,7 @@ export interface AssessmentPdfDraft {
   title: string;
   minutes: number;
   columnCount: 1 | 2;
+  maxPerPage: PdfMaxPerPage;
   items: AssessmentPdfProblem[];
 }
 

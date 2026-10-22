@@ -13,6 +13,7 @@ import {
 import type { AssessmentPdfDraft } from "../types/assessmentPdf";
 import { validateAssessmentPdfDraft } from "../types/assessmentPdf";
 import AssessmentPdfPreview from "./AssessmentPdfPreview";
+import PdfLayoutControls from "./PdfLayoutControls";
 
 function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
   const {
@@ -29,6 +30,8 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
     setTitle,
     columnCount,
     setColumnCount,
+    maxPerPage,
+    setMaxPerPage,
     createdAssessmentId,
     setCreatedAssessmentId,
   } = useTestPapersStore();
@@ -56,6 +59,7 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
     // 운영 API의 기존 필수 필드와 호환하기 위한 값이다. 일반 시험지는 서버에서 무제한으로 처리한다.
     minutes: 600,
     columnCount,
+    maxPerPage,
     items: testPapers,
   });
 
@@ -133,74 +137,14 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-800">전체 문항 간격</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  모든 문항에 같은 간격을 적용한 뒤 필요한 문항만 개별 조정할 수 있습니다.
-                </p>
-              </div>
-              <div className="flex gap-2">
-                {[
-                  ["최소", 0],
-                  ["보통", 24],
-                  ["최대", PDF_MAX_GAP],
-                ].map(([label, gap]) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => setAllTestPapersGap(Number(gap))}
-                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100"
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="mt-4 flex items-center gap-3">
-              <input
-                aria-label="전체 문항 간격"
-                type="range"
-                min={0}
-                max={PDF_MAX_GAP}
-                step={4}
-                value={testPapers[0]?.pdfGapAfter ?? 0}
-                onChange={(event) => setAllTestPapersGap(Number(event.target.value))}
-                className="w-full accent-gray-900"
-              />
-              <span className="w-16 text-right text-xs text-gray-600">
-                {testPapers.every(
-                  (item) => item.pdfGapAfter === testPapers[0]?.pdfGapAfter
-                )
-                  ? `${testPapers[0]?.pdfGapAfter ?? 0}pt`
-                  : "개별값"}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-            <div>
-              <p className="text-sm font-semibold text-gray-800">페이지 구성</p>
-              <p className="text-xs text-gray-500">2단은 왼쪽 열부터 자동 배치됩니다.</p>
-            </div>
-            <div className="flex rounded-lg border border-gray-300 bg-white p-1">
-              {([1, 2] as const).map((count) => (
-                <button
-                  key={count}
-                  type="button"
-                  onClick={() => setColumnCount(count)}
-                  className={`rounded-md px-5 py-2 text-sm font-semibold ${
-                    columnCount === count
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  {count}단
-                </button>
-              ))}
-            </div>
-          </div>
+          <PdfLayoutControls
+            items={testPapers}
+            onSetAllGap={setAllTestPapersGap}
+            columnCount={columnCount}
+            onColumnCount={setColumnCount}
+            maxPerPage={maxPerPage}
+            onMaxPerPage={setMaxPerPage}
+          />
 
           <div className="rounded-xl border border-gray-300">
             <div className="border-b border-gray-200 bg-gray-50 p-4">
@@ -329,6 +273,7 @@ function EnrollTestPapersPageThree({ onBack }: { onBack: () => void }) {
           title={title}
           items={testPapers}
           columnCount={columnCount}
+          maxPerPage={maxPerPage}
           selectedIndex={selectedIndex}
           onSelectItem={setSelectedIndex}
           onReorder={reorderTestPaper}

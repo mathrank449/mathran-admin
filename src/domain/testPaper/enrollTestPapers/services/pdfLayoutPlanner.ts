@@ -32,9 +32,13 @@ export interface PdfLayoutPlan {
 
 export class PdfLayoutError extends Error {}
 
+/** 한 페이지에 넣을 최대 문항 수. null이면 공간이 허락하는 만큼 채운다. */
+export type PdfMaxPerPage = null | 4 | 6;
+
 export const planAssessmentPdf = (
   items: PdfLayoutItem[],
-  columnCount: 1 | 2
+  columnCount: 1 | 2,
+  maxPerPage: PdfMaxPerPage = null
 ): PdfLayoutPlan => {
   const columnWidth =
     (A4_PAGE_WIDTH -
@@ -45,9 +49,19 @@ export const planAssessmentPdf = (
   let page = 0;
   let column = 0;
   let top = PDF_MARGIN + PDF_HEADER_HEIGHT;
+  let countInColumn = 0;
+  // 2단이면 페이지 문항 수를 두 열에 나눈다 (4문제 → 열마다 2문제).
+  const perColumn =
+    maxPerPage === null ? null : Math.ceil(maxPerPage / columnCount);
+  const columnBottom = A4_PAGE_HEIGHT - PDF_MARGIN;
 
   const pageTop = (pageIndex: number) =>
     pageIndex === 0 ? PDF_MARGIN + PDF_HEADER_HEIGHT : PDF_MARGIN;
+  // 문항 수를 정하면 열을 같은 높이의 칸으로 나눠 각 문항을 칸 맨 위에 놓는다.
+  const slotTop = (slot: number) =>
+    perColumn === null
+      ? pageTop(page)
+      : pageTop(page) + ((columnBottom - pageTop(page)) / perColumn) * slot;
   const moveToNextColumnOrPage = () => {
     if (columnCount === 2 && column === 0) {
       column = 1;
@@ -56,6 +70,7 @@ export const planAssessmentPdf = (
       column = 0;
     }
     top = pageTop(page);
+    countInColumn = 0;
   };
 
   for (const item of items) {
@@ -74,7 +89,11 @@ export const planAssessmentPdf = (
       );
     }
 
-    while (top + occupiedHeight > A4_PAGE_HEIGHT - PDF_MARGIN) {
+    if (perColumn !== null) {
+      if (countInColumn >= perColumn) moveToNextColumnOrPage();
+      top = Math.max(top, slotTop(countInColumn));
+    }
+    while (top + occupiedHeight > columnBottom) {
       moveToNextColumnOrPage();
     }
 
@@ -88,6 +107,7 @@ export const planAssessmentPdf = (
       width: columnWidth,
       height,
     });
+    countInColumn += 1;
     top += occupiedHeight + Math.min(PDF_MAX_GAP, Math.max(0, item.gapAfter));
   }
 

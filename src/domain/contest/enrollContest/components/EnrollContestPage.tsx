@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { ProblemResponse } from "../../../problem/types/problem";
 import ProblemPicker from "../../../testPaper/enrollTestPapers/components/ProblemPicker";
+import { loadImageAspectRatio } from "../../../testPaper/enrollTestPapers/services/problemImage";
 import { useContestStore } from "../hooks/useContestStore";
 import { CONTEST_MAX_PROBLEMS } from "../services/contestDraft";
 import EnrollContestInfoPage from "./EnrollContestInfoPage";
@@ -16,7 +17,15 @@ function EnrollContestPage() {
   }, [isEditingInfo]);
 
   const addProblems = async (problems: ProblemResponse[]) => {
-    problems.forEach((problem) => insertProblem({ ...problem, score: 0 }));
+    const prepared = await Promise.all(
+      problems.map(async (problem) => ({
+        ...problem,
+        score: 0,
+        pdfGapAfter: 16,
+        imageAspectRatio: await loadImageAspectRatio(problem.problemImage),
+      }))
+    );
+    prepared.forEach(insertProblem);
   };
 
   return (
@@ -42,7 +51,7 @@ function EnrollContestPage() {
               <div>
                 <p className="font-bold text-gray-900">선택 문항 {contestProblems.length}개</p>
                 <p className="mt-1 text-xs text-gray-500">
-                  다음 화면에서 대회 정보와 문항 순서·배점을 정합니다.
+                  다음 화면에서 대회 정보, 문항 순서·배점, PDF를 정합니다.
                 </p>
               </div>
               <button
@@ -51,7 +60,7 @@ function EnrollContestPage() {
                 disabled={contestProblems.length === 0}
                 className="rounded-lg bg-gray-900 px-7 py-3 font-bold text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300"
               >
-                선택 완료 · 대회 정보 입력
+                선택 완료 · 대회 정보·PDF 편집
               </button>
             </>
           }

@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import type { ScoreProblemResponse } from "../src/domain/problem/types/problem";
+import type { AssessmentPdfProblem } from "../src/domain/testPaper/enrollTestPapers/types/assessmentPdf";
 import { useContestStore } from "../src/domain/contest/enrollContest/hooks/useContestStore";
 
-const problem = (id: string) => ({ id, score: 0 } as ScoreProblemResponse);
+const problem = (id: string) =>
+  ({ id, score: 0, pdfGapAfter: 16, imageAspectRatio: 3 } as AssessmentPdfProblem);
 const store = () => useContestStore.getState();
 const ids = () => store().contestProblems.map((item) => item.id);
 const scores = () => store().contestProblems.map((item) => item.score);
@@ -49,5 +50,20 @@ describe("contest store", () => {
     expect(store().contestProblems).toEqual([]);
     expect(store().title).toBe("");
     expect(store().minutes).toBe(60);
+  });
+
+  test("content edits clear the registered flag, PDF layout edits keep it", () => {
+    ["1", "2"].forEach((id) => store().insertProblem(problem(id)));
+    store().setRegistered(true);
+
+    store().setAllProblemsGap(40);
+    store().setProblemGap(0, 80);
+    store().setColumnCount(2);
+    store().setMaxPerPage(4);
+    expect(store().registered).toBe(true);
+    expect(store().contestProblems.map((item) => item.pdfGapAfter)).toEqual([80, 40]);
+
+    store().setProblemScore(0, 60);
+    expect(store().registered).toBe(false);
   });
 });
