@@ -17,7 +17,8 @@ export interface AssessmentPdfImage {
 export interface GeneratedAssessmentPdf {
   bytes: Uint8Array;
   pageCount: number;
-  canonicalUrl: string;
+  /** QR에 담긴 주소. 경시대회처럼 QR을 넣지 않으면 null */
+  canonicalUrl: string | null;
 }
 
 const dataUrlToBytes = (dataUrl: string): Uint8Array => {
@@ -55,8 +56,9 @@ export const generateAssessmentPdf = async ({
   titleImageBytes,
   problemImages,
 }: {
-  draft: AssessmentPdfDraft;
-  assessmentId: string;
+  draft: Pick<AssessmentPdfDraft, "columnCount" | "maxPerPage" | "items">;
+  /** 시험지 ID. null이면 QR 없이 만든다 (경시대회는 앱 딥링크가 없다). */
+  assessmentId: string | null;
   logoBytes: Uint8Array;
   titleImageBytes: Uint8Array;
   problemImages: AssessmentPdfImage[];
@@ -71,20 +73,28 @@ export const generateAssessmentPdf = async ({
       aspectRatio: item.imageAspectRatio,
       gapAfter: item.pdfGapAfter,
     })),
-    draft.columnCount
+    draft.columnCount,
+    draft.maxPerPage
   );
-  const canonicalUrl = canonicalAssessmentUrl(assessmentId);
-  const qrDataUrl = await QRCode.toDataURL(canonicalUrl, {
-    margin: 0,
-    width: 256,
-    errorCorrectionLevel: "M",
-  });
+  const canonicalUrl =
+    assessmentId === null ? null : canonicalAssessmentUrl(assessmentId);
 
   const document = await PDFDocument.create();
   const numberFont = await document.embedFont(StandardFonts.HelveticaBold);
   const logo = await embedImage(document, logoBytes);
   const titleImage = await embedImage(document, titleImageBytes);
-  const qr = await document.embedPng(dataUrlToBytes(qrDataUrl));
+  const qr =
+    canonicalUrl === null
+      ? null
+      : await document.embedPng(
+          dataUrlToBytes(
+            await QRCode.toDataURL(canonicalUrl, {
+              margin: 0,
+              width: 256,
+              errorCorrectionLevel: "M",
+            })
+          )
+        );
   const images: PDFImage[] = [];
   for (const image of problemImages) {
     images.push(await embedImage(document, image.bytes));
@@ -99,12 +109,14 @@ export const generateAssessmentPdf = async ({
         width: 126,
         height: 36,
       });
-      page.drawImage(qr, {
-        x: A4_PAGE_WIDTH - PDF_MARGIN - 48,
-        y: A4_PAGE_HEIGHT - PDF_MARGIN - 48,
-        width: 48,
-        height: 48,
-      });
+      if (qr) {
+        page.drawImage(qr, {
+          x: A4_PAGE_WIDTH - PDF_MARGIN - 48,
+          y: A4_PAGE_HEIGHT - PDF_MARGIN - 48,
+          width: 48,
+          height: 48,
+        });
+      }
       page.drawImage(titleImage, {
         x: 172,
         y: A4_PAGE_HEIGHT - PDF_MARGIN - 34,

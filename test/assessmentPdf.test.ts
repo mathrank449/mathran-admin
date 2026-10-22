@@ -39,6 +39,7 @@ describe("assessment registration contract", () => {
       title: " 7월 실전 모의고사 ",
       minutes: 60,
       columnCount: 1,
+      maxPerPage: null,
       items: [problem("10", { score: 100 })],
     };
 
@@ -58,6 +59,7 @@ describe("assessment registration contract", () => {
       title: "시험지",
       minutes: 0,
       columnCount: 1,
+      maxPerPage: null,
       items: [problem("1", { score: 99 })],
     };
     expect(validateAssessmentPdfDraft(draft)).toContain("호환용");
@@ -112,6 +114,58 @@ describe("A4 layout planner", () => {
   });
 });
 
+describe("PDF problems per page", () => {
+  const short = (count: number, aspectRatio = 4) =>
+    Array.from({ length: count }, (_, itemIndex) => ({
+      itemIndex,
+      aspectRatio,
+      gapAfter: 0,
+    }));
+  const perPage = (plan: ReturnType<typeof planAssessmentPdf>) =>
+    Array.from(
+      { length: plan.pageCount },
+      (_, page) => plan.placements.filter((p) => p.pageIndex === page).length
+    );
+
+  test("puts at most 4 problems on a page and moves the rest to the next page", () => {
+    const plan = planAssessmentPdf(short(10), 1, 4);
+    expect(perPage(plan)).toEqual([4, 4, 2]);
+  });
+
+  test("splits the page limit across two columns", () => {
+    const plan = planAssessmentPdf(short(7), 2, 6);
+    expect(perPage(plan)).toEqual([6, 1]);
+    const firstPage = plan.placements.filter((p) => p.pageIndex === 0);
+    expect(firstPage.filter((p) => p.column === 0)).toHaveLength(3);
+    expect(firstPage.filter((p) => p.column === 1)).toHaveLength(3);
+  });
+
+  test("spreads problems over equal slots instead of packing them at the top", () => {
+    const plan = planAssessmentPdf(short(2), 1, 4);
+    const [first, second] = plan.placements;
+    const slotHeight = (841.89 - 32 - (32 + 64)) / 4;
+    expect(second.numberTop - first.numberTop).toBeCloseTo(slotHeight, 1);
+  });
+
+  test("tall problems still push to the next page before the limit", () => {
+    const tall = Array.from({ length: 4 }, (_, itemIndex) => ({
+      itemIndex,
+      aspectRatio: 1,
+      gapAfter: 0,
+    }));
+    const plan = planAssessmentPdf(tall, 1, 4);
+    expect(plan.pageCount).toBeGreaterThan(1);
+    expect(Math.max(...perPage(plan))).toBeLessThanOrEqual(4);
+  });
+
+  test("keeps the old packing when no limit is set", () => {
+    expect(planAssessmentPdf(short(10, 8), 1).pageCount).toBe(
+      planAssessmentPdf(short(10, 8), 1, null).pageCount
+    );
+    expect(perPage(planAssessmentPdf(short(10, 8), 1))[0]).toBeGreaterThan(4);
+  });
+});
+
 describe("assessment PDF editor state", () => {
   test("reorders selected problems and keeps the registered ID for layout-only edits", () => {
     useTestPapersStore.setState({
@@ -160,6 +214,7 @@ describe("browser PDF generator", () => {
       title: "PDF 시험지",
       minutes: 60,
       columnCount: 2,
+      maxPerPage: null,
       items: [problem("1"), problem("2")],
     };
     const generated = await generateAssessmentPdf({
@@ -181,5 +236,26 @@ describe("browser PDF generator", () => {
     if (verificationPath) {
       writeFileSync(verificationPath, generated.bytes);
     }
+  });
+
+  test("creates a contest PDF without a QR code", async () => {
+    const logoBytes = new Uint8Array(
+      readFileSync(resolve("public/mathrank_logo.png"))
+    );
+    const generated = await generateAssessmentPdf({
+      draft: {
+        columnCount: 1,
+        maxPerPage: 4,
+        items: [problem("1"), problem("2"), problem("3"), problem("4"), problem("5")],
+      },
+      assessmentId: null,
+      logoBytes,
+      titleImageBytes: logoBytes,
+      problemImages: Array.from({ length: 5 }, () => ({ bytes: logoBytes })),
+    });
+    const parsed = await PDFDocument.load(generated.bytes);
+
+    expect(generated.canonicalUrl).toBeNull();
+    expect(parsed.getPageCount()).toBe(2);
   });
 });

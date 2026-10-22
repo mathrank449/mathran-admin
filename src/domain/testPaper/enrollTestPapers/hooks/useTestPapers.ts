@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { AssessmentPdfProblem } from "../types/assessmentPdf";
-import { PDF_MAX_GAP } from "../services/pdfLayoutPlanner";
+import { PDF_MAX_GAP, type PdfMaxPerPage } from "../services/pdfLayoutPlanner";
 import { distributeScores } from "../services/scoreDistribution";
 
 type TestPapersStore = {
@@ -9,6 +9,7 @@ type TestPapersStore = {
   time: number;
   selectedIndex: number;
   columnCount: 1 | 2;
+  maxPerPage: PdfMaxPerPage;
   createdAssessmentId: string | null;
 
   // setters
@@ -16,6 +17,7 @@ type TestPapersStore = {
   setTitle: (title: string) => void;
   setTime: (time: number) => void;
   setColumnCount: (columnCount: 1 | 2) => void;
+  setMaxPerPage: (maxPerPage: PdfMaxPerPage) => void;
   setCreatedAssessmentId: (assessmentId: string | null) => void;
 
   insertTestPapers: (problem: AssessmentPdfProblem) => void;
@@ -35,6 +37,7 @@ export const useTestPapersStore = create<TestPapersStore>((set) => ({
   title: "",
   time: 20,
   columnCount: 1,
+  maxPerPage: null,
   createdAssessmentId: null,
 
   setSelectedIndex: (index) =>
@@ -48,6 +51,7 @@ export const useTestPapersStore = create<TestPapersStore>((set) => ({
       columnCount,
       testPapers: state.testPapers.map((problem) => ({ ...problem })),
     })),
+  setMaxPerPage: (maxPerPage) => set({ maxPerPage }),
   setCreatedAssessmentId: (createdAssessmentId) => set({ createdAssessmentId }),
 
   insertTestPapers: (problem) =>
