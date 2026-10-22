@@ -10,6 +10,7 @@ import {
   planAssessmentPdf,
   type PdfMaxPerPage,
 } from "../services/pdfLayoutPlanner";
+import { problemNumberLabel } from "../services/assessmentPdf";
 import { getProblemImageUrl } from "../services/problemImage";
 
 const PREVIEW_WIDTH = 500;
@@ -199,7 +200,7 @@ export default function AssessmentPdfPreview({
                           fontSize: 11 * SCALE,
                         }}
                       >
-                        {placement.itemIndex + 1}.
+                        {problemNumberLabel(placement.itemIndex)}
                       </span>
                     </button>
                   );

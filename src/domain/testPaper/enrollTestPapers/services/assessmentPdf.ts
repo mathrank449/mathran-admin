@@ -21,6 +21,9 @@ export interface GeneratedAssessmentPdf {
   canonicalUrl: string | null;
 }
 
+/** PDF·미리보기 문항 번호. 원장님 요청(10/22)으로 번호 뒤 점 없이 숫자만 쓴다. */
+export const problemNumberLabel = (itemIndex: number) => `${itemIndex + 1}`;
+
 const dataUrlToBytes = (dataUrl: string): Uint8Array => {
   const separator = dataUrl.indexOf(",");
   if (separator < 0) {
@@ -150,7 +153,7 @@ export const generateAssessmentPdf = async ({
     for (const placement of plan.placements.filter(
       (candidate) => candidate.pageIndex === pageIndex
     )) {
-      page.drawText(`${placement.itemIndex + 1}.`, {
+      page.drawText(problemNumberLabel(placement.itemIndex), {
         x: placement.left,
         y: A4_PAGE_HEIGHT - placement.numberTop - 13,
         size: 11,
