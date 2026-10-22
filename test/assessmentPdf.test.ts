@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PDFDocument } from "pdf-lib";
 import { describe, expect, test } from "vitest";
-import { generateAssessmentPdf } from "../src/domain/testPaper/enrollTestPapers/services/assessmentPdf";
+import { generateAssessmentPdf, problemNumberLabel } from "../src/domain/testPaper/enrollTestPapers/services/assessmentPdf";
 import { useTestPapersStore } from "../src/domain/testPaper/enrollTestPapers/hooks/useTestPapers";
 import {
   A4_PAGE_WIDTH,
@@ -111,6 +111,13 @@ describe("A4 layout planner", () => {
         1
       )
     ).toThrow(PdfLayoutError);
+  });
+});
+
+describe("PDF problem numbers", () => {
+  test("shows the number without a trailing dot", () => {
+    expect(problemNumberLabel(0)).toBe("1");
+    expect(problemNumberLabel(11)).toBe("12");
   });
 });
 
