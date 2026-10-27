@@ -413,6 +413,10 @@ function TestPaperDetailedPage({ testPaperId }: { testPaperId: string }) {
           <button
             onClick={async () => {
               try {
+                const confirmed = window.confirm(
+                  "문제집을 삭제하시겠습니까?\n삭제하면 응시 기록과 함께 복구할 수 없습니다."
+                );
+                if (!confirmed) return;
                 await deleteTestPaperById(testPaperId);
                 alert("문제집이 삭제되었습니다.");
                 navigate({ to: "/test-papers" });

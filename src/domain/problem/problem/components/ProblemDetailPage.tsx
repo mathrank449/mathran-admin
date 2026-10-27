@@ -295,6 +295,10 @@ function ProblemDetailPage({ problemId }: ProblemDetailPageProps) {
           <button
             onClick={async () => {
               try {
+                const confirmed = window.confirm(
+                  "문제를 삭제하시겠습니까?\n이 문제가 들어 있는 문제집도 함께 삭제되며 복구할 수 없습니다."
+                );
+                if (!confirmed) return;
                 await deleteProblemById(String(problemId));
                 alert("문제가 삭제되었습니다.");
                 navigate({ to: "/problems" });

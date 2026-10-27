@@ -474,6 +474,10 @@ function ContestDetailedPage({ contestId }: { contestId: string }) {
           <button
             onClick={async () => {
               try {
+                const confirmed = window.confirm(
+                  "경시대회를 삭제하시겠습니까?\n삭제하면 응시 기록과 함께 복구할 수 없습니다."
+                );
+                if (!confirmed) return;
                 await deleteContestById(contestId);
                 alert("경시대회가 삭제되었습니다.");
                 navigate({ to: "/contests" });
