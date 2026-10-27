@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { difficultyToKorean } from "../../utils/difficultyTransform";
-import ProblemPreviewPanel from "./ProblemPreviewPanel";
 import type { ProblemItemResponse } from "../types/problem";
 
 function ProblemItem({
@@ -10,13 +8,11 @@ function ProblemItem({
   problem: ProblemItemResponse;
   index: number;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  console.log(problem);
   return (
-    <>
     <div
-      onClick={() => setIsOpen((open) => !open)}
-      className={`w-[1650px] whitespace-nowrap py-3 border-solid border-[#DEDEDE] border-2 border-t-0 cursor-pointer hover:bg-blue-50 ${
-        isOpen ? "bg-blue-50" : index % 2 === 0 ? "bg-white " : " bg-gray-100"
+      className={`w-[1650px] whitespace-nowrap py-3 border-solid border-[#DEDEDE] border-2 border-t-0 ${
+        index % 2 === 0 ? "bg-white " : " bg-gray-100"
       }`}
     >
       <div className="inline-block align-middle w-[150px] text-center overflow-hidden truncate">
@@ -32,7 +28,6 @@ function ProblemItem({
           className="text-sm text-blue-500 whitespace-nowrap mr-4"
           title={String(problem.singleProblemName)}
           href={`/problems/${problem.id}`}
-          onClick={(e) => e.stopPropagation()}
         >
           {problem.singleProblemName}
         </a>
@@ -98,8 +93,6 @@ function ProblemItem({
         </span>
       </div>
     </div>
-    {isOpen && <ProblemPreviewPanel problem={problem} />}
-    </>
   );
 }
 
