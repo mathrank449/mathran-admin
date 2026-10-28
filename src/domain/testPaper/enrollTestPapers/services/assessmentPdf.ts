@@ -1,4 +1,11 @@
-import { PDFDocument, StandardFonts, type PDFImage } from "pdf-lib";
+import {
+  PDFBool,
+  PDFDocument,
+  PDFName,
+  PDFRawStream,
+  StandardFonts,
+  type PDFImage,
+} from "pdf-lib";
 import QRCode from "qrcode";
 import type { AssessmentPdfDraft } from "../types/assessmentPdf";
 import { canonicalAssessmentUrl } from "../types/assessmentPdf";
@@ -52,6 +59,15 @@ const embedImage = async (
   throw new Error("PDF는 PNG 또는 JPEG 문제 이미지만 지원합니다.");
 };
 
+// 뷰어가 이미지를 키워 그릴 때 픽셀을 그대로 늘리지 않고 부드럽게 보간하도록 표시한다.
+const enableInterpolation = async (document: PDFDocument, image: PDFImage) => {
+  await image.embed();
+  const stream = document.context.lookup(image.ref);
+  if (stream instanceof PDFRawStream) {
+    stream.dict.set(PDFName.of("Interpolate"), PDFBool.True);
+  }
+};
+
 export const generateAssessmentPdf = async ({
   draft,
   assessmentId,
@@ -100,7 +116,9 @@ export const generateAssessmentPdf = async ({
         );
   const images: PDFImage[] = [];
   for (const image of problemImages) {
-    images.push(await embedImage(document, image.bytes));
+    const embedded = await embedImage(document, image.bytes);
+    await enableInterpolation(document, embedded);
+    images.push(embedded);
   }
 
   for (let pageIndex = 0; pageIndex < plan.pageCount; pageIndex += 1) {

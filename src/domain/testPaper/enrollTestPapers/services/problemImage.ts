@@ -19,6 +19,41 @@ export const loadImageAspectRatio = (imageSource: string): Promise<number> =>
     image.src = getProblemImageUrl(imageSource);
   });
 
+// 문제은행에서 변환한 이미지는 회색 가장자리 없이 흑백 두 색으로만 되어 있어,
+// PDF 뷰어가 크게 그리거나 인쇄하면 글자가 계단처럼 깨진다.
+// 흰 바탕 위에 2배로 부드럽게 키워 가장자리 중간색을 만든 뒤 PDF에 넣는다.
+const PRINT_SCALE = 2;
+const MAX_PRINT_WIDTH = 3000;
+
+const smoothForPrint = async (bytes: Uint8Array): Promise<Uint8Array> => {
+  const bitmap = await createImageBitmap(new Blob([bytes]));
+  const scale = Math.min(PRINT_SCALE, MAX_PRINT_WIDTH / bitmap.width);
+  if (scale <= 1) {
+    bitmap.close();
+    return bytes;
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const context = canvas.getContext("2d");
+  if (!context) {
+    bitmap.close();
+    return bytes;
+  }
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/png")
+  );
+  return blob ? new Uint8Array(await blob.arrayBuffer()) : bytes;
+};
+
+// PDF에 넣을 문제 이미지를 받는다. 인쇄용으로 부드럽게 키운 PNG를 돌려준다.
 export const downloadProblemImage = async (
   imageSource: string
 ): Promise<Uint8Array> => {
@@ -26,7 +61,7 @@ export const downloadProblemImage = async (
     params: { imageSource },
     responseType: "arraybuffer",
   });
-  return new Uint8Array(response.data);
+  return smoothForPrint(new Uint8Array(response.data));
 };
 
 export const downloadMathRankLogo = async (): Promise<Uint8Array> => {
