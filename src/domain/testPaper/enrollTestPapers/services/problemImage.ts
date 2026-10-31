@@ -25,10 +25,18 @@ export const loadImageAspectRatio = (imageSource: string): Promise<number> =>
 const PRINT_SCALE = 2;
 const MAX_PRINT_WIDTH = 3000;
 
+const isPngOrJpeg = (bytes: Uint8Array) =>
+  (bytes[0] === 0x89 && bytes[1] === 0x50) ||
+  (bytes[0] === 0xff && bytes[1] === 0xd8);
+
 const smoothForPrint = async (bytes: Uint8Array): Promise<Uint8Array> => {
   const bitmap = await createImageBitmap(new Blob([bytes]));
-  const scale = Math.min(PRINT_SCALE, MAX_PRINT_WIDTH / bitmap.width);
-  if (scale <= 1) {
+  // PDF는 PNG·JPEG만 넣을 수 있어 GIF 등은 확대할 필요가 없어도 PNG로 다시 그린다.
+  const scale = Math.max(
+    1,
+    Math.min(PRINT_SCALE, MAX_PRINT_WIDTH / bitmap.width)
+  );
+  if (scale === 1 && isPngOrJpeg(bytes)) {
     bitmap.close();
     return bytes;
   }
